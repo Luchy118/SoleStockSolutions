@@ -1,0 +1,112 @@
+﻿@model SoleStockSolutions.Models.Usuarios
+
+@{
+    ViewBag.Title = "Crear una cuenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start SignUp  -->
+<div class="signup-box-main" id="testswal">
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-12 col-lg-12 mb-3" bis_skin_checked="1" style="display: flex; flex-direction: column; align-items: center;">
+                <div class="signup-aux-container">
+                    <div class="title-left" bis_skin_checked="1">
+                        <h3 style="text-align: center">Registrarse</h3>
+                    </div>
+                    @using (Html.BeginForm("", "", FormMethod.Post, new { @class = "mt-3 review-form-box collapse show", id = "signupForm" }))
+                    {
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(m => m.nombre, "Nombre *", new { @class = "mb-0" })
+                                @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", @id = "inputName", placeholder = "Introduce aquí tu nombre", required = "required" })
+                            </div>
+                            <div class="form-group col-md-6">
+                                @Html.LabelFor(m => m.apellidos, "Apellidos *", new { @class = "mb-0" })
+                                @Html.TextBoxFor(m => m.apellidos, new { @class = "form-control", @id = "inputSurname", placeholder = "Introduce aquí tus apellidos", required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12" bis_skin_checked="1">
+                                @Html.LabelFor(m => m.email, "Correo electrónico *", new { @class = "mb-0" })
+                                @Html.TextBoxFor(m => m.email, new { @class = "form-control", @id = "inputEmail", placeholder = "Introduce aquí tu correo electrónico", required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12" bis_skin_checked="1">
+                                @Html.LabelFor(m => m.contrasenia, "Contraseña *", new { @class = "mb-0" })
+                                @Html.PasswordFor(m => m.contrasenia, new { @class = "form-control", @id = "inputPassword", placeholder = "Introduce aquí una contraseña", required = "required" })
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12" bis_skin_checked="1">
+                                <label for="inputRepeatPassword" class="mb-0">Confirmar Contraseña *</label>
+                                <input type="password" class="form-control" id="inputRepeatPassword" placeholder="Repite aquí la contraseña indicada" required="required">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group col-md-12" style="margin-bottom: 0" bis_skin_checked="1">
+                                <button type="submit" class="btn hvr-hover">CREAR CUENTA</button>
+                            </div>
+                        </div>
+                        <div class="form-row" style="margin-right: 0px; margin-left: 0px;">
+                            <div class="form-group col-md-12" bis_skin_checked="1">
+                                <div class="mt-3" style="text-align: left;">
+                                    <a id="refLogin" href="@Url.Action("Login", "Account")" style="text-decoration: underline !important; text-underline-offset: 3px;">¿Ya tienes una cuenta? Inicia sesión</a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End SignUp -->
+
+@section scripts{
+    <script>
+        $(function () {
+            $("#signupForm").on("submit", function (e) {
+                e.preventDefault();
+
+                let passVal = $("#signupForm #inputPassword").val();
+                let rpPassVal = $("#signupForm #inputRepeatPassword").val();
+
+                const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,}$/;
+                if (!passwordRegex.test(passVal)) {
+                    popups.showErrorTimer("La contraseña debe tener al menos 8 caracteres y contener 1 mayúscula, 1 minúscula y 1 símbolo.");
+                    return;
+                }
+                
+                if (rpPassVal != passVal) {
+                    popups.showErrorTimer("Las contraseñas no coinciden.");
+                    return;
+                }
+
+                var form = $(this);
+                var url = "@Url.Action("ValidateSignUp", "Account").ToLower()";
+
+                $.ajax({
+                    type: form.attr("method"),
+                    url: url,
+                    data: form.serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            popups.showSuccessTimer("Registro exitoso", response.message);
+                            setTimeout(function() {
+                                window.location.href = "@Url.Action("Login", "Account")";
+                            }, 3000);
+                        } else {
+                            popups.showErrorTimer(response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Error en SignUp AJAX: " + error);
+                        popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo.");
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,83 @@
+﻿@{
+    ViewBag.Title = "Contacto";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start All Title Box -->
+<div class="all-title-box rm-select-styles">
+    <div class="aux-title-box">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>CONTACTA CON NOSOTROS</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
+                        <li class="breadcrumb-item active"> CONTACTO </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Title Box -->
+
+<!-- Start Contact  -->
+<div class="contact-box-main">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-4 col-sm-12">
+                <div class="contact-info-left">
+                    <h2>INFORMACIÓN DE CONTACTO</h2>
+                    <p>Si tienes alguna pregunta o necesitas más información, no dudes en ponerte en contacto con nosotros. Estamos aquí para ayudarte y responder a todas tus consultas.</p>
+                    <ul>
+                        <li>
+                            <p><i class="fas fa-phone-square"></i>Teléfono: <a href="tel:+00-000000000">+00 000 000 000</a></p>
+                        </li>
+                        <li>
+                            <p><i class="fas fa-envelope"></i>Email: <a href="mailto:solestocksolutions@gmail.com">solestocksolutions@gmail.com</a></p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-8 col-sm-12">
+                <div class="contact-form-right">
+                    <h2>ENVÍANOS UN MENSAJE</h2>
+                    <p>Rellene el formulario para enviarnos un mensaje. Responderemos en un plazo de 24 a 72 horas.</p>
+                    <form id="contactForm">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="name" name="name" placeholder="Nombre y apellidos" required data-error="Por favor, introduzca su nombre completo">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <input type="text" placeholder="Tu correo electrónico" id="email" class="form-control" name="name" required data-error="Por favor, introduzca su correo electrónico">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <input type="text" class="form-control" id="subject" name="name" placeholder="Asunto" required data-error="Por favor, introduzca el asunto del mensaje">
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <textarea class="form-control" id="message" placeholder="Tu mensaje" rows="4" data-error="Por favor, introduzca el mensaje" required></textarea>
+                                    <div class="help-block with-errors"></div>
+                                </div>
+                                <div class="submit-button text-center">
+                                    <button class="btn hvr-hover" id="submit" type="submit">ENVIAR</button>
+                                    <div class="clearfix"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Contact -->

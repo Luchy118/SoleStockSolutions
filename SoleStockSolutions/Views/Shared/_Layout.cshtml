@@ -1,0 +1,279 @@
+﻿@{ 
+    var version = DateTime.Now.Ticks;
+}
+<!DOCTYPE html>
+<html lang="en">
+<!-- Basic -->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    <!-- Mobile Metas -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Site Metas -->
+    <title>@ViewBag.Title</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Site Icons -->
+    <link rel="shortcut icon" href="~/Assets/images/favicon.ico" type="image/x-icon">
+    <link rel="apple-touch-icon" href="~/Assets/images/apple-touch-icon.png">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/Assets/css/bootstrap.min.css">
+    <!-- Site CSS -->
+    <link rel="stylesheet" href="~/Assets/css/style.css">
+    <!-- Responsive CSS -->
+    <link rel="stylesheet" href="~/Assets/css/responsive.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="~/Assets/css/custom.css">
+    <!-- FontAwesome CSS -->
+    <link rel="stylesheet" href="~/Content/font-awesome.css">
+
+    @RenderSection("Styles", required: false)
+</head>
+<body>
+    <!-- Start Main Top -->
+    <header class="main-header">
+        <!-- Start Navigation -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-default bootsnav">
+            <div class="container">
+                <!-- Start Header Navigation -->
+                <div class="navbar-header">
+                    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-menu" aria-controls="navbars-rs-food" aria-expanded="false" aria-label="Toggle navigation">
+                        <i class="fa fa-bars"></i>
+                    </button>
+                    <a class="navbar-brand" href="@Url.Action("Index", "Home")"><img src="~/Assets/images/logo.png" class="logo img-fluid" alt="Sole Stock Solutions" style="height: 100px"></a>
+                </div>
+                <!-- End Header Navigation -->
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="navbar-menu" style="flex-grow: unset">
+                    <ul class="nav navbar-nav ml-auto" data-in="fadeInDown" data-out="fadeOutUp">
+                        <li class="dropdown megamenu-fw @(ViewBag.CurrentAction == "Products" ? "active" : "")">
+                            <div class="d-lg-none" style="display: flex; justify-content: space-between;">
+                                <a class="nav-link" href="@Url.Action("Index", "Products")">CATÁLOGO</a>
+                                <a class="nav-link dropdown-toggle arrow" style="font-size: 16px; color: #010101;" data-toggle="dropdown"></a>
+                            </div>
+                            <a href="@Url.Action("Index", "Products")" class="d-none d-lg-block nav-link">CATÁLOGO</a>
+                            <ul class="dropdown-menu megamenu-content" role="menu">
+                                <li>
+                                    <div class="row" style="justify-content: center">
+                                        <div class="col-menu col-md-2">
+                                            <h6 class="title">Destacados</h6>
+                                            <div class="content">
+                                                <ul class="menu-col">
+                                                    <li><a href="shop.html">Jackets</a></li>
+                                                    <li><a href="shop.html">Shirts</a></li>
+                                                    <li><a href="shop.html">Sweaters & Cardigans</a></li>
+                                                    <li><a href="shop.html">T-shirts</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <!-- end col-2 -->
+                                        <div class="col-menu col-md-2">
+                                            <h6 class="title">Air Jordan</h6>
+                                            <div class="content">
+                                                <ul class="menu-col">
+                                                    <li><a href="shop.html">Swimwear</a></li>
+                                                    <li><a href="shop.html">Skirts</a></li>
+                                                    <li><a href="shop.html">Jeans</a></li>
+                                                    <li><a href="shop.html">Trousers</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <!-- end col-2 -->
+                                        <div class="col-menu col-md-2">
+                                            <h6 class="title">Nike</h6>
+                                            <div class="content">
+                                                <ul class="menu-col">
+                                                    <li><a href="shop.html">Top Wear</a></li>
+                                                    <li><a href="shop.html">Party wear</a></li>
+                                                    <li><a href="shop.html">Bottom Wear</a></li>
+                                                    <li><a href="shop.html">Indian Wear</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <div class="col-menu col-md-2">
+                                            <h6 class="title">Adidas</h6>
+                                            <div class="content">
+                                                <ul class="menu-col">
+                                                    <li><a href="shop.html">Bags</a></li>
+                                                    <li><a href="shop.html">Sunglasses</a></li>
+                                                    <li><a href="shop.html">Fragrances</a></li>
+                                                    <li><a href="shop.html">Wallets</a></li>
+                                                    <li><a href="shop.html">Wallets</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <!-- end col-2 -->
+                                        <div class="col-menu col-md-2">
+                                            <h6 class="title">Otros</h6>
+                                            <div class="content">
+                                                <ul class="menu-col">
+                                                    <li><a href="shop.html">Bags</a></li>
+                                                    <li><a href="shop.html">Sunglasses</a></li>
+                                                    <li><a href="shop.html">Fragrances</a></li>
+                                                    <li><a href="shop.html">Wallets</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        <!-- end col-2 -->
+                                    </div>
+                                    <!-- end row -->
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item @(ViewBag.CurrentAction == "Service" ? "active" : "")"><a class="nav-link" href="@Url.Action("Service", "Information")">NUESTRO SERVICIO</a></li>
+                        <li class="nav-item @(ViewBag.CurrentAction == "About" ? "active" : "")"><a class="nav-link" href="@Url.Action("About", "Information")">SOBRE NOSOTROS</a></li>
+                        <li class="nav-item @(ViewBag.CurrentAction == "Contact" ? "active" : "")"><a class="nav-link" href="@Url.Action("Contact", "Information")">CONTACTO</a></li>
+                    </ul>
+                </div>
+                <!-- /.navbar-collapse -->
+                <!-- Start Atribute Navigation -->
+                <div class="attr-nav">
+                    <ul>
+                        <li class="search"><a href="#"><i class="fa fa-search"></i></a></li>
+                        @{
+                            List<string> accountPages = new List<string> { "LogIn", "SignUp", "AccountIndex" };
+                            var user = Session["user"];
+                            var redirectUrlAccount = user != null ? Url.Action("Index", "Account") : @Url.Action("Login", "Account");
+                            var redirectUrlWishlist = user != null ? Url.Action("Wishlist", "Account") : @Url.Action("Login", "Account");
+                        }
+                        <li><a href="@redirectUrlAccount"><i class="fa fa-user" style="@(accountPages.Contains(ViewBag.CurrentAction) ? "color: #b68a7b" : "")"></i></a></li>
+                        <li><a href="@redirectUrlWishlist"><i class="fas fa-heart" style="@(ViewBag.CurrentAction == "Wishlist" ? "color: #b68a7b" : "")"></i></a></li>
+                        <li class="side-menu">
+                            <a href="">
+                                <i class="fa fa-shopping-cart" style="@(ViewBag.CurrentAction == "Cart" ? "color: #b68a7b" : "")"></i>
+                                <span class="badge" style="@(ViewBag.CurrentAction == "Cart" ? "color: #b68a7b" : "")">3</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- End Atribute Navigation -->
+            </div>
+            <!-- Start Side Menu -->
+            <div class="side">
+                <a href="#" class="close-side"><i class="fa fa-times"></i></a>
+                <li class="cart-box">
+                    <ul class="cart-list">
+                        <li>
+                            <a href="#" class="photo"><img src="~/Assets/images/img-pro-01.jpg" class="cart-thumb" alt="" /></a>
+                            <h6><a href="#">Delica omtantur </a></h6>
+                            <p>1x - <span class="price">$80.00</span></p>
+                        </li>
+                        <li>
+                            <a href="#" class="photo"><img src="~/Assets/images/img-pro-02.jpg" class="cart-thumb" alt="" /></a>
+                            <h6><a href="#">Omnes ocurreret</a></h6>
+                            <p>1x - <span class="price">$60.00</span></p>
+                        </li>
+                        <li>
+                            <a href="#" class="photo"><img src="~/Assets/images/img-pro-03.jpg" class="cart-thumb" alt="" /></a>
+                            <h6><a href="#">Agam facilisis</a></h6>
+                            <p>1x - <span class="price">$40.00</span></p>
+                        </li>
+                        <li class="total">
+                            <a href="@Url.Action("Cart", "Checkout")" class="btn btn-default hvr-hover btn-cart">VER CARRITO</a>
+                            <span class="float-right"><strong>Total</strong>: $180.00</span>
+                        </li>
+                    </ul>
+                </li>
+            </div>
+            <!-- End Side Menu -->
+        </nav>
+        <!-- End Navigation -->
+    </header>
+    <!-- End Main Top -->
+    <!-- Start Top Search -->
+    <div class="top-search">
+        <div class="container">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                <input type="text" class="form-control" placeholder="Search">
+                <span class="input-group-addon close-search"><i class="fa fa-times"></i></span>
+            </div>
+        </div>
+    </div>
+    <!-- End Top Search -->
+
+    @RenderBody()
+
+    <!-- Start Footer  -->
+    <footer>
+        <div class="footer-main">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-4 col-md-12 col-sm-12">
+                        <div class="footer-widget">
+                            <h4>Sobre Sole Stock Solutions</h4>
+                            <p>
+                                Sole Stock Solutions es un marketplace de reventa de zapatillas exclusivas que también ofrece un servicio de gestión de inventario, ventas y pedidos. Nos dedicamos a proporcionar una plataforma segura y eficiente para que los entusiastas de las zapatillas puedan comprar y vender productos de alta calidad a precios muy competentes.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 col-sm-12">
+                        <div class="footer-link">
+                            <h4>Información</h4>
+                            <ul>
+                                <li><a href="@Url.Action("About", "Information")">Sobre nosotros</a></li>
+                                <li><a href="@Url.Action("Contact", "Information")">Atención al cliente</a></li>
+                                <li><a href="#">Términos y condiciones</a></li>
+                                <li><a href="#">Política de privacidad</a></li>
+                                <li><a href="#">Información de envíos</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12 col-sm-12">
+                        <div class="footer-link-contact">
+                            <h4>Contacta con nosotros</h4>
+                            <ul>
+                                <li>
+                                    <p><i class="fas fa-phone-square"></i>Teléfono: <a href="tel:+00-000000000">+00 000 000 000</a></p>
+                                </li>
+                                <li>
+                                    <p><i class="fas fa-envelope"></i>Email: <a href="mailto:solestocksolutions@gmail.com">solestocksolutions@gmail.com</a></p>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer  -->
+    <!-- Start copyright  -->
+    <div class="footer-copyright">
+        <p class="footer-company">
+            &copy; 2024 <a href="#">Sole Stock Solutions</a>
+        </p>
+    </div>
+    <!-- End copyright  -->
+
+    <a href="#" id="back-to-top" title="Back to top" style="display: none;">&uarr;</a>
+
+    <!-- ALL JS FILES -->
+    <script src="~/Assets/js/jquery-3.7.1.min.js"></script>
+    <script src="~/Assets/js/jquery-ui.js"></script>
+    <script src="~/Assets/js/popper.min.js"></script>
+    <script src="~/Assets/js/bootstrap.min.js"></script>
+
+    <!-- ALL PLUGINS -->
+    <script src="~/Assets/js/jquery.superslides.min.js"></script>
+    <script src="~/Assets/js/bootstrap-select.js"></script>
+    <script src="~/Assets/js/inewsticker.js"></script>
+    <script src="~/Assets/js/bootsnav.js"></script>
+    <script src="~/Assets/js/images-loded.min.js"></script>
+    <script src="~/Assets/js/isotope.min.js"></script>
+    <script src="~/Assets/js/owl.carousel.min.js"></script>
+    <script src="~/Assets/js/baguetteBox.min.js"></script>
+    <script src="~/Assets/js/form-validator.min.js"></script>
+    <script src="~/Assets/js/contact-form-script.js"></script>
+    <script src="~/Assets/js/custom.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="~/Assets/js/jsgeneral.js"></script>
+
+    @RenderSection("scripts", required: false)
+</body>
+</html>

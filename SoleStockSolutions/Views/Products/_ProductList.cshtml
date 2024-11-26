@@ -1,0 +1,43 @@
+﻿@model IEnumerable<SoleStockSolutions.Models.Inventario>
+@{
+    var db = new SoleStockSolutions.Models.TFCEntities();
+}
+
+@if (!Model.Any())
+{
+    <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" style="display: flex; justify-content: center">
+        <h3>No se encontraron productos bajo los filtros seleccionados.</h3>
+    </div>
+}
+else
+{
+    foreach (var product in Model)
+    {
+        var regProducto = db.Productos.Where(x => x.id_producto == product.id_producto).FirstOrDefault();
+        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4 product-item">
+            <div class="products-single fix">
+                <div class="box-img-hover">
+                    @if (regProducto.fecha_lanzamiento > DateTime.Now.AddDays(-14))
+                    {
+                        <div class="type-lb">
+                            <p class="sale">Nuevo</p>
+                        </div>
+                    }
+                    <a href="@Url.Action("ProductDetails", new { productName = regProducto.nombre.Replace(" ", "-").Replace("(", "").Replace(")", "") })">
+                        <img src="@regProducto.imagen" style="height: 190px" class="img-fluid" alt="Image">
+                    </a>
+                    <div class="mask-icon">
+                        <ul>
+                            <li><a href="#" title="Añadir a favoritos"><i class="far fa-heart"></i></a></li>
+                        </ul>
+                        <a class="cart" href="#">Añadir al carrito</a>
+                    </div>
+                </div>
+                <div class="why-text">
+                    <h4>@regProducto.nombre</h4>
+                    <h5>@Convert.ToUInt32(product.precio)€</h5>
+                </div>
+            </div>
+        </div>
+    }
+}

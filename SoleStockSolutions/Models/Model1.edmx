@@ -1,0 +1,1142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="TFCModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Categorías_Estados">
+          <Key>
+            <PropertyRef Name="id_categoria_estado" />
+          </Key>
+          <Property Name="id_categoria_estado" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="nombre_categoria" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Colores">
+          <Key>
+            <PropertyRef Name="id_color" />
+          </Key>
+          <Property Name="id_color" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="nombre_color" Type="varchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Detalles_Pedidos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_pedido" Type="int" Nullable="false" />
+          <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_talla" Type="int" Nullable="false" />
+          <Property Name="cantidad" Type="int" Nullable="false" />
+          <Property Name="precio_unitario" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="subtotal" Type="decimal" Precision="21" Scale="2" StoreGeneratedPattern="Computed" />
+          <Property Name="estado_linea" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Direcciones">
+          <Key>
+            <PropertyRef Name="id_direccion" />
+          </Key>
+          <Property Name="id_direccion" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_usuario" Type="int" Nullable="false" />
+          <Property Name="direccion" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="ciudad" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="codigo_postal" Type="varchar" MaxLength="20" Nullable="false" />
+          <Property Name="pais" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="telefono" Type="varchar" MaxLength="15" />
+          <Property Name="tipo_direccion" Type="nvarchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Estados">
+          <Key>
+            <PropertyRef Name="id_estado" />
+          </Key>
+          <Property Name="id_estado" Type="int" Nullable="false" />
+          <Property Name="nombre_estado" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_categoria_estado" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Inventario">
+          <Key>
+            <PropertyRef Name="id_linea" />
+          </Key>
+          <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_marca" Type="int" />
+          <Property Name="talla_eu" Type="varchar" MaxLength="10" />
+          <Property Name="cantidad" Type="int" Nullable="false" />
+          <Property Name="precio" Type="int" Nullable="false" />
+          <Property Name="fecha_actualizacion" Type="datetime" Nullable="false" />
+          <Property Name="id_linea" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="talla_eu_marca" Type="varchar" MaxLength="10" />
+        </EntityType>
+        <EntityType Name="Marcas">
+          <Key>
+            <PropertyRef Name="id_marca" />
+          </Key>
+          <Property Name="id_marca" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="nombre_marca" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Modelos">
+          <Key>
+            <PropertyRef Name="id_modelo" />
+          </Key>
+          <Property Name="id_modelo" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_marca" Type="int" Nullable="false" />
+          <Property Name="nombre_modelo" Type="nvarchar" MaxLength="50" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Pedidos">
+          <Key>
+            <PropertyRef Name="id_pedido" />
+          </Key>
+          <Property Name="id_pedido" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_usuario" Type="int" Nullable="false" />
+          <Property Name="fecha_pedido" Type="date" Nullable="false" />
+          <Property Name="total" Type="decimal" Precision="10" Scale="2" Nullable="false" />
+          <Property Name="metodo_pago" Type="varchar" MaxLength="50" />
+          <Property Name="fecha_envio" Type="date" />
+          <Property Name="notas" Type="varchar" MaxLength="200" />
+          <Property Name="id_estado" Type="int" Nullable="false" />
+          <Property Name="id_direccion" Type="int" />
+        </EntityType>
+        <EntityType Name="Productos">
+          <Key>
+            <PropertyRef Name="id_producto" />
+          </Key>
+          <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_marca" Type="int" Nullable="false" />
+          <Property Name="id_modelo" Type="int" />
+          <Property Name="nombre" Type="varchar" MaxLength="100" Nullable="false" />
+          <Property Name="descripcion" Type="varchar" MaxLength="200" />
+          <Property Name="fecha_lanzamiento" Type="date" />
+          <Property Name="imagen" Type="varchar(max)" />
+          <Property Name="fecha_ultimo_uso_interno" Type="datetime" />
+          <Property Name="precio_medio_mercado" Type="int" />
+        </EntityType>
+        <EntityType Name="Productos_Colores">
+          <Key>
+            <PropertyRef Name="id_producto" />
+            <PropertyRef Name="id_color" />
+          </Key>
+          <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="id_color" Type="int" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tallas_Marcas">
+          <Key>
+            <PropertyRef Name="id_marca" />
+            <PropertyRef Name="talla_eu" />
+          </Key>
+          <Property Name="id_marca" Type="int" Nullable="false" />
+          <Property Name="talla_eu" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="talla_us" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="talla_uk" Type="varchar" MaxLength="10" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tallas_Universales">
+          <Key>
+            <PropertyRef Name="talla_eu" />
+          </Key>
+          <Property Name="talla_eu" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="talla_us" Type="varchar" MaxLength="10" Nullable="false" />
+          <Property Name="talla_uk" Type="varchar" MaxLength="10" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Usuarios">
+          <Key>
+            <PropertyRef Name="id_usuario" />
+          </Key>
+          <Property Name="id_usuario" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="nombre" Type="varchar" MaxLength="40" Nullable="false" />
+          <Property Name="apellidos" Type="varchar" MaxLength="60" Nullable="false" />
+          <Property Name="email" Type="varchar" MaxLength="80" Nullable="false" />
+          <Property Name="contrasenia" Type="varchar(max)" Nullable="false" />
+          <Property Name="verificado" Type="bit" Nullable="false" />
+          <Property Name="administrador" Type="bit" Nullable="false" />
+          <Property Name="super_administrador" Type="bit" Nullable="false" />
+          <Property Name="fecha_registro" Type="date" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Wishlist">
+          <Key>
+            <PropertyRef Name="id_usuario" />
+            <PropertyRef Name="id_producto" />
+          </Key>
+          <Property Name="id_usuario" Type="int" Nullable="false" />
+          <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
+          <Property Name="en_stock" Type="bit" Nullable="false" />
+        </EntityType>
+        <Association Name="FK__Inventari__id_pr__74794A92">
+          <End Role="Productos" Type="Self.Productos" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Inventario" Type="Self.Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tallas_Ma__id_ma__6EC0713C">
+          <End Role="Marcas" Type="Self.Marcas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Tallas_Marcas" Type="Self.Tallas_Marcas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Tallas_Marcas">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DetallesPedidos_Estados">
+          <End Role="Estados" Type="Self.Estados" Multiplicity="1" />
+          <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="estado_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_direccion">
+          <End Role="Direcciones" Type="Self.Direcciones" Multiplicity="0..1" />
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
+              <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_estado">
+          <End Role="Estados" Type="Self.Estados" Multiplicity="1" />
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Estados_Categorias">
+          <End Role="Categorías_Estados" Type="Self.Categorías_Estados" Multiplicity="1" />
+          <End Role="Estados" Type="Self.Estados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categorías_Estados">
+              <PropertyRef Name="id_categoria_estado" />
+            </Principal>
+            <Dependent Role="Estados">
+              <PropertyRef Name="id_categoria_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Inventario_Tallas_Marcas">
+          <End Role="Tallas_Marcas" Type="Self.Tallas_Marcas" Multiplicity="0..1" />
+          <End Role="Inventario" Type="Self.Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tallas_Marcas">
+              <PropertyRef Name="id_marca" />
+              <PropertyRef Name="talla_eu" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="id_marca" />
+              <PropertyRef Name="talla_eu_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Inventario_Tallas_Universales">
+          <End Role="Tallas_Universales" Type="Self.Tallas_Universales" Multiplicity="0..1" />
+          <End Role="Inventario" Type="Self.Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tallas_Universales">
+              <PropertyRef Name="talla_eu" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="talla_eu" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Modelos_Marcas">
+          <End Role="Marcas" Type="Self.Marcas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Role="Modelos" Type="Self.Modelos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Modelos">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_pedido">
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="1" />
+          <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_producto_wishlist">
+          <End Role="Productos" Type="Self.Productos" Multiplicity="1" />
+          <End Role="Wishlist" Type="Self.Wishlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Wishlist">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Productos_Marcas">
+          <End Role="Marcas" Type="Self.Marcas" Multiplicity="1" />
+          <End Role="Productos" Type="Self.Productos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Productos">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Productos_Modelos">
+          <End Role="Modelos" Type="Self.Modelos" Multiplicity="0..1" />
+          <End Role="Productos" Type="Self.Productos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Modelos">
+              <PropertyRef Name="id_modelo" />
+            </Principal>
+            <Dependent Role="Productos">
+              <PropertyRef Name="id_modelo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario">
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="1" />
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario_direccion">
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="1" />
+          <End Role="Direcciones" Type="Self.Direcciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Direcciones">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario_wishlist">
+          <End Role="Usuarios" Type="Self.Usuarios" Multiplicity="1" />
+          <End Role="Wishlist" Type="Self.Wishlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Wishlist">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="TFCModelStoreContainer">
+          <EntitySet Name="Categorías_Estados" EntityType="Self.Categorías_Estados" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Colores" EntityType="Self.Colores" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Detalles_Pedidos" EntityType="Self.Detalles_Pedidos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Direcciones" EntityType="Self.Direcciones" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Estados" EntityType="Self.Estados" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Inventario" EntityType="Self.Inventario" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Marcas" EntityType="Self.Marcas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Modelos" EntityType="Self.Modelos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Pedidos" EntityType="Self.Pedidos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Productos" EntityType="Self.Productos" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Productos_Colores" EntityType="Self.Productos_Colores" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tallas_Marcas" EntityType="Self.Tallas_Marcas" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tallas_Universales" EntityType="Self.Tallas_Universales" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Usuarios" EntityType="Self.Usuarios" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Wishlist" EntityType="Self.Wishlist" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Inventari__id_pr__74794A92" Association="Self.FK__Inventari__id_pr__74794A92">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tallas_Ma__id_ma__6EC0713C" Association="Self.FK__Tallas_Ma__id_ma__6EC0713C">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DetallesPedidos_Estados" Association="Self.FK_DetallesPedidos_Estados">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_direccion" Association="Self.fk_direccion">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_estado" Association="Self.fk_estado">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Estados_Categorias" Association="Self.FK_Estados_Categorias">
+            <End Role="Categorías_Estados" EntitySet="Categorías_Estados" />
+            <End Role="Estados" EntitySet="Estados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Inventario_Tallas_Marcas" Association="Self.FK_Inventario_Tallas_Marcas">
+            <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Inventario_Tallas_Universales" Association="Self.FK_Inventario_Tallas_Universales">
+            <End Role="Tallas_Universales" EntitySet="Tallas_Universales" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Modelos_Marcas" Association="Self.FK_Modelos_Marcas">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Modelos" EntitySet="Modelos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_pedido" Association="Self.fk_pedido">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_producto_wishlist" Association="Self.fk_producto_wishlist">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Wishlist" EntitySet="Wishlist" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Productos_Marcas" Association="Self.FK_Productos_Marcas">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Productos" EntitySet="Productos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Productos_Modelos" Association="Self.FK_Productos_Modelos">
+            <End Role="Modelos" EntitySet="Modelos" />
+            <End Role="Productos" EntitySet="Productos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario" Association="Self.fk_usuario">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario_direccion" Association="Self.fk_usuario_direccion">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Direcciones" EntitySet="Direcciones" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario_wishlist" Association="Self.fk_usuario_wishlist">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Wishlist" EntitySet="Wishlist" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="TFCModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityContainer Name="TFCEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Categorías_Estados" EntityType="TFCModel.Categorías_Estados" />
+          <EntitySet Name="Colores" EntityType="TFCModel.Colores" />
+          <EntitySet Name="Detalles_Pedidos" EntityType="TFCModel.Detalles_Pedidos" />
+          <EntitySet Name="Direcciones" EntityType="TFCModel.Direcciones" />
+          <EntitySet Name="Estados" EntityType="TFCModel.Estados" />
+          <EntitySet Name="Inventario" EntityType="TFCModel.Inventario" />
+          <EntitySet Name="Marcas" EntityType="TFCModel.Marcas" />
+          <EntitySet Name="Modelos" EntityType="TFCModel.Modelos" />
+          <EntitySet Name="Pedidos" EntityType="TFCModel.Pedidos" />
+          <EntitySet Name="Productos" EntityType="TFCModel.Productos" />
+          <EntitySet Name="Productos_Colores" EntityType="TFCModel.Productos_Colores" />
+          <EntitySet Name="Tallas_Marcas" EntityType="TFCModel.Tallas_Marcas" />
+          <EntitySet Name="Tallas_Universales" EntityType="TFCModel.Tallas_Universales" />
+          <EntitySet Name="Usuarios" EntityType="TFCModel.Usuarios" />
+          <EntitySet Name="Wishlist" EntityType="TFCModel.Wishlist" />
+          <AssociationSet Name="FK_Estados_Categorias" Association="TFCModel.FK_Estados_Categorias">
+            <End Role="Categorías_Estados" EntitySet="Categorías_Estados" />
+            <End Role="Estados" EntitySet="Estados" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DetallesPedidos_Estados" Association="TFCModel.FK_DetallesPedidos_Estados">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_pedido" Association="TFCModel.fk_pedido">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_direccion" Association="TFCModel.fk_direccion">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario_direccion" Association="TFCModel.fk_usuario_direccion">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Direcciones" EntitySet="Direcciones" />
+          </AssociationSet>
+          <AssociationSet Name="fk_estado" Association="TFCModel.fk_estado">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Inventari__id_pr__74794A92" Association="TFCModel.FK__Inventari__id_pr__74794A92">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Inventario_Tallas_Marcas" Association="TFCModel.FK_Inventario_Tallas_Marcas">
+            <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Inventario_Tallas_Universales" Association="TFCModel.FK_Inventario_Tallas_Universales">
+            <End Role="Tallas_Universales" EntitySet="Tallas_Universales" />
+            <End Role="Inventario" EntitySet="Inventario" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Tallas_Ma__id_ma__6EC0713C" Association="TFCModel.FK__Tallas_Ma__id_ma__6EC0713C">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Modelos_Marcas" Association="TFCModel.FK_Modelos_Marcas">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Modelos" EntitySet="Modelos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Productos_Marcas" Association="TFCModel.FK_Productos_Marcas">
+            <End Role="Marcas" EntitySet="Marcas" />
+            <End Role="Productos" EntitySet="Productos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Productos_Modelos" Association="TFCModel.FK_Productos_Modelos">
+            <End Role="Modelos" EntitySet="Modelos" />
+            <End Role="Productos" EntitySet="Productos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario" Association="TFCModel.fk_usuario">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_producto_wishlist" Association="TFCModel.fk_producto_wishlist">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Wishlist" EntitySet="Wishlist" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario_wishlist" Association="TFCModel.fk_usuario_wishlist">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Wishlist" EntitySet="Wishlist" />
+          </AssociationSet>
+          <AssociationSet Name="ColoresProductos_Colores" Association="TFCModel.ColoresProductos_Colores">
+            <End Role="Colores" EntitySet="Colores" />
+            <End Role="Productos_Colores" EntitySet="Productos_Colores" />
+          </AssociationSet>
+          <AssociationSet Name="ProductosProductos_Colores" Association="TFCModel.ProductosProductos_Colores">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Productos_Colores" EntitySet="Productos_Colores" />
+          </AssociationSet>
+        </EntityContainer>
+        <EntityType Name="Categorías_Estados">
+          <Key>
+            <PropertyRef Name="id_categoria_estado" />
+          </Key>
+          <Property Name="id_categoria_estado" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nombre_categoria" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.FK_Estados_Categorias" FromRole="Categorías_Estados" ToRole="Estados" />
+        </EntityType>
+        <EntityType Name="Colores">
+          <Key>
+            <PropertyRef Name="id_color" />
+          </Key>
+          <Property Name="id_color" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nombre_color" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Colores" ToRole="Productos_Colores" />
+        </EntityType>
+        <EntityType Name="Detalles_Pedidos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_pedido" Type="Int32" Nullable="false" />
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_talla" Type="Int32" Nullable="false" />
+          <Property Name="cantidad" Type="Int32" Nullable="false" />
+          <Property Name="precio_unitario" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="subtotal" Type="Decimal" Precision="21" Scale="2" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="estado_linea" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Detalles_Pedidos" ToRole="Estados" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Detalles_Pedidos" ToRole="Pedidos" />
+        </EntityType>
+        <EntityType Name="Direcciones">
+          <Key>
+            <PropertyRef Name="id_direccion" />
+          </Key>
+          <Property Name="id_direccion" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_usuario" Type="Int32" Nullable="false" />
+          <Property Name="direccion" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ciudad" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="codigo_postal" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="pais" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="telefono" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_direccion" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_direccion" FromRole="Direcciones" ToRole="Pedidos" />
+          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario_direccion" FromRole="Direcciones" ToRole="Usuarios" />
+        </EntityType>
+        <EntityType Name="Estados">
+          <Key>
+            <PropertyRef Name="id_estado" />
+          </Key>
+          <Property Name="id_estado" Type="Int32" Nullable="false" />
+          <Property Name="nombre_estado" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_categoria_estado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Categorías_Estados" Relationship="TFCModel.FK_Estados_Categorias" FromRole="Estados" ToRole="Categorías_Estados" />
+          <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Estados" ToRole="Detalles_Pedidos" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_estado" FromRole="Estados" ToRole="Pedidos" />
+        </EntityType>
+        <EntityType Name="Inventario">
+          <Key>
+            <PropertyRef Name="id_linea" />
+          </Key>
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_marca" Type="Int32" />
+          <Property Name="talla_eu" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad" Type="Int32" Nullable="false" />
+          <Property Name="precio" Type="Int32" Nullable="false" />
+          <Property Name="fecha_actualizacion" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="id_linea" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="talla_eu_marca" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.FK__Inventari__id_pr__74794A92" FromRole="Inventario" ToRole="Productos" />
+          <NavigationProperty Name="Tallas_Marcas" Relationship="TFCModel.FK_Inventario_Tallas_Marcas" FromRole="Inventario" ToRole="Tallas_Marcas" />
+          <NavigationProperty Name="Tallas_Universales" Relationship="TFCModel.FK_Inventario_Tallas_Universales" FromRole="Inventario" ToRole="Tallas_Universales" />
+        </EntityType>
+        <EntityType Name="Marcas">
+          <Key>
+            <PropertyRef Name="id_marca" />
+          </Key>
+          <Property Name="id_marca" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nombre_marca" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Tallas_Marcas" Relationship="TFCModel.FK__Tallas_Ma__id_ma__6EC0713C" FromRole="Marcas" ToRole="Tallas_Marcas" />
+          <NavigationProperty Name="Modelos" Relationship="TFCModel.FK_Modelos_Marcas" FromRole="Marcas" ToRole="Modelos" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.FK_Productos_Marcas" FromRole="Marcas" ToRole="Productos" />
+        </EntityType>
+        <EntityType Name="Modelos">
+          <Key>
+            <PropertyRef Name="id_modelo" />
+          </Key>
+          <Property Name="id_modelo" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_marca" Type="Int32" Nullable="false" />
+          <Property Name="nombre_modelo" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Marcas" Relationship="TFCModel.FK_Modelos_Marcas" FromRole="Modelos" ToRole="Marcas" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.FK_Productos_Modelos" FromRole="Modelos" ToRole="Productos" />
+        </EntityType>
+        <EntityType Name="Pedidos">
+          <Key>
+            <PropertyRef Name="id_pedido" />
+          </Key>
+          <Property Name="id_pedido" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_usuario" Type="Int32" Nullable="false" />
+          <Property Name="fecha_pedido" Type="DateTime" Nullable="false" Precision="0" />
+          <Property Name="total" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="metodo_pago" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_envio" Type="DateTime" Precision="0" />
+          <Property Name="notas" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="id_estado" Type="Int32" Nullable="false" />
+          <Property Name="id_direccion" Type="Int32" />
+          <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Pedidos" ToRole="Detalles_Pedidos" />
+          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_direccion" FromRole="Pedidos" ToRole="Direcciones" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.fk_estado" FromRole="Pedidos" ToRole="Estados" />
+          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario" FromRole="Pedidos" ToRole="Usuarios" />
+        </EntityType>
+        <EntityType Name="Productos">
+          <Key>
+            <PropertyRef Name="id_producto" />
+          </Key>
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_marca" Type="Int32" Nullable="false" />
+          <Property Name="id_modelo" Type="Int32" />
+          <Property Name="nombre" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="descripcion" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_lanzamiento" Type="DateTime" Precision="0" />
+          <Property Name="imagen" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_ultimo_uso_interno" Type="DateTime" Precision="3" />
+          <Property Name="precio_medio_mercado" Type="Int32" />
+          <NavigationProperty Name="Inventario" Relationship="TFCModel.FK__Inventari__id_pr__74794A92" FromRole="Productos" ToRole="Inventario" />
+          <NavigationProperty Name="Marcas" Relationship="TFCModel.FK_Productos_Marcas" FromRole="Productos" ToRole="Marcas" />
+          <NavigationProperty Name="Modelos" Relationship="TFCModel.FK_Productos_Modelos" FromRole="Productos" ToRole="Modelos" />
+          <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_producto_wishlist" FromRole="Productos" ToRole="Wishlist" />
+          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos" ToRole="Productos_Colores" />
+        </EntityType>
+        <EntityType Name="Productos_Colores">
+          <Key>
+            <PropertyRef Name="id_producto" />
+            <PropertyRef Name="id_color" />
+          </Key>
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_color" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Productos_Colores" ToRole="Colores" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos_Colores" ToRole="Productos" />
+        </EntityType>
+        <EntityType Name="Tallas_Marcas">
+          <Key>
+            <PropertyRef Name="id_marca" />
+            <PropertyRef Name="talla_eu" />
+          </Key>
+          <Property Name="id_marca" Type="Int32" Nullable="false" />
+          <Property Name="talla_eu" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="talla_us" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="talla_uk" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Inventario" Relationship="TFCModel.FK_Inventario_Tallas_Marcas" FromRole="Tallas_Marcas" ToRole="Inventario" />
+          <NavigationProperty Name="Marcas" Relationship="TFCModel.FK__Tallas_Ma__id_ma__6EC0713C" FromRole="Tallas_Marcas" ToRole="Marcas" />
+        </EntityType>
+        <EntityType Name="Tallas_Universales">
+          <Key>
+            <PropertyRef Name="talla_eu" />
+          </Key>
+          <Property Name="talla_eu" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="talla_us" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="talla_uk" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Inventario" Relationship="TFCModel.FK_Inventario_Tallas_Universales" FromRole="Tallas_Universales" ToRole="Inventario" />
+        </EntityType>
+        <EntityType Name="Usuarios">
+          <Key>
+            <PropertyRef Name="id_usuario" />
+          </Key>
+          <Property Name="id_usuario" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="nombre" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
+          <Property Name="apellidos" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="contrasenia" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="verificado" Type="Boolean" Nullable="false" />
+          <Property Name="administrador" Type="Boolean" Nullable="false" />
+          <Property Name="super_administrador" Type="Boolean" Nullable="false" />
+          <Property Name="fecha_registro" Type="DateTime" Nullable="false" Precision="0" />
+          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_usuario_direccion" FromRole="Usuarios" ToRole="Direcciones" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_usuario" FromRole="Usuarios" ToRole="Pedidos" />
+          <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_usuario_wishlist" FromRole="Usuarios" ToRole="Wishlist" />
+        </EntityType>
+        <EntityType Name="Wishlist">
+          <Key>
+            <PropertyRef Name="id_usuario" />
+            <PropertyRef Name="id_producto" />
+          </Key>
+          <Property Name="id_usuario" Type="Int32" Nullable="false" />
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="en_stock" Type="Boolean" Nullable="false" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.fk_producto_wishlist" FromRole="Wishlist" ToRole="Productos" />
+          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario_wishlist" FromRole="Wishlist" ToRole="Usuarios" />
+        </EntityType>
+        <Association Name="FK_Estados_Categorias">
+          <End Type="TFCModel.Categorías_Estados" Role="Categorías_Estados" Multiplicity="1" />
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Categorías_Estados">
+              <PropertyRef Name="id_categoria_estado" />
+            </Principal>
+            <Dependent Role="Estados">
+              <PropertyRef Name="id_categoria_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DetallesPedidos_Estados">
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
+          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="estado_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_pedido">
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="1" />
+          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_direccion">
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
+              <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario_direccion">
+          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Direcciones">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_estado">
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Inventari__id_pr__74794A92">
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="TFCModel.Inventario" Role="Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Inventario_Tallas_Marcas">
+          <End Type="TFCModel.Tallas_Marcas" Role="Tallas_Marcas" Multiplicity="0..1" />
+          <End Type="TFCModel.Inventario" Role="Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tallas_Marcas">
+              <PropertyRef Name="id_marca" />
+              <PropertyRef Name="talla_eu" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="id_marca" />
+              <PropertyRef Name="talla_eu_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Inventario_Tallas_Universales">
+          <End Type="TFCModel.Tallas_Universales" Role="Tallas_Universales" Multiplicity="0..1" />
+          <End Type="TFCModel.Inventario" Role="Inventario" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tallas_Universales">
+              <PropertyRef Name="talla_eu" />
+            </Principal>
+            <Dependent Role="Inventario">
+              <PropertyRef Name="talla_eu" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Tallas_Ma__id_ma__6EC0713C">
+          <End Type="TFCModel.Marcas" Role="Marcas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="TFCModel.Tallas_Marcas" Role="Tallas_Marcas" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Tallas_Marcas">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Modelos_Marcas">
+          <End Type="TFCModel.Marcas" Role="Marcas" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="TFCModel.Modelos" Role="Modelos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Modelos">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Productos_Marcas">
+          <End Type="TFCModel.Marcas" Role="Marcas" Multiplicity="1" />
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Marcas">
+              <PropertyRef Name="id_marca" />
+            </Principal>
+            <Dependent Role="Productos">
+              <PropertyRef Name="id_marca" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Productos_Modelos">
+          <End Type="TFCModel.Modelos" Role="Modelos" Multiplicity="0..1" />
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Modelos">
+              <PropertyRef Name="id_modelo" />
+            </Principal>
+            <Dependent Role="Productos">
+              <PropertyRef Name="id_modelo" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario">
+          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_producto_wishlist">
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1" />
+          <End Type="TFCModel.Wishlist" Role="Wishlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Wishlist">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario_wishlist">
+          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
+          <End Type="TFCModel.Wishlist" Role="Wishlist" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Wishlist">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ColoresProductos_Colores">
+          <End Type="TFCModel.Colores" Role="Colores" Multiplicity="1" />
+          <End Type="TFCModel.Productos_Colores" Role="Productos_Colores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Colores">
+              <PropertyRef Name="id_color" />
+            </Principal>
+            <Dependent Role="Productos_Colores">
+              <PropertyRef Name="id_color" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ProductosProductos_Colores">
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1" />
+          <End Type="TFCModel.Productos_Colores" Role="Productos_Colores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Productos_Colores">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="TFCModelStoreContainer" CdmEntityContainer="TFCEntities">
+          <EntitySetMapping Name="Categorías_Estados">
+            <EntityTypeMapping TypeName="TFCModel.Categorías_Estados">
+              <MappingFragment StoreEntitySet="Categorías_Estados">
+                <ScalarProperty Name="nombre_categoria" ColumnName="nombre_categoria" />
+                <ScalarProperty Name="id_categoria_estado" ColumnName="id_categoria_estado" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Colores">
+            <EntityTypeMapping TypeName="TFCModel.Colores">
+              <MappingFragment StoreEntitySet="Colores">
+                <ScalarProperty Name="nombre_color" ColumnName="nombre_color" />
+                <ScalarProperty Name="id_color" ColumnName="id_color" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Detalles_Pedidos">
+            <EntityTypeMapping TypeName="TFCModel.Detalles_Pedidos">
+              <MappingFragment StoreEntitySet="Detalles_Pedidos">
+                <ScalarProperty Name="estado_linea" ColumnName="estado_linea" />
+                <ScalarProperty Name="subtotal" ColumnName="subtotal" />
+                <ScalarProperty Name="precio_unitario" ColumnName="precio_unitario" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="id_talla" ColumnName="id_talla" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Direcciones">
+            <EntityTypeMapping TypeName="TFCModel.Direcciones">
+              <MappingFragment StoreEntitySet="Direcciones">
+                <ScalarProperty Name="tipo_direccion" ColumnName="tipo_direccion" />
+                <ScalarProperty Name="telefono" ColumnName="telefono" />
+                <ScalarProperty Name="pais" ColumnName="pais" />
+                <ScalarProperty Name="codigo_postal" ColumnName="codigo_postal" />
+                <ScalarProperty Name="ciudad" ColumnName="ciudad" />
+                <ScalarProperty Name="direccion" ColumnName="direccion" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Estados">
+            <EntityTypeMapping TypeName="TFCModel.Estados">
+              <MappingFragment StoreEntitySet="Estados">
+                <ScalarProperty Name="id_categoria_estado" ColumnName="id_categoria_estado" />
+                <ScalarProperty Name="nombre_estado" ColumnName="nombre_estado" />
+                <ScalarProperty Name="id_estado" ColumnName="id_estado" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Inventario">
+            <EntityTypeMapping TypeName="TFCModel.Inventario">
+              <MappingFragment StoreEntitySet="Inventario">
+                <ScalarProperty Name="talla_eu_marca" ColumnName="talla_eu_marca" />
+                <ScalarProperty Name="id_linea" ColumnName="id_linea" />
+                <ScalarProperty Name="fecha_actualizacion" ColumnName="fecha_actualizacion" />
+                <ScalarProperty Name="precio" ColumnName="precio" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="talla_eu" ColumnName="talla_eu" />
+                <ScalarProperty Name="id_marca" ColumnName="id_marca" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Marcas">
+            <EntityTypeMapping TypeName="TFCModel.Marcas">
+              <MappingFragment StoreEntitySet="Marcas">
+                <ScalarProperty Name="nombre_marca" ColumnName="nombre_marca" />
+                <ScalarProperty Name="id_marca" ColumnName="id_marca" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Modelos">
+            <EntityTypeMapping TypeName="TFCModel.Modelos">
+              <MappingFragment StoreEntitySet="Modelos">
+                <ScalarProperty Name="nombre_modelo" ColumnName="nombre_modelo" />
+                <ScalarProperty Name="id_marca" ColumnName="id_marca" />
+                <ScalarProperty Name="id_modelo" ColumnName="id_modelo" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pedidos">
+            <EntityTypeMapping TypeName="TFCModel.Pedidos">
+              <MappingFragment StoreEntitySet="Pedidos">
+                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
+                <ScalarProperty Name="id_estado" ColumnName="id_estado" />
+                <ScalarProperty Name="notas" ColumnName="notas" />
+                <ScalarProperty Name="fecha_envio" ColumnName="fecha_envio" />
+                <ScalarProperty Name="metodo_pago" ColumnName="metodo_pago" />
+                <ScalarProperty Name="total" ColumnName="total" />
+                <ScalarProperty Name="fecha_pedido" ColumnName="fecha_pedido" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Productos">
+            <EntityTypeMapping TypeName="TFCModel.Productos">
+              <MappingFragment StoreEntitySet="Productos">
+                <ScalarProperty Name="precio_medio_mercado" ColumnName="precio_medio_mercado" />
+                <ScalarProperty Name="fecha_ultimo_uso_interno" ColumnName="fecha_ultimo_uso_interno" />
+                <ScalarProperty Name="imagen" ColumnName="imagen" />
+                <ScalarProperty Name="fecha_lanzamiento" ColumnName="fecha_lanzamiento" />
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="id_modelo" ColumnName="id_modelo" />
+                <ScalarProperty Name="id_marca" ColumnName="id_marca" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Productos_Colores">
+            <EntityTypeMapping TypeName="TFCModel.Productos_Colores">
+              <MappingFragment StoreEntitySet="Productos_Colores">
+                <ScalarProperty Name="id_color" ColumnName="id_color" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tallas_Marcas">
+            <EntityTypeMapping TypeName="TFCModel.Tallas_Marcas">
+              <MappingFragment StoreEntitySet="Tallas_Marcas">
+                <ScalarProperty Name="talla_uk" ColumnName="talla_uk" />
+                <ScalarProperty Name="talla_us" ColumnName="talla_us" />
+                <ScalarProperty Name="talla_eu" ColumnName="talla_eu" />
+                <ScalarProperty Name="id_marca" ColumnName="id_marca" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tallas_Universales">
+            <EntityTypeMapping TypeName="TFCModel.Tallas_Universales">
+              <MappingFragment StoreEntitySet="Tallas_Universales">
+                <ScalarProperty Name="talla_uk" ColumnName="talla_uk" />
+                <ScalarProperty Name="talla_us" ColumnName="talla_us" />
+                <ScalarProperty Name="talla_eu" ColumnName="talla_eu" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Usuarios">
+            <EntityTypeMapping TypeName="TFCModel.Usuarios">
+              <MappingFragment StoreEntitySet="Usuarios">
+                <ScalarProperty Name="fecha_registro" ColumnName="fecha_registro" />
+                <ScalarProperty Name="super_administrador" ColumnName="super_administrador" />
+                <ScalarProperty Name="administrador" ColumnName="administrador" />
+                <ScalarProperty Name="verificado" ColumnName="verificado" />
+                <ScalarProperty Name="contrasenia" ColumnName="contrasenia" />
+                <ScalarProperty Name="email" ColumnName="email" />
+                <ScalarProperty Name="apellidos" ColumnName="apellidos" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Wishlist">
+            <EntityTypeMapping TypeName="TFCModel.Wishlist">
+              <MappingFragment StoreEntitySet="Wishlist">
+                <ScalarProperty Name="en_stock" ColumnName="en_stock" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="false" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="Ninguno" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>
