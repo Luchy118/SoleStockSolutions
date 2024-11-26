@@ -1,0 +1,12 @@
+﻿@model SoleStockSolutions.Models.FiltroPrecios
+
+<div id="slider-input">
+    <span style="width: 45%">
+        <input type="text" id="min-amount" class="disabled-link" value="@Model.MinPrice" disabled>
+    </span>
+    <span style="width: 10%; display: inline-block; text-align: center;">-</span>
+    <span style="width: 45%;">
+        <input type="text" id="max-amount" class="disabled-link" value="@Model.MaxPrice" disabled>
+    </span>
+</div>
+<div id="slider-range"></div>

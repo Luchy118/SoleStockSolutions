@@ -1,5 +1,6 @@
-﻿@{ 
+﻿@{
     var version = DateTime.Now.Ticks;
+    var db = new SoleStockSolutions.Models.TFCEntities();
 }
 <!DOCTYPE html>
 <html lang="en">
@@ -65,10 +66,22 @@
                                             <h6 class="title">Destacados</h6>
                                             <div class="content">
                                                 <ul class="menu-col">
-                                                    <li><a href="shop.html">Jackets</a></li>
-                                                    <li><a href="shop.html">Shirts</a></li>
-                                                    <li><a href="shop.html">Sweaters & Cardigans</a></li>
-                                                    <li><a href="shop.html">T-shirts</a></li>
+                                                    @{
+                                                        var modelosRelevantes = Session["modelosRelevantes"] as List<SoleStockSolutions.Models.Modelos>;
+                                                        foreach (var modelo in modelosRelevantes)
+                                                        {
+                                                            var cantidadProductos = db.Productos
+                                                                .Where(p => p.id_modelo == modelo.id_modelo)
+                                                                .Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p)
+                                                                .Distinct()
+                                                                .Count();
+
+                                                            if (cantidadProductos > 0)
+                                                            {
+                                                                <li><a href="javascript:void(0);" onclick="redirectToProducts(@modelo.id_modelo)">@modelo.nombre_modelo</a></li>
+                                                            }
+                                                        }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
@@ -77,10 +90,21 @@
                                             <h6 class="title">Air Jordan</h6>
                                             <div class="content">
                                                 <ul class="menu-col">
-                                                    <li><a href="shop.html">Swimwear</a></li>
-                                                    <li><a href="shop.html">Skirts</a></li>
-                                                    <li><a href="shop.html">Jeans</a></li>
-                                                    <li><a href="shop.html">Trousers</a></li>
+                                                    @{
+                                                        foreach (var modelo in db.Modelos.Where(m => m.Marcas.nombre_marca.ToLower().Contains("jordan")))
+                                                        {
+                                                            var cantidadProductos = db.Productos
+                                                                .Where(p => p.id_modelo == modelo.id_modelo)
+                                                                .Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p)
+                                                                .Distinct()
+                                                                .Count();
+
+                                                            if (cantidadProductos > 0)
+                                                            {
+                                                                <li><a href="javascript:void(0);" onclick="redirectToProducts(@modelo.id_modelo)">@modelo.nombre_modelo</a></li>
+                                                            }
+                                                        }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
@@ -89,10 +113,21 @@
                                             <h6 class="title">Nike</h6>
                                             <div class="content">
                                                 <ul class="menu-col">
-                                                    <li><a href="shop.html">Top Wear</a></li>
-                                                    <li><a href="shop.html">Party wear</a></li>
-                                                    <li><a href="shop.html">Bottom Wear</a></li>
-                                                    <li><a href="shop.html">Indian Wear</a></li>
+                                                    @{
+                                                        foreach (var modelo in db.Modelos.Where(m => m.Marcas.nombre_marca.ToLower().Contains("nike")))
+                                                        {
+                                                            var cantidadProductos = db.Productos
+                                                                .Where(p => p.id_modelo == modelo.id_modelo)
+                                                                .Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p)
+                                                                .Distinct()
+                                                                .Count();
+
+                                                            if (cantidadProductos > 0)
+                                                            {
+                                                                <li><a href="javascript:void(0);" onclick="redirectToProducts(@modelo.id_modelo)">@modelo.nombre_modelo</a></li>
+                                                            }
+                                                        }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
@@ -100,33 +135,51 @@
                                             <h6 class="title">Adidas</h6>
                                             <div class="content">
                                                 <ul class="menu-col">
-                                                    <li><a href="shop.html">Bags</a></li>
-                                                    <li><a href="shop.html">Sunglasses</a></li>
-                                                    <li><a href="shop.html">Fragrances</a></li>
-                                                    <li><a href="shop.html">Wallets</a></li>
-                                                    <li><a href="shop.html">Wallets</a></li>
+                                                    @{
+                                                        foreach (var modelo in db.Modelos.Where(m => m.Marcas.nombre_marca.ToLower().Contains("adidas")))
+                                                        {
+                                                            var cantidadProductos = db.Productos
+                                                                .Where(p => p.id_modelo == modelo.id_modelo)
+                                                                .Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p)
+                                                                .Distinct()
+                                                                .Count();
+
+                                                            if (cantidadProductos > 0)
+                                                            {
+                                                                <li><a href="javascript:void(0);" onclick="redirectToProducts(@modelo.id_modelo)">@modelo.nombre_modelo</a></li>
+                                                            }
+                                                        }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
-                                        <!-- end col-2 -->
                                         <div class="col-menu col-md-2">
                                             <h6 class="title">Otros</h6>
                                             <div class="content">
                                                 <ul class="menu-col">
-                                                    <li><a href="shop.html">Bags</a></li>
-                                                    <li><a href="shop.html">Sunglasses</a></li>
-                                                    <li><a href="shop.html">Fragrances</a></li>
-                                                    <li><a href="shop.html">Wallets</a></li>
+                                                    @{
+                                                        foreach (var modelo in db.Modelos.Where(m => !m.Marcas.nombre_marca.ToLower().Contains("jordan") && !m.Marcas.nombre_marca.ToLower().Contains("nike") && !m.Marcas.nombre_marca.ToLower().Contains("adidas")))
+                                                        {
+                                                            var cantidadProductos = db.Productos
+                                                                .Where(p => p.id_modelo == modelo.id_modelo)
+                                                                .Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p)
+                                                                .Distinct()
+                                                                .Count();
+
+                                                            if (cantidadProductos > 0)
+                                                            {
+                                                                <li><a href="javascript:void(0);" onclick="redirectToProducts(@modelo.id_modelo)">@modelo.nombre_modelo</a></li>
+                                                            }
+                                                        }
+                                                    }
                                                 </ul>
                                             </div>
                                         </div>
-                                        <!-- end col-2 -->
                                     </div>
                                     <!-- end row -->
                                 </li>
                             </ul>
                         </li>
-                        <li class="nav-item @(ViewBag.CurrentAction == "Service" ? "active" : "")"><a class="nav-link" href="@Url.Action("Service", "Information")">NUESTRO SERVICIO</a></li>
                         <li class="nav-item @(ViewBag.CurrentAction == "About" ? "active" : "")"><a class="nav-link" href="@Url.Action("About", "Information")">SOBRE NOSOTROS</a></li>
                         <li class="nav-item @(ViewBag.CurrentAction == "Contact" ? "active" : "")"><a class="nav-link" href="@Url.Action("Contact", "Information")">CONTACTO</a></li>
                     </ul>
@@ -273,6 +326,19 @@
     <script src="~/Assets/js/custom.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/Assets/js/jsgeneral.js"></script>
+
+    <script>
+        function redirectToProducts(modeloId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Index", "Products")',
+                data: { modeloId: modeloId },
+                success: function (response) {
+                    window.location.href = response.redirectUrl;
+                }
+            });
+        }
+    </script>
 
     @RenderSection("scripts", required: false)
 </body>

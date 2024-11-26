@@ -8,12 +8,6 @@ namespace SoleStockSolutions.Controllers
 {
     public class InformationController : Controller
     {
-        public ActionResult Service()
-        {
-            ViewBag.CurrentAction = "Service";
-            return View();
-        }
-
         public ActionResult About()
         {
             ViewBag.CurrentAction = "About";

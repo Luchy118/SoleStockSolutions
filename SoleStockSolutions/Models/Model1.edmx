@@ -65,6 +65,7 @@
           <Property Name="fecha_actualizacion" Type="datetime" Nullable="false" />
           <Property Name="id_linea" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="talla_eu_marca" Type="varchar" MaxLength="10" />
+          <Property Name="veces_vendido" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Marcas">
           <Key>
@@ -108,6 +109,7 @@
           <Property Name="imagen" Type="varchar(max)" />
           <Property Name="fecha_ultimo_uso_interno" Type="datetime" />
           <Property Name="precio_medio_mercado" Type="int" />
+          <Property Name="veces_visto" Type="int" Nullable="false" />
         </EntityType>
         <EntityType Name="Productos_Colores">
           <Key>
@@ -604,6 +606,7 @@
           <NavigationProperty Name="Productos" Relationship="TFCModel.FK__Inventari__id_pr__74794A92" FromRole="Inventario" ToRole="Productos" />
           <NavigationProperty Name="Tallas_Marcas" Relationship="TFCModel.FK_Inventario_Tallas_Marcas" FromRole="Inventario" ToRole="Tallas_Marcas" />
           <NavigationProperty Name="Tallas_Universales" Relationship="TFCModel.FK_Inventario_Tallas_Universales" FromRole="Inventario" ToRole="Tallas_Universales" />
+          <Property Name="veces_vendido" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Marcas">
           <Key>
@@ -661,6 +664,7 @@
           <NavigationProperty Name="Modelos" Relationship="TFCModel.FK_Productos_Modelos" FromRole="Productos" ToRole="Modelos" />
           <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_producto_wishlist" FromRole="Productos" ToRole="Wishlist" />
           <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos" ToRole="Productos_Colores" />
+          <Property Name="veces_visto" Type="Int32" Nullable="false" />
         </EntityType>
         <EntityType Name="Productos_Colores">
           <Key>
@@ -1007,6 +1011,7 @@
           <EntitySetMapping Name="Inventario">
             <EntityTypeMapping TypeName="TFCModel.Inventario">
               <MappingFragment StoreEntitySet="Inventario">
+                <ScalarProperty Name="veces_vendido" ColumnName="veces_vendido" />
                 <ScalarProperty Name="talla_eu_marca" ColumnName="talla_eu_marca" />
                 <ScalarProperty Name="id_linea" ColumnName="id_linea" />
                 <ScalarProperty Name="fecha_actualizacion" ColumnName="fecha_actualizacion" />
@@ -1053,6 +1058,7 @@
           <EntitySetMapping Name="Productos">
             <EntityTypeMapping TypeName="TFCModel.Productos">
               <MappingFragment StoreEntitySet="Productos">
+                <ScalarProperty Name="veces_visto" ColumnName="veces_visto" />
                 <ScalarProperty Name="precio_medio_mercado" ColumnName="precio_medio_mercado" />
                 <ScalarProperty Name="fecha_ultimo_uso_interno" ColumnName="fecha_ultimo_uso_interno" />
                 <ScalarProperty Name="imagen" ColumnName="imagen" />

@@ -31,6 +31,7 @@ namespace SoleStockSolutions.Models
         public string imagen { get; set; }
         public Nullable<System.DateTime> fecha_ultimo_uso_interno { get; set; }
         public Nullable<int> precio_medio_mercado { get; set; }
+        public int veces_visto { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Inventario> Inventario { get; set; }

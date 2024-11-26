@@ -22,6 +22,7 @@ namespace SoleStockSolutions.Models
         public System.DateTime fecha_actualizacion { get; set; }
         public int id_linea { get; set; }
         public string talla_eu_marca { get; set; }
+        public int veces_vendido { get; set; }
     
         public virtual Productos Productos { get; set; }
         public virtual Tallas_Marcas Tallas_Marcas { get; set; }

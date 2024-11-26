@@ -1,0 +1,16 @@
+﻿@model IEnumerable<SoleStockSolutions.Models.FiltroTallas>
+
+@{
+    var selectedSizes = ViewBag.SelectedSizes as List<string>;
+    int i = 0;
+    foreach (var size in Model)
+    {
+        <li>
+            <div class="checkbox checkbox-danger" style="display: flex; align-items: center; flex-direction: row; gap: .3rem;">
+                <input name="size" value="@size.Talla" id="size+@i" type="checkbox" style="accent-color: #b68a7b" @(selectedSizes != null && selectedSizes.Contains(size.Talla) ? "checked" : "") />
+                <label for="size+@i" style="margin-bottom: 0">@(size.Talla) <small>(@size.CantidadProductos)</small></label>
+            </div>
+        </li>
+        i++;
+    }
+}

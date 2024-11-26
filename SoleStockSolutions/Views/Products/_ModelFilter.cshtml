@@ -1,0 +1,13 @@
+﻿@model IEnumerable<SoleStockSolutions.Models.FiltroModelos>
+
+@{
+    var selectedModel = ViewBag.SelectedModel;
+    foreach (var modelo in Model)
+    {
+        <li>
+            <div class="model-item @(selectedModel != null && selectedModel == modelo.Id_Modelo ? "selected-model" : "")" data-model-id="@modelo.Id_Modelo" data-model-name="@modelo.Nombre_Modelo" style="cursor: pointer; display: flex; align-items: center; flex-direction: row; gap: .3rem;">
+                <span>@modelo.Nombre_Modelo <small>(@modelo.CantidadProductos)</small></span>
+            </div>
+        </li>
+    }
+}

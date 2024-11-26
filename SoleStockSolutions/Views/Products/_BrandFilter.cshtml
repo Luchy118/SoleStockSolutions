@@ -1,0 +1,17 @@
+﻿@model IEnumerable<SoleStockSolutions.Models.FiltroMarcas>
+
+@{
+    var selectedBrands = ViewBag.SelectedBrands as List<int?>;
+    int i = 0;
+    foreach (var brand in Model)
+    {
+        var brandName = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(brand.Nombre_Marca.ToLower());
+        <li>
+            <div class="checkbox checkbox-danger" style="display: flex; align-items: center; flex-direction: row; gap: .3rem;">
+                <input name="brand" value="@brand.Id_Marca" data-brand-name="@brandName" id="brand+@i" type="checkbox" style="accent-color: #b68a7b" @(selectedBrands != null && selectedBrands.Contains(brand.Id_Marca) ? "checked" : "") />
+                <label for="brand+@i" @(selectedBrands != null && selectedBrands.Contains(brand.Id_Marca) ? "checked" : "") style="margin-bottom: 0">@brandName <small>(@brand.CantidadProductos)</small></label>
+            </div>
+        </li>
+        i++;
+    }
+}

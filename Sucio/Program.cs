@@ -25,7 +25,7 @@ namespace ExtraerDatosAPI
         private static async Task InsertarModelosDeZapatillas()
         {
             var marcas = new Dictionary<string, int>();
-            var nombresMarcas = new List<string> { "Jordan", "Nike", "Adidas", "New balance" };
+            var nombresMarcas = new List<string> { "Jordan", "Nike", "Adidas", "New balance", "Yeezy" };
 
             foreach (var nombreMarca in nombresMarcas)
             {
@@ -36,31 +36,34 @@ namespace ExtraerDatosAPI
 
             var modelos = new List<Modelos>
                 {
-                    //new Modelos { nombre_modelo = "Jordan 1 High", id_marca = marcas["Jordan"] },
-                    //new Modelos { nombre_modelo = "Jordan 1 Low", id_marca = marcas["Jordan"] },
-                    //new Modelos { nombre_modelo = "Jordan 3", id_marca = marcas["Jordan"] },
-                    //new Modelos { nombre_modelo = "Jordan 4", id_marca = marcas["Jordan"] },
-                    //new Modelos { nombre_modelo = "Jordan 11", id_marca = marcas["Jordan"] },
-                    //new Modelos { nombre_modelo = "Nike Dunk Low", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Nike Dunk SB", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Nike Air Force 1", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Nike Air Max 1", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Nike Air Max 95", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Adidas Samba", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Campus", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Forum", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Handball Spezial", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Yeezy 350", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Yeezy 700", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Yeezy Slide", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "Adidas Yeezy Foam RNNR", id_marca = marcas["Adidas"] },
-                    //new Modelos { nombre_modelo = "New balance 550", id_marca = marcas["New balance"] },
-                    //new Modelos { nombre_modelo = "New balance 990", id_marca = marcas["New balance"] },
-                    //new Modelos { nombre_modelo = "New balance 1906D", id_marca = marcas["New balance"] },
-                    //new Modelos { nombre_modelo = "New balance 2002R", id_marca = marcas["New balance"] },
-                    //new Modelos { nombre_modelo = "Nike Air Rubber Dunk", id_marca = marcas["Nike"] },
-                    //new Modelos { nombre_modelo = "Nike Air Force 3", id_marca = marcas["Nike"] },
-                    new Modelos { nombre_modelo = "Nike Air Alpha Force", id_marca = marcas["Nike"] }
+                    new Modelos { nombre_modelo = "Jordan 1 High", id_marca = marcas["Jordan"] },
+                    new Modelos { nombre_modelo = "Jordan 1 Low", id_marca = marcas["Jordan"] },
+                    new Modelos { nombre_modelo = "Jordan 3", id_marca = marcas["Jordan"] },
+                    new Modelos { nombre_modelo = "Jordan 4", id_marca = marcas["Jordan"] },
+                    new Modelos { nombre_modelo = "Jordan 11", id_marca = marcas["Jordan"] },
+                    new Modelos { nombre_modelo = "Nike Dunk Low", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Dunk SB", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Air Force 1", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Air Max 1", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Air Max 95", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Adidas Samba", id_marca = marcas["Adidas"] },
+                    new Modelos { nombre_modelo = "Adidas Campus", id_marca = marcas["Adidas"] },
+                    new Modelos { nombre_modelo = "Adidas Forum", id_marca = marcas["Adidas"] },
+                    new Modelos { nombre_modelo = "Adidas Handball Spezial", id_marca = marcas["Adidas"] },
+                    new Modelos { nombre_modelo = "Yeezy 350", id_marca = marcas["Yeezy"] },
+                    new Modelos { nombre_modelo = "Yeezy 700", id_marca = marcas["Yeezy"] },
+                    new Modelos { nombre_modelo = "Yeezy Slide", id_marca = marcas["Yeezy"] },
+                    new Modelos { nombre_modelo = "Yeezy Foam RNNR", id_marca = marcas["Yeezy"] },
+                    new Modelos { nombre_modelo = "New balance 550", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "New balance 990", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "New balance 1906D", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "New balance 2002R", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "Nike Air Rubber Dunk", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Air Force 3", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "Nike Air Alpha Force", id_marca = marcas["Nike"] },
+                    new Modelos { nombre_modelo = "New balance 57/40", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "New balance 327", id_marca = marcas["New balance"] },
+                    new Modelos { nombre_modelo = "Yeezy Fleece Slide", id_marca = marcas["Yeezy"] },
                 };
 
             db.Modelos.AddRange(modelos);
@@ -186,29 +189,39 @@ namespace ExtraerDatosAPI
                     if (!existeTallaMarca && !tallasUniversales.Any(t => t.talla_eu == talla))
                         continue;
 
-                    var inventario = new Inventario
-                    {
-                        id_producto = producto.id_producto,
-                        id_marca = producto.nombre.ToLower().Contains("yeezy") ? db.Marcas.FirstOrDefault(m => m.nombre_marca.ToLower() == "yeezy").id_marca : producto.id_marca,
-                        talla_eu = !existeTallaMarca ? talla : null,
-                        talla_eu_marca = existeTallaMarca ? talla : null,
-                        cantidad = random.Next(1, 6),
-                        precio = (int)(producto.precio_medio_mercado.HasValue ? Math.Round(producto.precio_medio_mercado.Value / 5.0m) * 5 + 20 : 0),
-                        fecha_actualizacion = DateTime.Now
-                    };
+                    var inventarioExistente = db.Inventario.FirstOrDefault(i => i.id_producto == producto.id_producto && (i.talla_eu == talla || i.talla_eu_marca == talla));
 
-                    if (existeTallaMarca)
+                    if (inventarioExistente != null)
                     {
-                        var tallaMarca = tallasMarcas.FirstOrDefault(t => condicionTallaMarca(t) && t.talla_eu == talla);
-                        if (tallaMarca != null) inventario.Tallas_Marcas = tallaMarca;
+                        inventarioExistente.cantidad += random.Next(1, 6);
+                        inventarioExistente.fecha_actualizacion = DateTime.Now;
                     }
                     else
                     {
-                        var tallaUniversal = tallasUniversales.FirstOrDefault(t => t.talla_eu == talla);
-                        if (tallaUniversal != null) inventario.Tallas_Universales = tallaUniversal;
-                    }
+                        var inventario = new Inventario
+                        {
+                            id_producto = producto.id_producto,
+                            id_marca = producto.nombre.ToLower().Contains("yeezy") ? db.Marcas.FirstOrDefault(m => m.nombre_marca.ToLower() == "yeezy").id_marca : producto.id_marca,
+                            talla_eu = !existeTallaMarca ? talla : null,
+                            talla_eu_marca = existeTallaMarca ? talla : null,
+                            cantidad = random.Next(1, 6),
+                            precio = (int)(producto.precio_medio_mercado.HasValue ? Math.Round(producto.precio_medio_mercado.Value / 5.0m) * 5 + 20 : 0),
+                            fecha_actualizacion = DateTime.Now
+                        };
 
-                    db.Inventario.Add(inventario);
+                        if (existeTallaMarca)
+                        {
+                            var tallaMarca = tallasMarcas.FirstOrDefault(t => condicionTallaMarca(t) && t.talla_eu == talla);
+                            if (tallaMarca != null) inventario.Tallas_Marcas = tallaMarca;
+                        }
+                        else
+                        {
+                            var tallaUniversal = tallasUniversales.FirstOrDefault(t => t.talla_eu == talla);
+                            if (tallaUniversal != null) inventario.Tallas_Universales = tallaUniversal;
+                        }
+
+                        db.Inventario.Add(inventario);
+                    }
                 }
             }
 

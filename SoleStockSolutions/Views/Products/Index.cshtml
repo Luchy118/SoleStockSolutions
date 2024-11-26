@@ -7,263 +7,360 @@
     var productosDisponibles = ViewData["ListaProductosDisponibles"] as IEnumerable<SoleStockSolutions.Models.Inventario>;
 }
 
-
 @section scripts{
     <script>
-        $(function () {
-            var selectedModelId = null;
+        $(document).ready(function () {
+            var initialMinPrice = parseFloat('@ViewBag.InitialMin');
+            var initialMaxPrice = parseFloat('@ViewBag.InitialMax');
+            var selectedModelId = '@ViewBag.SelectedModel';
+            var selectedBrands = [];
+            var selectedSizes = [];
+            var minPrice = null;
+            var maxPrice = null;
+            var sortOrder = null;
 
-            $.ajax({
-                url: "/products/getminmaxprice",
-                type: "GET",
-                success: function (response) {
-                    var minPrice = response.minPrice;
-                    var maxPrice = response.maxPrice;
-
-                    $("#slider-range").slider({
-                        range: true,
-                        min: minPrice,
-                        max: maxPrice,
-                        values: [minPrice, maxPrice],
-                        slide: function (event, ui) {
-                            $("#min-amount").val(ui.values[0]);
-                            $("#max-amount").val(ui.values[1]);
-                            togglePriceFilterButton(ui.values[0], ui.values[1], minPrice, maxPrice);
-                        },
-                        stop: function (event, ui) {
-                            updateProductList(ui.values[0], ui.values[1]);
-                            updateActiveFilters();
-                        }
-                    });
-
-                    $("#min-amount").val(minPrice);
-                    $("#max-amount").val(maxPrice);
-
-                    $("#min-amount, #max-amount").on("change", function () {
-                        var min = parseInt($("#min-amount").val());
-                        var max = parseInt($("#max-amount").val());
-
-                        if (isNaN(min) || min < minPrice)
-                            min = minPrice;
-                        else if (isNaN(max) || max > maxPrice)
-                            max = maxPrice;
-                        else if (min > max)
-                            max = min;
-
-                        $("#min-amount").val(min);
-                        $("#max-amount").val(max);
-                        $("#slider-range").slider("values", [min, max]);
-                        updateProductList(min, max);
-                        togglePriceFilterButton(min, max, minPrice, maxPrice);
-                        updateActiveFilters();
-                    });
-
-                    $("#min-amount, #max-amount").on("keypress", function (e) {
-                        if (e.which < 48 || e.which > 57) {
-                            e.preventDefault();
-                        }
-                    });
-
-                    $("#filter-btn-precio").on("click", function () {
-                        $("#min-amount").val(minPrice);
-                        $("#max-amount").val(maxPrice);
-                        $("#slider-range").slider("values", [minPrice, maxPrice]);
-                        updateProductList(minPrice, maxPrice);
-                        togglePriceFilterButton(minPrice, maxPrice, minPrice, maxPrice);
-                        updateActiveFilters();
-                    });
-                }
-            });
-
-            function updateProductList(minPrice, maxPrice) {
-                var selectedBrands = [];
-                $("input[name='brand']:checked").each(function () {
-                    selectedBrands.push($(this).val());
-                });
-
-                $.ajax({
-                    url: "/products/filterproducts",
-                    type: "GET",
-                    traditional: true,
-                    data: {
-                        minPrice: minPrice,
-                        maxPrice: maxPrice,
-                        selectedBrands: selectedBrands,
-                        modelId: selectedModelId
-                    },
-                    success: function (data) {
-                        $("#product-list").html(data);
-                        updateProductCount();
-                        toggleBrandFilterButton();
-                        toggleModelFilterButton();
-                    }
-                });
-            }
-
-            $(".model-item").on("click", function () {
-                $(".model-item").css("font-weight", "normal").css("pointer-events", "auto");
-                $(this).css("font-weight", "bold").css("pointer-events", "none");
-                selectedModelId = $(this).data("model-id");
-                var min = parseInt($("#min-amount").val());
-                var max = parseInt($("#max-amount").val());
-                updateProductList(min, max);
-                updateActiveFilters();
+            if (selectedModelId != null) {
                 toggleModelFilterButton();
-            });
-
-            function updateProductCount() {
-                var count = $("#product-list .product-item").length;
-                $("#product-count").text("Mostrando " + count + " resultados");
+                toggleAllFilterButton();
+                updateFilters();
             }
 
-            function togglePriceFilterButton(min, max, initialMin, initialMax) {
-                if (min !== initialMin || max !== initialMax)
-                    $("#filter-btn-precio").css("visibility", "visible");
-                else
-                    $("#filter-btn-precio").css("visibility", "hidden");
+            function getSelectedBrands() {
+                return $('input[name="brand"]:checked').map(function () {
+                    return $(this).val();
+                }).get();
+            }
+
+            function getSelectedSizes() {
+                return $('input[name="size"]:checked').map(function () {
+                    return $(this).val();
+                }).get();
+            }
+
+            function getMinPrice() {
+                return parseFloat($('#min-amount').val());
+            }
+
+            function getMaxPrice() {
+                return parseFloat($('#max-amount').val());
+            }
+
+            function getSortOrder() {
+                return $('#sortOptions').val();
+            }
+
+            function toggleAllFilterButton() {
+                var searchQuery = $('#search-query').val();
+                if (selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || selectedModelId != null || searchQuery) {
+                    $('#filter-btn-all').css('visibility', 'visible');
+                    $('.active-filters-container').show();
+                } else {
+                    $('#filter-btn-all').css('visibility', 'hidden');
+                    $('.active-filters-container').hide();
+                }
             }
 
             function toggleBrandFilterButton() {
-                var selectedBrands = $("input[name='brand']:checked").length;
-                if (selectedBrands > 0)
-                    $("#filter-btn-marca").css("visibility", "visible");
+                if (selectedBrands.length > 0)
+                    $('#filter-btn-marca').css('visibility', 'visible');
                 else
-                    $("#filter-btn-marca").css("visibility", "hidden");
+                    $('#filter-btn-marca').css('visibility', 'hidden');
             }
-
-            $("#filter-btn-modelo").click(function () {
-                selectedModelId = null;
-                $(".model-item").css("font-weight", "normal").css("pointer-events", "auto");
-                var min = parseInt($("#min-amount").val());
-                var max = parseInt($("#max-amount").val());
-                updateProductList(min, max);
-                toggleModelFilterButton();
-                updateActiveFilters();
-            });
 
             function toggleModelFilterButton() {
-                if (selectedModelId !== null)
-                    $("#filter-btn-modelo").css("visibility", "visible");
+                if (selectedModelId != null)
+                    $('#filter-btn-modelo').css('visibility', 'visible');
                 else
-                    $("#filter-btn-modelo").css("visibility", "hidden");
+                    $('#filter-btn-modelo').css('visibility', 'hidden');
             }
 
+            function toggleSizeFilterButton() {
+                if (selectedSizes.length > 0)
+                    $('#filter-btn-talla').css('visibility', 'visible');
+                else
+                    $('#filter-btn-talla').css('visibility', 'hidden');
+            }
 
-            $("#filter-btn-marca").click(function () {
-                $("input[name='brand']").prop("checked", false);
-                var min = parseInt($("#min-amount").val());
-                var max = parseInt($("#max-amount").val());
-                updateProductList(min, max);
+            function togglePriceFilterButton() {
+                if ((minPrice !== initialMinPrice && minPrice !== '') || (maxPrice !== initialMaxPrice && maxPrice !== ''))
+                    $('#filter-btn-precio').css('visibility', 'visible');
+                else
+                    $('#filter-btn-precio').css('visibility', 'hidden');
+            }
+
+            function searchProducts(query) {
+                $.ajax({
+                    url: '@Url.Action("SearchProducts")',
+                    traditional: true,
+                    type: 'GET',
+                    data: {
+                        query: query,
+                        sortOrder: sortOrder,
+                        selectedBrands: selectedBrands,
+                        modelId: selectedModelId,
+                        selectedSizes: selectedSizes
+                    },
+                    success: function (data) {
+                        $('#productList').html(data.productListHtml);
+                    }
+                });
+            }
+
+            function sortProducts(sortOrder) {
+                var searchQuery = $('#search-query').val();
+                $.ajax({
+                    url: '@Url.Action("SortProducts")',
+                    traditional: true,
+                    type: 'GET',
+                    data: {
+                        sortOrder: sortOrder,
+                        selectedBrands: selectedBrands,
+                        modelId: selectedModelId,
+                        selectedSizes: selectedSizes,
+                        query: searchQuery
+                    },
+                    success: function (data) {
+                        $('#productList').html(data.productListHtml);
+                    }
+                });
+            }
+
+            function initializeSlider() {
+                //$('#slider-range').slider({
+                //    range: true,
+                //    min: initialMinPrice,
+                //    max: initialMaxPrice,
+                //    values: [initialMinPrice, initialMaxPrice],
+                //    slide: function (event, ui) {
+                //        $('#min-amount').val(ui.values[0]);
+                //        $('#max-amount').val(ui.values[1]);
+                //    },
+                //    stop: function (event, ui) {
+                //        $('#min-amount').val(ui.values[0]);
+                //        $('#max-amount').val(ui.values[1]);
+                //        minPrice = getMinPrice();
+                //        maxPrice = getMaxPrice();
+                //        updateFilters();
+                //    }
+                //});
+
+                $('#slider-range').slider({
+                    range: true,
+                    min: initialMinPrice,
+                    max: initialMaxPrice,
+                    values: [initialMinPrice, initialMaxPrice],
+                    slide: function (event, ui) {
+                        return false;
+                    }
+                });
+            }
+
+            function updateSliderRange(newMin, newMax) {
+                initialMinPrice = newMin;
+                initialMaxPrice = newMax;
+                $("#slider-range").slider('option', { min: initialMinPrice, max: initialMaxPrice });
+                $('#slider-range').slider('values', 0, initialMinPrice);
+                $('#slider-range').slider('values', 1, initialMaxPrice);
+                $('#min-amount').val(initialMinPrice);
+                $('#max-amount').val(initialMaxPrice);
+            }
+
+            function updateFilters() {
+                selectedBrands = getSelectedBrands();
+                selectedSizes = getSelectedSizes();
+                minPrice = getMinPrice();
+                maxPrice = getMaxPrice();
+                sortOrder = getSortOrder();
+                var searchQuery = $('#search-query').val();
+
+                toggleAllFilterButton();
                 toggleBrandFilterButton();
-                updateActiveFilters();
-            });
+                toggleModelFilterButton();
+                toggleSizeFilterButton();
+                togglePriceFilterButton();
 
+                $('#active-filters-list').empty();
 
-            $("input[name='brand']").change(function () {
-                var min = parseInt($("#min-amount").val());
-                var max = parseInt($("#max-amount").val());
-                updateProductList(min, max);
-                toggleBrandFilterButton();
-                updateActiveFilters();
-            });
-
-            function updateActiveFilters() {
-                var activeFilters = [];
-                $("input[name='brand']:checked").each(function () {
-                    activeFilters.push({ type: 'brand', value: $(this).val(), label: $(this).next('label').text() });
+                selectedBrands.forEach(function (brand) {
+                    var brandName = $('input[name="brand"][value="' + brand + '"]').data('brand-name');
+                    var label = "<div><b>Marca:</b> " + brandName + "</div>";
+                    var filter = { type: "brand", value: brand };
+                    var $filterItem = $("<li>").addClass("filter-item").append($("<div>").html(label).addClass("filter-label")).append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").data("filter", filter));
+                    $('#active-filters-list').append($filterItem);
                 });
 
-                var minPrice = parseInt($("#min-amount").val());
-                var maxPrice = parseInt($("#max-amount").val());
-                var initialMinPrice = $("#slider-range").slider("option", "min");
-                var initialMaxPrice = $("#slider-range").slider("option", "max");
+                selectedSizes.forEach(function (size) {
+                    var label = "<div><b>Talla:</b> " + size + "</div>";
+                    var filter = { type: "size", value: size };
+                    var $filterItem = $("<li>").addClass("filter-item").append($("<div>").html(label).addClass("filter-label")).append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").data("filter", filter));
+                    $('#active-filters-list').append($filterItem);
+                });
 
                 if (minPrice !== initialMinPrice || maxPrice !== initialMaxPrice) {
-                    activeFilters.push({ type: 'price', value: { min: minPrice, max: maxPrice }, label: `<div>Precio: <b>${minPrice}€ - ${maxPrice}€</b></div>` });
+                    var label = "<div><b>Precio:</b> " + (minPrice ? minPrice + "€ - " : "") + (maxPrice ? maxPrice + "€" : "") + "</div>";
+                    var filter = { type: "price", min: minPrice, max: maxPrice };
+                    var $filterItem = $("<li>").addClass("filter-item").append($("<div>").html(label).addClass("filter-label")).append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").data("filter", filter));
+                    $('#active-filters-list').append($filterItem);
                 }
 
-                if (selectedModelId) {
-                    var modelName = $(".model-item[data-model-id='" + selectedModelId + "'] span").text();
-                    activeFilters.push({ type: 'model', value: selectedModelId, label: `${modelName}` });
+                if (selectedModelId != null) {
+                    var modelName = $('.model-item[data-model-id="' + selectedModelId + '"]').data('model-name');
+                    var label = "<div><b>Modelo:</b> " + modelName + "</div>";
+                    var filter = { type: "model", value: selectedModelId };
+                    var $filterItem = $("<li>").addClass("filter-item").append($("<div>").html(label).addClass("filter-label")).append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").data("filter", filter));
+                    $('#active-filters-list').append($filterItem);
                 }
 
-                var $activeFiltersList = $("#active-filters-list");
-                $activeFiltersList.empty();
+                if (searchQuery) {
+                    var label = "<div><b>Búsqueda:</b> " + searchQuery + "</div>";
+                    var filter = { type: "search", value: searchQuery };
+                    var $filterItem = $("<li>").addClass("filter-item").append($("<div>").html(label).addClass("filter-label")).append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").data("filter", filter));
+                    $('#active-filters-list').append($filterItem);
+                }
 
-                activeFilters.forEach(function (filter) {
-                    if (filter.type === 'brand') {
-                        var label = "<div>Marcas: <b>" + filter.label.split('(')[0] + "</b></div>";
-                        var $filterItem = $("<li>").html(label).css({ "display": "flex", "justify-content": "space-between", "transition": "all 0.3s ease 0s" })
-                            .append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").css({ "cursor": "pointer", "color": "#6c757d", "transition": "all 0.3s ease 0s" }).hover(
-                                function () { $(this).css("color", "#000000"); },
-                                function () { $(this).css("color", "#6c757d"); }
-                            ).data("filter", filter));
-                        $activeFiltersList.append($filterItem);
-                    } else if (filter.type === 'model') {
-                        var label = "<div>Modelo: <b>" + filter.label.split('(')[0] + "</b></div>";
-                        var $filterItem = $("<li>").html(label).css({ "display": "flex", "justify-content": "space-between", "transition": "all 0.3s ease 0s" })
-                            .append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").css({ "cursor": "pointer", "color": "#6c757d", "transition": "all 0.3s ease 0s" }).hover(
-                                function () { $(this).css("color", "#000000"); },
-                                function () { $(this).css("color", "#6c757d"); }
-                            ).data("filter", filter));
-                        $activeFiltersList.append($filterItem);
-                    } else {
-                        var $filterItem = $("<li>").html(filter.label).css({ "display": "flex", "justify-content": "space-between", "transition": "all 0.3s ease 0s" })
-                            .append($("<i>").addClass("fa fa-times remove-filter").attr("aria-hidden", "true").css({"cursor": "pointer", "color": "#6c757d", "transition": "all 0.3s ease 0s"}).hover(
-                                function() { $(this).css("color", "#000000"); },
-                                function() { $(this).css("color", "#6c757d"); }
-                            ).data("filter", filter));
-                        $activeFiltersList.append($filterItem);
+                $.ajax({
+                    url: '@Url.Action("FilterProducts")',
+                    traditional: true,
+                    data: {
+                        minPrice: minPrice !== initialMinPrice ?? minPrice,
+                        maxPrice: maxPrice !== initialMaxPrice ?? maxPrice,
+                        selectedBrands: selectedBrands,
+                        selectedSizes: selectedSizes,
+                        modelId: selectedModelId,
+                        sortOrder: sortOrder,
+                        query: searchQuery
+                    },
+                    success: function(data) {
+                        $('#productList').html(data.productListHtml);
+                        $('#product-count').text('Mostrando ' + data.productCount + ' resultados');
                     }
                 });
 
+                $.ajax({
+                    url: '@Url.Action("GetBrandFilter")',
+                    traditional: true,
+                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
+                    success: function(data) {
+                        $('#brandFilter').html(data);
+                    }
+                });
 
-                if (activeFilters.length > 0) {
-                    $(".filters-toggled").show();
-                } else {
-                    $(".filters-toggled").hide();
-                }
+                $.ajax({
+                    url: '@Url.Action("GetModelFilter")',
+                    traditional: true,
+                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
+                    success: function(data) {
+                        $('#modelFilter').html(data);
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("GetSizeFilter")',
+                    traditional: true,
+                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
+                    success: function(data) {
+                        $('#sizeFilter').html(data);
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("GetPriceRange")',
+                    traditional: true,
+                    data: {
+                        selectedBrands: selectedBrands,
+                        selectedSizes: selectedSizes,
+                        modelId: selectedModelId
+                    },
+                    success: function(data) {
+                        updateSliderRange(data.rangeMinPrice, data.rangeMaxPrice);
+                    }
+                });
             }
 
-            $(document).on("click", ".remove-filter", function () {
-                var filter = $(this).data("filter");
+            $(document).on('change', 'input[name="brand"], input[name="size"]', function() {
+                updateFilters();
+            });
+
+            $(document).on('change', '#min-amount, #max-amount', function () {
+                updateFilters();
+            });
+
+            $(document).on('click', '.model-item', function () {
+                selectedModelId = $(this).attr('data-model-id');
+                $('.model-item').removeClass('selected-model');
+                $(this).addClass('selected-model');
+                updateFilters();
+            });
+
+            $(document).on('click', '.remove-filter', function () {
+                var filter = $(this).data('filter');
                 if (filter.type === 'brand') {
-                    $("input[name='brand'][value='" + filter.value + "']").prop("checked", false);
+                    $('input[name="brand"][value="' + filter.value + '"]').prop('checked', false);
+                } else if (filter.type === 'size') {
+                    $('input[name="size"][value="' + filter.value + '"]').prop('checked', false);
                 } else if (filter.type === 'price') {
-                    var initialMinPrice = $("#slider-range").slider("option", "min");
-                    var initialMaxPrice = $("#slider-range").slider("option", "max");
-                    $("#min-amount").val(initialMinPrice);
-                    $("#max-amount").val(initialMaxPrice);
-                    $("#slider-range").slider("values", [initialMinPrice, initialMaxPrice]);
+                    $('#min-amount').val('');
+                    $('#max-amount').val('');
                 } else if (filter.type === 'model') {
                     selectedModelId = null;
+                    $('.model-item').removeClass('selected-model');
+                } else if (filter.type === 'search') {
+                    $('#search-query').val('');
                 }
-                updateProductList();
-                updateActiveFilters();
+
+                updateFilters();
+                sortProducts(sortOrder);
             });
 
-            $("#filter-btn-all").on("click", function () {
-                $("input[name='brand']").prop("checked", false);
-                var initialMinPrice = $("#slider-range").slider("option", "min");
-                var initialMaxPrice = $("#slider-range").slider("option", "max");
-                $("#min-amount").val(initialMinPrice);
-                $("#max-amount").val(initialMaxPrice);
-                $("#slider-range").slider("values", [initialMinPrice, initialMaxPrice]);
+            $(document).on('click', '#filter-btn-all', function () {
+                $('#search-query').val('');
+                $('input[name="brand"]').prop('checked', false);
+                $('input[name="size"]').prop('checked', false);
+                $('#min-amount').val(initialMinPrice);
+                $('#max-amount').val(initialMaxPrice);
                 selectedModelId = null;
-                $(".model-item").css("font-weight", "normal").css("pointer-events", "auto");
-                updateProductList();
-                togglePriceFilterButton(initialMinPrice, initialMaxPrice, initialMinPrice, initialMaxPrice);
-                updateActiveFilters();
+                $('.model-item').removeClass('selected-model');
+                updateFilters();
+                updateSliderRange(initialMinPrice, initialMaxPrice);
             });
 
-            $("input[name='brand'], #min-amount, #max-amount").on("change", function () {
-                updateProductList();
-                updateActiveFilters();
+            $(document).on('click', '#filter-btn-marca', function () {
+                $('input[name="brand"]').prop('checked', false);
+                updateFilters();
             });
+
+            $(document).on('click', '#filter-btn-modelo', function () {
+                selectedModelId = null;
+                $('.model-item').removeClass('selected-model');
+                updateFilters();
+            });
+
+            $(document).on('click', '#filter-btn-talla', function () {
+                $('input[name="size"]').prop('checked', false);
+                updateFilters();
+            });
+
+            $(document).on('click', '#filter-btn-precio', function () {
+                $('#min-amount').val(initialMinPrice);
+                $('#max-amount').val(initialMaxPrice);
+                updateFilters();
+                updateSliderRange(initialMinPrice, initialMaxPrice);
+            });
+
+            $(document).on('submit', '#search-form', function (e) {
+                e.preventDefault();
+                updateFilters();
+            });
+
+            $('#sortOptions').change(function () {
+                var sortOrder = $(this).val();
+                sortProducts(sortOrder);
+            });
+
+            initializeSlider();
         });
     </script>
 }
-
 
 <!-- Start Shop Page  -->
 <div class="shop-box-inner">
@@ -272,12 +369,12 @@
             <div class="col-xl-3 col-lg-3 col-sm-12 col-xs-12 sidebar-shop-left">
                 <div class="product-categori">
                     <div class="search-product">
-                        <form action="#">
-                            <input class="form-control" placeholder="Search here..." type="text">
+                        <form id="search-form">
+                            <input type="text" id="search-query" name="query" placeholder="Buscar productos...">
                             <button type="submit"> <i class="fa fa-search"></i> </button>
                         </form>
                     </div>
-                    <div class="filters-toggled" style="display: none">
+                    <div class="active-filters-container" style="display: none">
                         <div class="title-left filter-title">
                             <h3><i class="fa fa-filter" aria-hidden="true"></i> Filtros</h3>
                             <button class="filter-btn" id="filter-btn-all" style="visibility: initial !important"><small class="text-muted">Limpiar todo</small></button>
@@ -292,50 +389,30 @@
                             <button class="filter-btn" id="filter-btn-marca"><small class="text-muted">Limpiar</small></button>
                         </div>
                         <div class="brand-box">
-                            <ul>
-                                @{
-                                    int y = 0;
-                                    foreach (var marca in db.Marcas)
-                                    {
-                                        var nombre_marca = marca.nombre_marca.Substring(0, 1).ToUpper() + marca.nombre_marca.Substring(1).ToLower();
-                                        var cantidadProductos = db.Inventario.Where(i => i.id_marca == marca.id_marca).Select(i => i.id_producto).Distinct().Count();
-                                        <li>
-                                            <div class="checkbox checkbox-danger" style="display: flex; align-items: center; flex-direction: row; gap: .3rem;">
-                                                <input name="brand" id="Checkbox2+@y" value="@marca.id_marca" type="checkbox" style="accent-color: #b68a7b">
-                                                <label for="Checkbox2+@y" style="margin-bottom: 0">@nombre_marca <small>(@cantidadProductos)</small></label>
-
-                                            </div>
-                                        </li>
-                                        y++;
-                                    }
-                                }
+                            <ul id="brandFilter">
+                                @Html.Partial("_BrandFilter", (IEnumerable<SoleStockSolutions.Models.FiltroMarcas>)ViewBag.Marcas)
                             </ul>
                         </div>
                     </div>
                     <div class="filter-sidebar-left">
                         <div class="title-left filter-title">
-                            <h3>Modelos</h3>
+                            <h3>Modelo</h3>
                             <button class="filter-btn" id="filter-btn-modelo"><small class="text-muted">Limpiar</small></button>
                         </div>
-                        <div class="model-box">
-                            <ul>
-                                @{
-                                    int i = 0;
-                                    foreach (var modelo in db.Modelos)
-                                    {
-                                        var cantidadProductos = db.Productos.Where(p => p.id_modelo == modelo.id_modelo).Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p).Distinct().Count();
-                                        if (cantidadProductos > 0)
-                                        {
-                                            var nombre_modelo = System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(modelo.nombre_modelo.ToLower());
-                                            <li>
-                                                <div class="model-item" data-model-id="@modelo.id_modelo" style="cursor: pointer; display: flex; align-items: center; flex-direction: row; gap: .3rem;">
-                                                    <span>@nombre_modelo <small>(@cantidadProductos)</small></span>
-                                                </div>
-                                            </li>
-                                            i++;
-                                        }
-                                    }
-                                }
+                        <div class="model-box scrollable-filter">
+                            <ul id="modelFilter">
+                                @Html.Partial("_ModelFilter", (IEnumerable<SoleStockSolutions.Models.FiltroModelos>)ViewBag.Modelos)
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="filter-size-left">
+                        <div class="title-left filter-title">
+                            <h3>Talla</h3>
+                            <button class="filter-btn" id="filter-btn-talla"><small class="text-muted">Limpiar</small></button>
+                        </div>
+                        <div class="size-box scrollable-filter">
+                            <ul id="sizeFilter">
+                                @Html.Partial("_SizeFilter", (IEnumerable<SoleStockSolutions.Models.FiltroTallas>)ViewBag.Tallas)
                             </ul>
                         </div>
                     </div>
@@ -344,17 +421,8 @@
                             <h3>Precio</h3>
                             <button class="filter-btn" id="filter-btn-precio"><small class="text-muted">Limpiar</small></button>
                         </div>
-                        <div class="price-box-slider">
-                            <div id="slider-input">
-                                <span style="width: 45%">
-                                    <input type="text" id="min-amount">
-                                </span>
-                                <span style="width: 10%; display: inline-block; text-align: center;">-</span>
-                                <span style="width: 45%;">
-                                    <input type="text" id="max-amount">
-                                </span>
-                            </div>
-                            <div id="slider-range"></div>
+                        <div class="price-box-slider" id="priceFilter">
+                            @Html.Partial("_PriceFilter", (SoleStockSolutions.Models.FiltroPrecios)ViewBag.PriceRange)
                         </div>
                     </div>
 
@@ -365,13 +433,16 @@
                     <div class="product-item-filter row">
                         <div class="col-12 col-sm-8 text-center text-sm-left">
                             <div class="toolbar-sorter-right">
-                                <span>Sort by </span>
-                                <select id="basic" class="selectpicker show-tick form-control" data-placeholder="$ USD">
-                                    <option data-display="Select">Nothing</option>
-                                    <option value="1">Popularity</option>
-                                    <option value="2">High Price → Low Price</option>
-                                    <option value="3">Low Price → High Price</option>
-                                    <option value="4">Best Selling</option>
+                                <span>Ordenar por </span>
+                                <select id="sortOptions" class="selectpicker show-tick form-control" data-placeholder="€ EUR">
+                                    <option data-display="Select">Nada</option>
+                                    <option value="relevancia">Relevancia</option>
+                                    <option value="mas_vendidos">Más vendidos</option>
+                                    <option value="mas_nuevos">Más Nuevos</option>
+                                    <option value="precio_mayor_a_menor">Precio: Mayor → Menor</option>
+                                    <option value="precio_menor_a_mayor">Precio: Menor → Mayor</option>
+                                    <option value="titulo_a_z">Título: A - Z</option>
+                                    <option value="titulo_z_a">Título: Z - A</option>
                                 </select>
                             </div>
                             <p id="product-count">Mostrando @productosDisponibles.Count() resultados</p>
@@ -381,8 +452,8 @@
                                 <li>
                                     <a class="nav-link active" href="#grid-view" data-toggle="tab"> <i class="fa fa-th"></i> </a>
                                 </li>
-                                <li>
-                                    <a class="nav-link" href="#list-view" data-toggle="tab"> <i class="fa fa-list-ul"></i> </a>
+                                <li class="disabled-link">
+                                    <a class="nav-link disabled-link" href="javascript:void(0);" data-toggle="tab"> <i class="fa fa-list-ul"></i> </a>
                                 </li>
                             </ul>
                         </div>
@@ -390,12 +461,12 @@
                     <div class="row product-categorie-box">
                         <div class="tab-content">
                             <div role="tabpanel" class="tab-pane fade show active" id="grid-view">
-                                <div class="row" id="product-list">
+                                <div class="row" id="productList">
                                     @Html.Partial("_ProductList", productosDisponibles)
                                 </div>
                             </div>
                             <div role="tabpanel" class="tab-pane fade" id="list-view">
-                                <div class="list-view-box">
+                                @*<div class="list-view-box">
                                     <div class="row">
                                         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
                                             <div class="products-single fix">
@@ -427,74 +498,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="list-view-box">
-                                    <div class="row">
-                                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
-                                            <div class="products-single fix">
-                                                <div class="box-img-hover">
-                                                    <div class="type-lb">
-                                                        <p class="sale">Sale</p>
-                                                    </div>
-                                                    <a href="@Url.Action("ProductDetails", "Products", new { productName = "producto1" })">
-                                                        <img src="~/Assets/images/img-pro-02.jpg" class="img-fluid" alt="Image">
-                                                    </a>
-                                                    <div class="mask-icon">
-                                                        <ul>
-                                                            <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                                            <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 col-md-6 col-lg-8 col-xl-8">
-                                            <div class="why-text full-width">
-                                                <h4>Lorem ipsum dolor sit amet</h4>
-                                                <h5> <del>$ 60.00</del> $40.79</h5>
-                                                <p>
-                                                    Integer tincidunt aliquet nibh vitae dictum. In turpis sapien, imperdiet quis magna nec, iaculis ultrices ante. Integer vitae suscipit nisi. Morbi dignissim risus sit amet orci porta, eget aliquam purus
-                                                    sollicitudin. Cras eu metus felis. Sed arcu arcu, sagittis in blandit eu, imperdiet sit amet eros. Donec accumsan nisi purus, quis euismod ex volutpat in. Vestibulum eleifend eros ac lobortis aliquet.
-                                                    Suspendisse at ipsum vel lacus vehicula blandit et sollicitudin quam. Praesent vulputate semper libero pulvinar consequat. Etiam ut placerat lectus.
-                                                </p>
-                                                <a class="btn hvr-hover" href="#">Add to Cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="list-view-box">
-                                    <div class="row">
-                                        <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4">
-                                            <div class="products-single fix">
-                                                <div class="box-img-hover">
-                                                    <div class="type-lb">
-                                                        <p class="sale">Sale</p>
-                                                    </div>
-                                                    <img src="~/Assets/images/img-pro-03.jpg" class="img-fluid" alt="Image">
-                                                    <div class="mask-icon">
-                                                        <ul>
-                                                            <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                                            <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                                                        </ul>
-
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-sm-6 col-md-6 col-lg-8 col-xl-8">
-                                            <div class="why-text full-width">
-                                                <h4>Lorem ipsum dolor sit amet</h4>
-                                                <h5> <del>$ 60.00</del> $40.79</h5>
-                                                <p>
-                                                    Integer tincidunt aliquet nibh vitae dictum. In turpis sapien, imperdiet quis magna nec, iaculis ultrices ante. Integer vitae suscipit nisi. Morbi dignissim risus sit amet orci porta, eget aliquam purus
-                                                    sollicitudin. Cras eu metus felis. Sed arcu arcu, sagittis in blandit eu, imperdiet sit amet eros. Donec accumsan nisi purus, quis euismod ex volutpat in. Vestibulum eleifend eros ac lobortis aliquet.
-                                                    Suspendisse at ipsum vel lacus vehicula blandit et sollicitudin quam. Praesent vulputate semper libero pulvinar consequat. Etiam ut placerat lectus.
-                                                </p>
-                                                <a class="btn hvr-hover" href="#">Add to Cart</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                </div>*@
                             </div>
                         </div>
                     </div>

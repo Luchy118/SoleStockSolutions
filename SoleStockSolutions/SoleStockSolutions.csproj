@@ -194,6 +194,7 @@
     <Compile Include="Models\Categorías_Estados.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\Colores.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -420,7 +421,6 @@
     <Content Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Information\About.cshtml" />
-    <Content Include="Views\Information\Service.cshtml" />
     <Content Include="Views\Information\Contact.cshtml" />
     <Content Include="Views\Products\Index.cshtml" />
     <Content Include="Views\Checkout\Cart.cshtml" />
@@ -431,6 +431,10 @@
     <Content Include="Views\Account\Index.cshtml" />
     <Content Include="Views\Account\Wishlist.cshtml" />
     <Content Include="Views\Products\_ProductList.cshtml" />
+    <Content Include="Views\Products\_BrandFilter.cshtml" />
+    <Content Include="Views\Products\_ModelFilter.cshtml" />
+    <Content Include="Views\Products\_SizeFilter.cshtml" />
+    <Content Include="Views\Products\_PriceFilter.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

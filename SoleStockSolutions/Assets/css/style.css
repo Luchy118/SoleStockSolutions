@@ -1656,7 +1656,7 @@ nav.navbar.bootsnav ul.nav li > a:hover {
      color: #ffffff;
      float: right;
 }
-.brand-box, .all-filters-box, model-box {
+.brand-box, .all-filters-box, model-box, .size-box {
     display: inline-block;
     width: 100%;
     position: relative;
@@ -2452,6 +2452,74 @@ html, body {
         transition: all 0.3s ease 0s;
     }
 
-.filters-toggled, .filter-brand-left {
+.active-filters-container, .filter-brand-left, .filter-size-left {
     margin-bottom: 20px;
 }
+
+.remove-filter {
+    border: none;
+    cursor: pointer;
+}
+
+.remove-filter:hover i {
+    color: #000000 !important;
+}
+
+.selected-model {
+    font-weight: bold;
+    pointer-events: none;
+}
+
+.filter-item {
+    display: flex;
+    justify-content: space-between;
+    transition: all 0.3s ease 0s;
+}
+
+    .filter-item i {
+        cursor: pointer;
+        color: #6c757d;
+        transition: all 0.3s ease 0s;
+    }
+
+        .filter-item i:hover {
+            color: #000000;
+        }
+
+.scrollable-filter {
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+    .scrollable-filter::-webkit-scrollbar {
+        width: 4px; /* Ancho de la barra de scroll */
+    }
+
+    .scrollable-filter::-webkit-scrollbar-track {
+        background: #f1f1f1; /* Color del fondo de la barra de scroll */
+    }
+
+    .scrollable-filter::-webkit-scrollbar-thumb {
+        background: #6c757d; /* Color de la barra de scroll */
+        border-radius: 4px; /* Bordes redondeados */
+    }
+
+        .scrollable-filter::-webkit-scrollbar-thumb:hover {
+            background: #000000; /* Color de la barra de scroll al pasar el mouse */
+        }
+
+.disabled-link {
+    cursor: not-allowed;
+}
+
+.disabled-link a {
+    pointer-events: none;
+}
+
+#slider-range {
+    cursor: not-allowed;
+}
+
+    #slider-range .ui-slider-handle {
+        cursor: not-allowed;
+    }
