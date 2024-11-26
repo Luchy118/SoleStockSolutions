@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Web;
 using System.Web.Mvc;
 
@@ -27,15 +28,28 @@ namespace SoleStockSolutions.Controllers
             return View();
         }
 
-        public JsonResult GetMinMaxPrice()
+        public JsonResult GetMinMaxPrice(List<int?> selectedBrands, int? modelId)
         {
             using (var db = new TFCEntities())
             {
-                var minPrice = db.Inventario.Min(i => i.precio);
-                var maxPrice = db.Inventario.Max(i => i.precio);
+                var products = db.Inventario.AsQueryable();
+
+                if (selectedBrands != null && selectedBrands.Any())
+                    products = products.Where(p => selectedBrands.Contains(p.id_marca));
+
+                if (modelId.HasValue)
+                {
+                    var productIds = db.Productos.Where(p => p.id_modelo == modelId.Value).Select(p => p.id_producto).ToList();
+                    products = products.Where(p => productIds.Contains(p.id_producto));
+                }
+
+                var minPrice = products.Min(i => i.precio);
+                var maxPrice = products.Max(i => i.precio);
+
                 return Json(new { minPrice, maxPrice }, JsonRequestBehavior.AllowGet);
             }
         }
+
 
         public ActionResult FilterProducts(decimal? minPrice, decimal? maxPrice, List<int?> selectedBrands, int? modelId)
         {
@@ -61,5 +75,40 @@ namespace SoleStockSolutions.Controllers
             }
         }
 
+        public JsonResult GetModelsByBrands(List<int> selectedBrands)
+        {
+            using (var db = new TFCEntities()) {
+                var modelos = db.Modelos
+                            .Where(m => selectedBrands.Contains(m.id_marca))
+                            .Select(m => new
+                            {
+                                m.id_modelo,
+                                m.nombre_modelo,
+                                cantidadProductos = db.Productos.Where(p => p.id_modelo == m.id_modelo).Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p).Distinct().Count()
+                            })
+                            .Where(m => m.cantidadProductos > 0)
+                            .ToList();
+
+                return Json(modelos, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public JsonResult GetAllModels()
+        {
+            using (var db = new TFCEntities())
+            {
+                var modelos = db.Modelos
+                            .Select(m => new
+                            {
+                                m.id_modelo,
+                                m.nombre_modelo,
+                                cantidadProductos = db.Productos.Where(p => p.id_modelo == m.id_modelo).Join(db.Inventario, p => p.id_producto, i => i.id_producto, (p, i) => p).Distinct().Count()
+                            })
+                            .Where(m => m.cantidadProductos > 0)
+                            .ToList();
+
+                return Json(modelos, JsonRequestBehavior.AllowGet);
+            }
+        }
     }
 }

@@ -26,7 +26,7 @@ namespace SoleStockSolutions
                 name: "ProductDetails",
                 url: "products/{productName}",
                 defaults: new { controller = "Products", action = "ProductDetails" },
-                constraints: new { productName = new ExcludeActionNamesConstraint("GetMinMaxPrice", "FilterProducts") },
+                constraints: new { productName = new ExcludeActionNamesConstraint("GetMinMaxPrice", "GetAllModels", "GetModelsByBrands", "FilterProducts") },
                 namespaces: new[] { "SoleStockSolutions.Controllers" }
             );
 

@@ -100,7 +100,7 @@
                 });
             }
 
-            $(".model-item").on("click", function () {
+            $(document).on("click", ".model-item", function () {
                 $(".model-item").css("font-weight", "normal").css("pointer-events", "auto");
                 $(this).css("font-weight", "bold").css("pointer-events", "none");
                 selectedModelId = $(this).data("model-id");
@@ -156,16 +156,76 @@
                 updateProductList(min, max);
                 toggleBrandFilterButton();
                 updateActiveFilters();
+                loadModelFilterList();
             });
 
 
             $("input[name='brand']").change(function () {
-                var min = parseInt($("#min-amount").val());
-                var max = parseInt($("#max-amount").val());
-                updateProductList(min, max);
-                toggleBrandFilterButton();
-                updateActiveFilters();
+                var selectedBrands = [];
+                $("input[name='brand']:checked").each(function () {
+                    selectedBrands.push($(this).val());
+                });
+
+                if (selectedBrands.length > 0) {
+                    $.ajax({
+                        url: '/products/getmodelsbybrands',
+                        type: 'POST',
+                        traditional: true,
+                        data: { selectedBrands: selectedBrands },
+                        success: function (data) {
+                            var modelList = $('#modelList');
+                            modelList.empty();
+                            var modelExists = false;
+
+                            $.each(data, function (index, model) {
+                                modelList.append('<li><div class="model-item" data-model-id="' + model.id_modelo + '" style="cursor: pointer; display: flex; align-items: center; flex-direction: row; gap: .3rem; font-weight: normal; pointer-events: auto"><span>' + model.nombre_modelo + ' <small>(' + model.cantidadProductos + ')</small></span></div></li>');
+                                if (model.id_modelo == selectedModelId) {
+                                    modelExists = true;
+                                    $(".model-item[data-model-id='" + selectedModelId + "']").css("font-weight", "bold").css("pointer-events", "none");
+                                }
+                            });
+
+                            if (!modelExists) {
+                                selectedModelId = null;
+                                $(".model-item").css("font-weight", "normal").css("pointer-events", "auto");
+                                toggleModelFilterButton();
+                            }
+
+                            var min = parseInt($("#min-amount").val());
+                            var max = parseInt($("#max-amount").val());
+                            updateActiveFilters();
+                            updateProductList(min, max);
+                            toggleBrandFilterButton();
+                        }
+                    });
+                } else {
+                    loadModelFilterList();
+                    var min = parseInt($("#min-amount").val());
+                    var max = parseInt($("#max-amount").val());
+                    updateActiveFilters();
+                    updateProductList(min, max);
+                    toggleBrandFilterButton();
+                }
             });
+
+            function loadModelFilterList() {
+                $.ajax({
+                    url: '/products/getallmodels',
+                    traditional: true,
+                    type: 'GET',
+                    success: function (data) {
+                        var modelList = $('#modelList');
+                        modelList.empty();
+                        $.each(data, function (index, model) {
+                            modelList.append('<li><div class="model-item" data-model-id="' + model.id_modelo + '" style="cursor: pointer; display: flex; align-items: center; flex-direction: row; gap: .3rem; font-weight: normal; pointer-events: auto"><span>' + model.nombre_modelo + ' <small>(' + model.cantidadProductos + ')</small></span></div></li>');
+                            if (model.id_modelo == selectedModelId) {
+                                $(".model-item[data-model-id='" + selectedModelId + "']").css("font-weight", "bold").css("pointer-events", "none");
+                            }
+                        });
+                    }
+                });
+            }
+
 
             function updateActiveFilters() {
                 var activeFilters = [];
@@ -240,6 +300,7 @@
                 }
                 updateProductList();
                 updateActiveFilters();
+                loadModelFilterList();
             });
 
             $("#filter-btn-all").on("click", function () {
@@ -254,6 +315,7 @@
                 updateProductList();
                 togglePriceFilterButton(initialMinPrice, initialMaxPrice, initialMinPrice, initialMaxPrice);
                 updateActiveFilters();
+                loadModelFilterList();
             });
 
             $("input[name='brand'], #min-amount, #max-amount").on("change", function () {
@@ -318,7 +380,7 @@
                             <button class="filter-btn" id="filter-btn-modelo"><small class="text-muted">Limpiar</small></button>
                         </div>
                         <div class="model-box">
-                            <ul>
+                            <ul id="modelList">
                                 @{
                                     int i = 0;
                                     foreach (var modelo in db.Modelos)
