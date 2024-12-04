@@ -334,7 +334,7 @@
                 url: '@Url.Action("Index", "Products")',
                 data: { modeloId: modeloId },
                 success: function (response) {
-                    window.location.href = response.redirectUrl;
+                    window.location.href = "/products/index";
                 }
             });
         }

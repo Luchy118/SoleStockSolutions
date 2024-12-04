@@ -194,6 +194,7 @@
     <Compile Include="Models\Categorías_Estados.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\General.cs" />
     <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\Colores.cs">
       <DependentUpon>Model1.tt</DependentUpon>

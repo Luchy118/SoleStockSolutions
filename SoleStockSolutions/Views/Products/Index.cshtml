@@ -51,7 +51,7 @@
 
             function toggleAllFilterButton() {
                 var searchQuery = $('#search-query').val();
-                if (selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || selectedModelId != null || searchQuery) {
+                if (selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || (selectedModelId != null && selectedModelId != '') || searchQuery) {
                     $('#filter-btn-all').css('visibility', 'visible');
                     $('.active-filters-container').show();
                 } else {
@@ -68,7 +68,7 @@
             }
 
             function toggleModelFilterButton() {
-                if (selectedModelId != null)
+                if (selectedModelId != null && selectedModelId != '')
                     $('#filter-btn-modelo').css('visibility', 'visible');
                 else
                     $('#filter-btn-modelo').css('visibility', 'hidden');
@@ -203,7 +203,7 @@
                     $('#active-filters-list').append($filterItem);
                 }
 
-                if (selectedModelId != null) {
+                if (selectedModelId != null && selectedModelId != '') {
                     var modelName = $('.model-item[data-model-id="' + selectedModelId + '"]').data('model-name');
                     var label = "<div><b>Modelo:</b> " + modelName + "</div>";
                     var filter = { type: "model", value: selectedModelId };

@@ -12,18 +12,21 @@ namespace SoleStockSolutions.Controllers
 {
     public class ProductsController : Controller
     {
+        private static int indexRedirCalls = 0;
+
         public ActionResult Index(int? modeloId)
         {
             if (modeloId.HasValue)
-            {
                 Session["modeloId"] = modeloId;
-                return RedirectToAction("Index", "Products");
-            }
 
             if (Session["modeloId"] != null)
             {
                 modeloId = (int?)Session["modeloId"];
-                Session.Remove("modeloId");
+                indexRedirCalls++;
+                if (indexRedirCalls == 2) { 
+                    indexRedirCalls = 0;
+                    Session["modeloId"] = null;
+                }
             }
 
             using (var db = new TFCEntities())
@@ -81,7 +84,6 @@ namespace SoleStockSolutions.Controllers
                         CantidadProductos = g.Count()
                     })
                     .ToList();
-
                 var tallasOrdenadas = tallas.Select(t =>
                 {
                     double valorNumerico;
@@ -98,7 +100,6 @@ namespace SoleStockSolutions.Controllers
                 })
                 .OrderBy(t => t.Numerico)
                 .ToList();
-
                 var result = tallasOrdenadas.Select(t => new FiltroTallas
                 {
                     Talla = t.Original,
@@ -132,13 +133,67 @@ namespace SoleStockSolutions.Controllers
                     producto.veces_visto += 1;
                     db.SaveChanges();
                 }
-            }
 
-            ViewBag.ProductName = productName;
-            return View();
+                ViewBag.TotalCantidad = producto.Inventario.Sum(i => i.cantidad);
+                ViewBag.TotalVendidos = producto.Inventario.Sum(i => i.veces_vendido);
+
+                var tallas = producto.Inventario.Select(i => i.talla_eu ?? i.talla_eu_marca).ToList();
+                var tallasOrdenadas = tallas.Select(t =>
+                {
+                    double valorNumerico;
+                    string tallaOriginal = t;
+
+                    if (tallaOriginal.Contains("1/3"))
+                        valorNumerico = double.Parse(tallaOriginal.Replace(" 1/3", "").Replace(",", ".")) + 0.3;
+                    else if (tallaOriginal.Contains("2/3"))
+                        valorNumerico = double.Parse(tallaOriginal.Replace(" 2/3", "").Replace(",", ".")) + 0.6;
+                    else
+                        valorNumerico = double.Parse(tallaOriginal.Replace(".", ","));
+
+                    return new { Original = tallaOriginal, Numerico = valorNumerico };
+                })
+                .OrderBy(t => t.Numerico)
+                .Select(t => t.Original)
+                .ToList();
+                ViewBag.TallasOrdenadas = tallasOrdenadas;
+
+                var relatedProducts = db.Productos
+                    .Where(p => p.Marcas.id_marca == producto.Marcas.id_marca
+                                && p.Modelos.id_modelo == producto.Modelos.id_modelo
+                                && p.id_producto != producto.id_producto
+                                && p.Inventario.Any(i => i.cantidad > 0))
+                    .Select(p => new RelatedProducts
+                    {
+                        Producto = p,
+                        PrecioMinimo = p.Inventario.Where(i => i.cantidad > 0).Min(i => (int?)i.precio) ?? 0
+                    })
+                    .Take(10)
+                    .ToList();
+                if (relatedProducts.Count < 10)
+                {
+                    var additionalProducts = db.Productos
+                        .Where(p => p.Marcas.id_marca == producto.Marcas.id_marca
+                                    && p.Modelos.id_modelo != producto.Modelos.id_modelo
+                                    && p.id_producto != producto.id_producto
+                                    && p.Inventario.Any(i => i.cantidad > 0))
+                        .Select(p => new RelatedProducts
+                        {
+                            Producto = p,
+                            PrecioMinimo = p.Inventario.Where(i => i.cantidad > 0).Min(i => (int?)i.precio) ?? 0
+                        })
+                        .OrderBy(r => Guid.NewGuid())
+                        .Take(10 - relatedProducts.Count)
+                        .ToList();
+
+                    relatedProducts.AddRange(additionalProducts);
+                }
+                ViewBag.RelatedProducts = relatedProducts;
+
+                return View(producto);
+            }
         }
 
-        public PartialViewResult GetBrandFilter(List<int?> selectedBrands, int? modelId, int? minPrice, int? maxPrice, List<string> selectedSizes = null)
+        public PartialViewResult GetBrandFilter(List<int?> selectedBrands, int? modelId, /*int? minPrice, int? maxPrice,*/ List<string> selectedSizes = null)
         {
             using (var db = new TFCEntities())
             {
@@ -189,16 +244,14 @@ namespace SoleStockSolutions.Controllers
             }
         }
 
-        public PartialViewResult GetModelFilter(List<int?> selectedBrands, int? modelId, int? minPrice, int? maxPrice, List<string> selectedSizes = null)
+        public PartialViewResult GetModelFilter(List<int?> selectedBrands, int? modelId, /*int? minPrice, int? maxPrice,*/ List<string> selectedSizes = null)
         {
             using (var db = new TFCEntities())
             {
                 var modelos = db.Modelos.AsQueryable();
 
                 if (selectedBrands != null && selectedBrands.Any())
-                {
                     modelos = modelos.Where(m => selectedBrands.Contains(m.id_marca));
-                }
 
                 if (selectedSizes != null && selectedSizes.Any())
                 {

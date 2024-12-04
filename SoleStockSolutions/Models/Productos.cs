@@ -21,7 +21,7 @@ namespace SoleStockSolutions.Models
             this.Wishlist = new HashSet<Wishlist>();
             this.Productos_Colores = new HashSet<Productos_Colores>();
         }
-    
+
         public string id_producto { get; set; }
         public int id_marca { get; set; }
         public Nullable<int> id_modelo { get; set; }

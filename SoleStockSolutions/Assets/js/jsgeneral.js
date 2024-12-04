@@ -56,6 +56,44 @@
             }
         });
     }
+
+    showCopyLink() {
+        let currentUrl = window.location.href;
+        currentUrl = currentUrl.replace(/\/$|#$/, '');
+
+        Swal.fire({
+            title: "<strong>Copiar enlace del producto</strong>",
+            html: `
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" id="productLink" class="swal2-input" value="${currentUrl}" readonly style="flex: 1; font-size: 0.9em; margin: 0;">
+                        <button id="copyButton" class="swal2-confirm swal2-styled" style="padding: 5px 15px; background-color: #b68a7b;">
+                            <i class="fa fa-clone" aria-hidden="true"></i>
+                        </button>
+                    </div>`,
+            showConfirmButton: false,
+            didOpen: () => {
+                const copyButton = document.getElementById('copyButton');
+                const productLink = document.getElementById('productLink');
+                productLink.blur();
+                copyButton.addEventListener('click', () => {
+                    productLink.select();
+                    document.execCommand('copy');
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Enlace copiado en el portapapeles',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                });
+                copyButton.addEventListener('mouseover', () => {
+                    copyButton.style.backgroundColor = '#a67a6b';
+                });
+                copyButton.addEventListener('mouseout', () => {
+                    copyButton.style.backgroundColor = '#b68a7b';
+                });
+            }
+        });
+    }
 }
 
 const popups = new Popups();
