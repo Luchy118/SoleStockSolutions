@@ -19,90 +19,135 @@
 </div>
 <!-- End All Title Box -->
 <!-- Start My Account  -->
-<div class="my-account-box-main">
+<div class="my-account-box-main" style="@(Session["adminPerms"] != null && (bool)Session["adminPerms"] == true ? "display: flex; align-items: center;" : "")">
     <div class="container">
         <div class="my-account-page">
             <div class="row">
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a href="#"> <i class="fas fa-truck"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>Your Orders</h4>
-                                <p>Track, return, or buy things again</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a href="#"><i class="fa fa-lock"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>Login &amp; security</h4>
-                                <p>Edit login, name, and mobile number</p>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box m-0">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="@Url.Action("Index", "AdminPanel")"><i class="fa fa-columns" aria-hidden="true"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Panel de administración</h4>
+                                    <p>Accede al panel de administración para gestionar usuarios, productos, pedidos, etc.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a href="#"> <i class="fa fa-location-arrow"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>Your Addresses</h4>
-                                <p>Edit addresses for orders and gifts</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a href="#"> <i class="fa fa-credit-card"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>Payment options</h4>
-                                <p>Edit or add payment methods</p>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box m-0">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"><i class="fa fa-lock"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Privacidad y seguridad</h4>
+                                    <p>Modifica tu información de inicio de sesión, contraseña y preferencias de seguridad.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a href="#"> <i class="fab fa-paypal"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>PayPal</h4>
-                                <p>View benefits and payment settings</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-4 col-md-12">
-                    <div class="account-box">
-                        <div class="service-box">
-                            <div class="service-icon">
-                                <a onclick="popups.showConfirmLogOut()" style="color: #ffffff"> <i class="fa fa-sign-out" aria-hidden="true"></i> </a>
-                            </div>
-                            <div class="service-desc">
-                                <h4>Cerrar sesión</h4>
-                                <p>Finaliza seguramente tu sesión</p>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box m-0">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a onclick="popups.showConfirmLogOut()" style="color: #ffffff"> <i class="fa fa-sign-out" aria-hidden="true"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Cerrar sesión</h4>
+                                    <p>Finaliza seguramente tu sesión y protege tu cuenta de accesos no autorizados.</p>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
+                else
+                {
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"> <i class="fas fa-truck"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Your Orders</h4>
+                                    <p>Track, return, or buy things again</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"><i class="fa fa-lock"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Login &amp; security</h4>
+                                    <p>Edit login, name, and mobile number</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"> <i class="fa fa-location-arrow"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Your Addresses</h4>
+                                    <p>Edit addresses for orders and gifts</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"> <i class="fa fa-credit-card"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Payment options</h4>
+                                    <p>Edit or add payment methods</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a href="#"> <i class="fab fa-paypal"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>PayPal</h4>
+                                    <p>View benefits and payment settings</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-4 col-md-12">
+                        <div class="account-box">
+                            <div class="service-box">
+                                <div class="service-icon">
+                                    <a onclick="popups.showConfirmLogOut()" style="color: #ffffff"> <i class="fa fa-sign-out" aria-hidden="true"></i> </a>
+                                </div>
+                                <div class="service-desc">
+                                    <h4>Cerrar sesión</h4>
+                                    <p>Finaliza seguramente tu sesión y protege tu cuenta de accesos no autorizados.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
-            <div class="bottom-box">
+            @*<div class="bottom-box">
                 <div class="row">
                     <div class="col-lg-4 col-md-12">
                         <div class="account-box">
@@ -190,7 +235,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div>*@
         </div>
     </div>
 </div>

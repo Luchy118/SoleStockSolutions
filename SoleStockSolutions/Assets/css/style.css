@@ -1907,6 +1907,7 @@ nav.navbar.bootsnav ul.nav li > a:hover {
 }
  .my-account-box-main{
      padding: 70px 0px;
+     flex: 1;
 }
  .shopping-box a{
      font-size: 18px;

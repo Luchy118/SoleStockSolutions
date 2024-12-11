@@ -20,7 +20,8 @@
         "/information/contact",
         "/account/wishlist",
         "/account/login",
-        "/account/signup"
+        "/account/signup",
+        "/account/index"
     ];
 
     let currentPath = window.location.pathname;

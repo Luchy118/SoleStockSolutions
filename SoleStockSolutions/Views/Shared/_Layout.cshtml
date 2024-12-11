@@ -191,9 +191,8 @@
                         <li class="search"><a href="#"><i class="fa fa-search"></i></a></li>
                         @{
                             List<string> accountPages = new List<string> { "LogIn", "SignUp", "AccountIndex" };
-                            var user = Session["user"];
-                            var redirectUrlAccount = user != null ? Url.Action("Index", "Account") : @Url.Action("Login", "Account");
-                            var redirectUrlWishlist = user != null ? Url.Action("Wishlist", "Account") : @Url.Action("Login", "Account");
+                            var redirectUrlAccount = User.Identity.IsAuthenticated ? Url.Action("Index", "Account") : @Url.Action("Login", "Account");
+                            var redirectUrlWishlist = User.Identity.IsAuthenticated ? Url.Action("Wishlist", "Account") : @Url.Action("Login", "Account");
                         }
                         <li><a href="@redirectUrlAccount"><i class="fa fa-user" style="@(accountPages.Contains(ViewBag.CurrentAction) ? "color: #b68a7b" : "")"></i></a></li>
                         <li><a href="@redirectUrlWishlist"><i class="fas fa-heart" style="@(ViewBag.CurrentAction == "Wishlist" ? "color: #b68a7b" : "")"></i></a></li>

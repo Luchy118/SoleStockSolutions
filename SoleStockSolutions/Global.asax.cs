@@ -1,3 +1,4 @@
+using SoleStockSolutions.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using System.Web.Security;
 
 namespace SoleStockSolutions
 {
@@ -26,6 +28,21 @@ namespace SoleStockSolutions
             if (url != lowerUrl)
             {
                 HttpContext.Current.Response.RedirectPermanent(lowerUrl);
+            }
+        }
+
+        protected void Application_AuthenticateRequest(Object sender, EventArgs e)
+        {
+            HttpCookie authCookie = Context.Request.Cookies[FormsAuthentication.FormsCookieName];
+            if (authCookie != null)
+            {
+                FormsAuthenticationTicket authTicket = FormsAuthentication.Decrypt(authCookie.Value);
+                string[] roles = authTicket.UserData.Split(',');
+
+                CustomIdentity identity = new CustomIdentity(authTicket.Name, roles);
+                CustomPrincipal principal = new CustomPrincipal(identity);
+
+                Context.User = principal;
             }
         }
     }

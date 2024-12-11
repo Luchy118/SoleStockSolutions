@@ -16,12 +16,20 @@ namespace SoleStockSolutions.Controllers
 
         public ActionResult Login()
         {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index");
+
+            var returnUrl = TempData["ReturnUrl"] as string;
+            ViewBag.ReturnUrl = returnUrl;
             ViewBag.CurrentAction = "LogIn";
             return View();
         }
 
         public ActionResult SignUp()
         {
+            if (User.Identity.IsAuthenticated)
+                return RedirectToAction("Index");
+
             ViewBag.CurrentAction = "SignUp";
             return View();
         }
@@ -42,11 +50,11 @@ namespace SoleStockSolutions.Controllers
         public ActionResult SignOut()
         {
             FormsAuthentication.SignOut();
-            Session["user"] = null;
             return RedirectToAction("Index", "Home");
         }
 
-        public JsonResult ValidateLogin(Usuarios u)
+        [HttpPost]
+        public JsonResult ValidateLogin(Usuarios u, string returnUrl)
         {
             Usuarios existe = db.Usuarios.FirstOrDefault(x => x.email == u.email);
 
@@ -54,8 +62,26 @@ namespace SoleStockSolutions.Controllers
             {
                 if (VerifyPassword(u.contrasenia, existe.contrasenia))
                 {
-                    Session["user"] = existe.email;
-                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                    string roles = GetRoleForUser(existe);
+
+                    FormsAuthenticationTicket authTicket = new FormsAuthenticationTicket(
+                        1,
+                        existe.email,
+                        DateTime.Now,
+                        DateTime.Now.AddMinutes(30),
+                        false,
+                        roles
+                    );
+
+                    string encryptedTicket = FormsAuthentication.Encrypt(authTicket);
+
+                    HttpCookie authCookie = new HttpCookie(FormsAuthentication.FormsCookieName, encryptedTicket);
+                    Response.Cookies.Add(authCookie);
+
+                    if (Url.IsLocalUrl(returnUrl) && !string.IsNullOrEmpty(returnUrl))
+                        return Json(new { success = true, returnUrl }, JsonRequestBehavior.AllowGet);
+                    else
+                        return Json(new { success = true, returnUrl = Url.Action("Index", "Home") }, JsonRequestBehavior.AllowGet);
                 }
                 else
                     return Json(new { success = false, message = "La contraseña es errónea." }, JsonRequestBehavior.AllowGet);
@@ -103,5 +129,21 @@ namespace SoleStockSolutions.Controllers
             string inputHash = HashPassword(inputPassword);
             return inputHash.Equals(storedHash, StringComparison.OrdinalIgnoreCase);
         }
+
+        private string GetRoleForUser(Usuarios user)
+        {
+            List<string> roles = new List<string>();
+
+            if (user.super_administrador)
+                roles.Add("SuperAdmin");
+            if (user.administrador)
+                roles.Add("Admin");
+
+            if (roles.Count == 0)
+                roles.Add("User");
+
+            return string.Join(",", roles);
+        }
+
     }
 }

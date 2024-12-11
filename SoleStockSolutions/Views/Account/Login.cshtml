@@ -33,6 +33,7 @@
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12" style="margin-bottom: 0" bis_skin_checked="1">
+                                @Html.Hidden("returnUrl", (string)ViewBag.ReturnUrl)
                                 <button type="submit" class="btn hvr-hover">ACCEDER</button>
                             </div>
                         </div>
@@ -65,10 +66,15 @@
                     url: url,
                     data: form.serialize(),
                     success: function (response) {
-                        if (response.success)
-                            window.location.href = "@Url.Action("Index", "Account")";
-                        else
+                        if (response.success) {
+                            var returnUrl = form.find("input[name='returnUrl']").val();
+                            if (returnUrl && returnUrl.length > 0)
+                                window.location.href = returnUrl;
+                            else
+                                window.location.href = "@Url.Action("Index", "Account")";
+                        } else {
                             popups.showErrorTimer(response.message);
+                        }
                     },
                     error: function (xhr, status, error) {
                         console.log("Error en Login AJAX: " + error);
