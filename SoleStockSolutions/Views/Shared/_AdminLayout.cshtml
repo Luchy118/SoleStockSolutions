@@ -26,6 +26,8 @@
 
     <!-- Custom styles for this template-->
     <link href="~/Assets2/css/sb-admin-2.min.css" rel="stylesheet">
+
+    <link href="~/Assets2/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
 </head>
 
 <body id="page-top">
@@ -149,7 +151,7 @@
         <div id="content-wrapper" class="d-flex flex-column">
             <div id="content">
                 <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-0 static-top shadow">
 
                     <!-- Sidebar Toggle (Topbar) -->
                     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -251,7 +253,7 @@
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
                                         @*<img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                            alt="...">*@
+                                        alt="...">*@
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
@@ -281,7 +283,7 @@
                                  aria-labelledby="userDropdown">
                                 <a onclick="popups.showConfirmLogOut()" class="dropdown-item" style="cursor: pointer">
                                     <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Logout
+                                    Cerrar sesión
                                 </a>
                             </div>
                         </li>
@@ -308,7 +310,11 @@
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+        <script src="~/Assets2/vendor/datatables/jquery.dataTables.min.js"></script>
+        <script src="~/Assets2/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
         <script src="~/Assets/js/jsgeneral.js"></script>
 
+        @RenderSection("scripts", required: false)
 </body>
 </html>

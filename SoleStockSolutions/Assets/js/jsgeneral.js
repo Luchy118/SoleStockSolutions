@@ -5,7 +5,7 @@
             scrollbarPadding: false,
             title: "¡Error!",
             html: msg,
-            position: "top",
+            position: "center",
             timer: 3000,
             timerProgressBar: true,
             customClass: {
@@ -20,7 +20,7 @@
             scrollbarPadding: false,
             title: title,
             html: msg,
-            position: "top",
+            position: "center",
             timer: 3000,
             timerProgressBar: true,
             customClass: {
@@ -90,6 +90,51 @@
                 });
                 copyButton.addEventListener('mouseout', () => {
                     copyButton.style.backgroundColor = '#b68a7b';
+                });
+            }
+        });
+    }
+
+    showConfirmDelete(title, msg, url, id) {
+        Swal.fire({
+            title: title,
+            text: msg,
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Eliminar",
+            cancelButtonText: "Cancelar"
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (response) {
+                        if (response.success) {
+                            Swal.fire({
+                                title: "Eliminado",
+                                text: "El registro ha sido eliminado correctamente.",
+                                icon: "success"
+                            }).then(() => {
+                                location.reload();
+                            });
+                        } else {
+                            Swal.fire({
+                                title: "Error",
+                                text: "Hubo un problema al eliminar el registro.",
+                                icon: "error"
+                            });
+                        }
+                    },
+                    error: function () {
+                        Swal.fire({
+                            title: "Error",
+                            text: "Hubo un problema al eliminar el registro.",
+                            icon: "error"
+                        });
+                    }
                 });
             }
         });

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Ajax.Utilities;
+using SoleStockSolutions.Filters;
 using SoleStockSolutions.Models;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Web.Mvc;
 
 namespace SoleStockSolutions.Controllers
 {
+    [LoadModelosRelevantes]
     public class ProductsController : Controller
     {
         private static int indexRedirCalls = 0;

@@ -1,4 +1,900 @@
-﻿@{
+﻿@model SoleStockSolutions.Models.Productos
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Productos</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Productos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha de Lanzamiento</th>
+                                    <th>Imagen</th>
+                                    <th>Fecha Último Uso Interno</th>
+                                    <th>Veces Visto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Marca</th>
+                                    <th>Modelo</th>
+                                    <th>Nombre</th>
+                                    <th>Fecha de Lanzamiento</th>
+                                    <th>Imagen</th>
+                                    <th>Fecha Último Uso Interno</th>
+                                    <th>Veces Visto</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var producto in ViewBag.ProductsDatatable as List<SoleStockSolutions.Models.ProductsDatatable>)
+                                {
+                                    <tr>
+                                        <td>@producto.SKU</td>
+                                        <td>@producto.Marca</td>
+                                        <td>@producto.Modelo</td>
+                                        <td>@producto.Nombre</td>
+                                        <td>@(producto.FechaLanzamiento?.ToString("yyyy/MM/dd"))</td>
+                                        <td><img src="@producto.Imagen" alt="Imagen Producto" width="75"></td>
+                                        <td>@(producto.FechaUltimoUsoInterno?.ToString("yyyy/MM/dd"))</td>
+                                        <td>@producto.VecesVisto</td>
+                                        <td>
+                                            <a href="#update" class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadProductData("@producto.SKU"); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a href="" class="btn btn-sm btn-danger" onclick='var id = "@producto.SKU"; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteproduct", id )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <ul class="nav nav-tabs" id="createTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="manual" aria-selected="true">Introducción Manual</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="intelligent-tab" data-toggle="tab" href="#intelligent" role="tab" aria-controls="intelligent" aria-selected="false">Introducción Inteligente</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="createTabContent">
+                <div class="tab-pane fade show active mt-4" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                    <div class="card-body pt-0">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form id="createProductForm" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="manualSku">SKU</label>
+                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "manualSku", required = "required", maxlength = "50" })
+                                        @Html.ValidationMessageFor(m => m.id_producto, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualMarca">Marca</label>
+                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "manualMarca" })
+                                        @Html.ValidationMessageFor(m => m.id_marca, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualModelo">Modelo</label>
+                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "manualModelo" })
+                                        @Html.ValidationMessageFor(m => m.id_modelo, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualNombre">Nombre</label>
+                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "manualNombre", required = "required", maxlength = "100" })
+                                        @Html.ValidationMessageFor(m => m.nombre, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualDescripcion">Descripción</label>
+                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "manualDescripcion", maxlength = "200" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="manualFechaLanzamiento">Fecha de Lanzamiento</label>
+                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "manualFechaLanzamiento", type = "date" })
+                                    </div>
+                                    <button type="button" class="btn btn-primary" onclick="submitForm()">Guardar</button>
+                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('manualImagePreview', 'manualImagen')">Limpiar Campos</button>
+                                </form>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label for="manualImagen">Imagen</label>
+                                    <input type="file" class="form-control-file" id="manualImagen" name="imagen" accept="image/*" onchange="previewImage(this, 'manualImagePreview')">
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <img id="manualImagePreview" src="#" alt="Vista Previa de la Imagen" class="img-fluid" style="display: none; max-height: 500px">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade mt-4" id="intelligent" role="tabpanel" aria-labelledby="intelligent-tab">
+                    <div class="card-body pt-0">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form id="intelligentProductForm" enctype="multipart/form-data">
+                                    <div class="form-group position-relative">
+                                        <label for="intelligentSearch">Buscar Producto</label>
+                                        <input type="text" class="form-control" id="intelligentSearch" placeholder="Buscar producto a introducir...">
+                                        <div id="searchResults" class="dropdown-menu" style="display: none; width: 100%; position: absolute; z-index: 1000;"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentSku">SKU</label>
+                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "intelligentSku", required = "required", @disabled = "disabled", maxlength = "50" })
+                                        @Html.ValidationMessageFor(m => m.id_producto, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentMarca">Marca</label>
+                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "intelligentMarca" })
+                                        @Html.ValidationMessageFor(m => m.id_marca, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentModelo">Modelo</label>
+                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "intelligentModelo" })
+                                        @Html.ValidationMessageFor(m => m.id_modelo, "", new { @class = "text-danger" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentNombre">Nombre</label>
+                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "intelligentNombre", @disabled = "disabled", maxlength = "100" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentDescripcion">Descripción</label>
+                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "intelligentDescripcion", maxlength = "200" })
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="intelligentFechaLanzamiento">Fecha de Lanzamiento</label>
+                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "intelligentFechaLanzamiento", type = "date", @disabled = "disabled" })
+                                    </div>
+                                    @Html.HiddenFor(m => m.imagen, new { id = "intelligentImagenUrl" })
+                                    @Html.HiddenFor(m => m.precio_medio_mercado, new { id = "intelligentPrecioMercado" })
+                                    <button type="button" class="btn btn-primary" onclick="submitIntelligentForm()">Guardar</button>
+                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('intelligentImagePreview')">Limpiar Campos</button>
+                                </form>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="d-flex align-items-center">
+                                    <img id="intelligentImagePreview" src="#" alt="Vista Previa de la Imagen" class="img-fluid" style="display: none;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade mt-4" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card-body pt-0">
+                <div class="row">
+                    <div class="col-md-8">
+                        <form id="updateProductForm" enctype="multipart/form-data">
+                            <div class="form-group position-relative">
+                                <label for="updateSearch">Buscar Producto</label>
+                                <input type="text" class="form-control" id="updateSearch" placeholder="Buscar producto a modificar...">
+                                <div id="updateSearchResults" class="dropdown-menu" style="display: none; width: 100%; position: absolute; z-index: 1000;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateSku">SKU</label>
+                                @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "updateSku", required = "required", maxlength = "50", @disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.id_producto, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                <label for="updateMarca">Marca</label>
+                                @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "updateMarca", @disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.id_marca, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                <label for="updateModelo">Modelo</label>
+                                @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "updateModelo", @disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.id_modelo, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                <label for="updateNombre">Nombre</label>
+                                @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "updateNombre", required = "required", maxlength = "100", @disabled = "disabled" })
+                                @Html.ValidationMessageFor(m => m.nombre, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                <label for="updateDescripcion">Descripción</label>
+                                @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "updateDescripcion", maxlength = "200", @disabled = "disabled" })
+                            </div>
+                            <div class="form-group">
+                                <label for="updateFechaLanzamiento">Fecha de Lanzamiento</label>
+                                @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "updateFechaLanzamiento", type = "date", @disabled = "disabled" })
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="submitUpdateForm()" disabled>Guardar</button>
+                            <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('updateImagePreview', 'updateImagen'); disableUpdateFields();  $('#read-tab').tab('show');">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <label for="updateImagen">Imagen</label>
+                            <input type="file" class="form-control-file" id="updateImagen" name="imagen" accept="image/*" onchange="previewImage(this, 'updateImagePreview')" disabled>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <img id="updateImagePreview" src="#" alt="Vista Previa de la Imagen" class="img-fluid" style="display: none; max-height: 500px">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                search: {
+                    regex: true
+                }
+            });
+
+            $('#manualSku').on('blur', function () {
+                var sku = $(this).val();
+                if (sku) {
+                    $.ajax({
+                        url: '@Url.Action("IsSkuUnique", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { sku: sku },
+                        success: function (isNotUnique) {
+                            if (isNotUnique) {
+                                $('#manualSku').addClass('is-invalid');
+                                $('#manualSku').next('.text-danger').text('El SKU ya existe.');
+                            } else {
+                                $('#manualSku').removeClass('is-invalid');
+                                $('#manualSku').next('.text-danger').text('');
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#manualSku').on('input', function () {
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).next('.text-danger').text('');
+                }
+            });
+
+            $('#manualMarca').change(function () {
+                var marcaId = $(this).val();
+                if (marcaId) {
+                    $.ajax({
+                        url: '@Url.Action("GetModelosByMarca", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { marcaId: marcaId },
+                        success: function (data) {
+                            var modeloSelect = $('#manualModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: '@Url.Action("GetAllModelos", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        success: function (data) {
+                            var modeloSelect = $('#manualModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#manualModelo').change(function () {
+                var modeloId = $(this).val();
+                if (modeloId) {
+                    $.ajax({
+                        url: '@Url.Action("GetMarcaByModelo", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { modeloId: modeloId },
+                        success: function (data) {
+                            $('#manualMarca').val(data.id_marca);
+                        }
+                    });
+                }
+            });
+
+            $('#manualMarca').change(function () {
+                $('#manualModelo').val('');
+            });
+
+            $('#intelligentMarca').change(function () {
+                var marcaId = $(this).val();
+                if (marcaId) {
+                    $.ajax({
+                        url: '@Url.Action("GetModelosByMarca", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { marcaId: marcaId },
+                        success: function (data) {
+                            var modeloSelect = $('#intelligentModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: '@Url.Action("GetAllModelos", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        success: function (data) {
+                            var modeloSelect = $('#intelligentModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#intelligentModelo').change(function () {
+                var modeloId = $(this).val();
+                if (modeloId) {
+                    $.ajax({
+                        url: '@Url.Action("GetMarcaByModelo", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { modeloId: modeloId },
+                        success: function (data) {
+                            $('#intelligentMarca').val(data.id_marca);
+                        }
+                    });
+                }
+            });
+
+            $('#intelligentMarca').change(function () {
+                $('#intelligentModelo').val('');
+            });
+
+            $('#updateMarca').change(function () {
+                var marcaId = $(this).val();
+                if (marcaId) {
+                    $.ajax({
+                        url: '@Url.Action("GetModelosByMarca", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { marcaId: marcaId },
+                        success: function (data) {
+                            var modeloSelect = $('#updateModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                } else {
+                    $.ajax({
+                        url: '@Url.Action("GetAllModelos", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        success: function (data) {
+                            var modeloSelect = $('#updateModelo');
+                            modeloSelect.empty();
+                            modeloSelect.append($('<option>', {
+                                value: '',
+                                text: 'Seleccione un Modelo'
+                            }));
+                            $.each(data, function (index, modelo) {
+                                modeloSelect.append($('<option>', {
+                                    value: modelo.id_modelo,
+                                    text: modelo.nombre_modelo
+                                }));
+                            });
+                        }
+                    });
+                }
+            });
+
+            $('#updateModelo').change(function () {
+                var modeloId = $(this).val();
+                if (modeloId) {
+                    $.ajax({
+                        url: '@Url.Action("GetMarcaByModelo", "AdminPanel").ToLower()',
+                        type: 'GET',
+                        data: { modeloId: modeloId },
+                        success: function (data) {
+                            $('#updateMarca').val(data.id_marca);
+                        }
+                    });
+                }
+            });
+
+            $('#updateMarca').change(function () {
+                $('#updateModelo').val('');
+            });
+
+            $(document).click(function (event) {
+                var target = $(event.target);
+                if (!target.closest('#intelligentSearch').length && !target.closest('#searchResults').length) {
+                    $('#searchResults').hide();
+                    $('#intelligentSearch').val('');
+                }
+            });
+
+            $('#intelligentSearch').on('blur', function () {
+                setTimeout(function () {
+                    $('#searchResults').hide();
+                    $('#intelligentSearch').val('');
+                }, 200);
+            });
+
+            $('#updateSearch').on('input', function () {
+                clearTimeout(this.delay);
+                this.delay = setTimeout(function () {
+                    var query = $(this).val();
+                    if (query.length >= 3) {
+                        $.ajax({
+                            url: '@Url.Action("SearchProducts", "AdminPanel").ToLower()',
+                            type: 'POST',
+                            data: { searchTerm: query },
+                            success: function (data) {
+                                var results = $('#updateSearchResults');
+                                results.empty().show();
+                                if (data.length > 0) {
+                                    data.slice(0, 7).forEach(function (item) {
+                                        results.append('<a class="dropdown-item" href="#" onclick="loadProductData(\'' + item.id_producto + '\')"><img src="' + item.imagen + '" alt="Imagen Producto" width="50" class="mr-2">' + item.nombre + '</a>');
+                                    });
+                                } else {
+                                    var noResultsItem = document.createElement('div');
+                                    noResultsItem.classList.add('dropdown-item', 'text-muted');
+                                    noResultsItem.style.pointerEvents = 'none';
+                                    noResultsItem.textContent = 'Sin resultados, afine la búsqueda.';
+                                    results.append(noResultsItem);
+                                }
+                            }
+                        });
+                    } else {
+                        $('#updateSearchResults').hide();
+                    }
+                }.bind(this), 500);
+            });
+
+            $('#updateSearch').on('blur', function () {
+                setTimeout(function () {
+                    $('#updateSearchResults').hide();
+                    $('#updateSearch').val('');
+                }, 200);
+            });
+        });
+
+        function enableFieldsBeforeSubmit() {
+            $('#intelligentSku').prop('disabled', false);
+            $('#intelligentNombre').prop('disabled', false);
+            $('#intelligentFechaLanzamiento').prop('disabled', false);
+
+            setTimeout(function () {
+                $('#intelligentSku').prop('disabled', true);
+                $('#intelligentNombre').prop('disabled', true);
+                $('#intelligentFechaLanzamiento').prop('disabled', true);
+            }, 3000);
+        }
+
+        function clearFormErrors() {
+            $('#createProductForm .is-invalid, #intelligentProductForm .is-invalid').removeClass('is-invalid');
+            $('#createProductForm .text-danger, #intelligentProductForm .text-danger').text('');
+        }
+
+        function previewImage(input, previewId) {
+            var preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                preview.src = '#';
+                preview.style.display = 'none';
+            }
+        }
+
+        function clearPreview(previewId, inputId) {
+            var preview = document.getElementById(previewId);
+            preview.src = '#';
+            preview.style.display = 'none';
+            if (inputId) {
+                var input = document.getElementById(inputId);
+                input.value = '';
+            }
+        }
+
+        function submitForm() {
+            var form = $('#createProductForm')[0];
+            if (form.checkValidity()) {
+                var sku = $('#manualSku').val();
+                if (sku) {
+                    $.ajax({
+                        url: '@Url.Action("IsSkuUnique", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { sku: sku },
+                        success: function (isNotUnique) {
+                            if (isNotUnique) {
+                                $('#manualSku').addClass('is-invalid');
+                                $('#manualSku').next('.text-danger').text('El SKU ya existe.');
+                            } else {
+                                $('#manualSku').removeClass('is-invalid');
+                                $('#manualSku').next('.text-danger').text('');
+                                var formData = new FormData(form);
+                                var imageFile = document.getElementById('manualImagen').files[0];
+                                if (imageFile)
+                                    formData.append('imagen', imageFile);
+                                $.ajax({
+                                    url: '@Url.Action("CreateProduct", "AdminPanel").ToLower()',
+                                    type: 'POST',
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (response) {
+                                        if (response.success) {
+                                            popups.showSuccessTimer("Producto añadido correctamente", "Redirigiendo a la lista de productos...");
+                                            setTimeout(function() {
+                                                window.location.href = '@Url.Action("Products", "AdminPanel").ToLower()';
+                                            }, 2000);
+                                        } else {
+                                            popups.showErrorTimer(response.error);
+                                        }
+                                    },
+                                    error: function (error) {
+                                        console.log("Error en CreateProduct AJAX - Introducción Manual: " + error);
+                                        popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo o informe al desarrollador.");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            } else {
+                form.reportValidity();
+            }
+        }
+
+        async function submitIntelligentForm() {
+            enableFieldsBeforeSubmit();
+            var form = $('#intelligentProductForm')[0];
+            if (form.checkValidity()) {
+                var sku = $('#intelligentSku').val();
+                if (sku) {
+                    $.ajax({
+                        url: '@Url.Action("IsSkuUnique", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { sku: sku },
+                        success: async function (isNotUnique) {
+                            if (isNotUnique) {
+                                $('#intelligentSku').addClass('is-invalid');
+                                $('#intelligentSku').next('.text-danger').text('El SKU ya existe.');
+                            } else {
+                                $('#intelligentSku').removeClass('is-invalid');
+                                $('#intelligentSku').next('.text-danger').text('');
+                                $('#intelligentSku').prop('disabled', false);
+                                $('#intelligentNombre').prop('disabled', false);
+                                $('#intelligentFechaLanzamiento').prop('disabled', false);
+                                var avgPriceUSD = parseFloat($('#intelligentPrecioMercado').val());
+                                var avgPriceEUR = await obtenerPrecioMedioMercado(avgPriceUSD);
+                                $('#intelligentPrecioMercado').val(avgPriceEUR);
+                                var formData = new FormData(form);
+                                $.ajax({
+                                    url: '@Url.Action("CreateProduct", "AdminPanel").ToLower()',
+                                    type: 'POST',
+                                    data: formData,
+                                    contentType: false,
+                                    processData: false,
+                                    success: function (response) {
+                                        if (response.success) {
+                                            popups.showSuccessTimer("Producto añadido correctamente", "Redirigiendo a la lista de productos...");
+                                            setTimeout(function() {
+                                                window.location.href = '@Url.Action("Products", "AdminPanel").ToLower()';
+                                            }, 2000);
+                                        } else {
+                                            popups.showErrorTimer(response.error);
+                                        }
+                                    },
+                                    error: function (error) {
+                                        console.log("Error en CreateProduct AJAX - Introducción Inteligente: " + error);
+                                        popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo o informe al desarrollador.");
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            } else {
+                enableFieldsBeforeSubmit();
+                form.reportValidity();
+            }
+        }
+
+        function submitUpdateForm() {
+            $('#updateSku').prop('disabled', false);
+            var form = $('#updateProductForm');
+            var formData = new FormData(form[0]);
+            $('#updateSku').prop('disabled', true);
+            var imageFile = document.getElementById('updateImagen').files[0];
+            if (imageFile)
+                formData.append('imagen', imageFile);
+
+            $.ajax({
+                url: '@Url.Action("UpdateProduct", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.success) {
+                        popups.showSuccessTimer("Producto actualizado exitosamente.", "Redirigiendo a la lista de productos...");
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Products", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(response.error);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error en CreateProduct AJAX - Modificar Existente: " + error);
+                    popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo o informe al desarrollador.");
+                }
+            });
+        }
+
+
+        document.getElementById('intelligentSearch').addEventListener('input', function () {
+            clearTimeout(this.delay);
+            this.delay = setTimeout(function () {
+                searchProducts();
+            }.bind(this), 500);
+        });
+
+        function loadProductData(sku) {
+            $.ajax({
+                url: '@Url.Action("GetProduct", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: sku },
+                success: function (data) {
+                    if (data) {
+                        $('#updateSku').val(data.id_producto);
+                        $('#updateMarca').val(data.id_marca).prop('disabled', false);
+                        $('#updateModelo').val(data.id_modelo).prop('disabled', false);
+                        $('#updateNombre').val(data.nombre).prop('disabled', false);
+                        $('#updateDescripcion').val(data.descripcion).prop('disabled', false);
+                        $('#updateFechaLanzamiento').val(data.fecha_lanzamiento ? data.fecha_lanzamiento.split('T')[0] : '').prop('disabled', false);
+                        $('#updateImagen').prop('disabled', false);
+                        $('button[type="button"]').prop('disabled', false);
+                        if (data.imagen)
+                            $('#updateImagePreview').attr('src', data.imagen).show();
+                        else
+                            $('#updateImagePreview').hide();
+                        $('#updateSearchResults').hide();
+                    } else
+                        popups.showErrorTimer("No se pudo cargar la información del producto.");
+                },
+                error: function () {
+                    popups.showErrorTimer("Error al obtener los datos del producto.");
+                }
+            });
+        }
+
+        function disableUpdateFields() {
+            $('#updateMarca').prop('disabled', true);
+            $('#updateModelo').prop('disabled', true);
+            $('#updateNombre').prop('disabled', true);
+            $('#updateDescripcion').prop('disabled', true);
+            $('#updateFechaLanzamiento').prop('disabled', true);
+            $('#updateImagen').prop('disabled', true);
+            $('#updateProductForm button[type="button"]').prop('disabled', true);
+            $('#updateImagePreview').hide();
+        }
+
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            var target = $(e.target).attr("href");
+            if (target !== '#update') {
+                $('#updateProductForm')[0].reset();
+                disableUpdateFields();
+                clearPreview('updateImagePreview', 'updateImagen');
+            }
+            if (target !== '#create') {
+                $('#intelligentProductForm')[0].reset();
+                $('#createProductForm')[0].reset();
+                clearPreview('manualImagePreview', 'manualImagen');
+                clearPreview('intelligentImagePreview');
+            }
+            if (target === '#manual') {
+                $('#intelligentProductForm')[0].reset();
+                clearPreview('intelligentImagePreview');
+            }
+            if (target === '#intelligent') {
+                $('#createProductForm')[0].reset();
+                clearPreview('manualImagePreview', 'manualImagen');
+            }
+        });
+
+        async function searchProducts() {
+            var query = document.getElementById('intelligentSearch').value;
+            if (query.length < 3) {
+                document.getElementById('searchResults').style.display = 'none';
+                return;
+            }
+
+            var searchRequest = new Request(`/api/search?query=${query}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            try {
+                var response = await fetch(searchRequest);
+                if (response.ok) {
+                    var jsonData = await response.json();
+                    displaySearchResults(jsonData);
+                } else {
+                    console.error('Error al buscar productos');
+                }
+            } catch (error) {
+                console.error('Error al buscar productos', error);
+            }
+        }
+
+        function displaySearchResults(data) {
+            var resultsDropdown = document.getElementById('searchResults');
+            resultsDropdown.innerHTML = '';
+            var maxResults = 7;
+            var resultsToShow = null;
+            var noResults = false;
+
+            if (data.hits != null) {
+                resultsToShow = data.hits.filter(hit => {
+                    return !/( PS |\(PS\)| TD |\(TD\)| GS |\(GS\)| Hydro |\(Infants\)|\(Kids\)|\(I\)|Vinyl)/i.test(hit.title) && hit.category.includes('Shoes');
+                }).slice(0, maxResults);
+            } else
+                noResults = true;
+
+            if (resultsToShow != null && resultsToShow.length > 0) {
+                resultsToShow.forEach(hit => {
+                    var item = document.createElement('a');
+                    item.classList.add('dropdown-item');
+                    item.href = '#';
+                    item.innerHTML = `<img src="${hit.image}" alt="Imagen Producto" width="50"> ${hit.title}, ${hit.sku}`;
+                    item.addEventListener('click', function () {
+                        fillProductDetails(hit);
+                    });
+                    resultsDropdown.appendChild(item);
+                });
+            } else
+                noResults = true;
+
+            if (noResults) {
+                var noResultsItem = document.createElement('div');
+                noResultsItem.classList.add('dropdown-item', 'text-muted');
+                noResultsItem.style.pointerEvents = 'none';
+                noResultsItem.textContent = 'Sin resultados, afine la búsqueda.';
+                resultsDropdown.appendChild(noResultsItem);
+            }
+
+            resultsDropdown.style.display = 'block';
+        }
+
+        function fillProductDetails(hit) {
+            clearFormErrors();
+            document.getElementById('intelligentSku').value = hit.sku;
+            document.getElementById('intelligentNombre').value = hit.title;
+            document.getElementById('intelligentFechaLanzamiento').value = hit.release_date;
+            document.getElementById('intelligentImagePreview').src = hit.image;
+            document.getElementById('intelligentImagePreview').style.display = 'block';
+            document.getElementById('intelligentPrecioMercado').value = hit.avg_price;
+            document.getElementById('intelligentImagenUrl').value = hit.image;
+            document.getElementById('searchResults').style.display = 'none';
+        }
+
+        async function obtenerPrecioMedioMercado(precio) {
+            try {
+                return await convertCurrency(precio, "USD", "EUR");
+            } catch (error) {
+                console.error("Error en convertCurrency: ", error);
+                return await convertCurrency2(precio, "USD", "EUR");
+            }
+        }
+
+        async function convertCurrency(amount, fromCurrency, toCurrency) {
+            try {
+                var response = await fetch('https://openexchangerates.org/api/latest.json?app_id=2bf904fcc3ca41d78557adc8325f2320');
+                if (response.ok) {
+                    var jsonData = await response.json();
+                    var rates = jsonData.rates;
+                    var fromRate = rates[fromCurrency];
+                    var toRate = rates[toCurrency];
+                    var conversionRate = toRate / fromRate;
+                    return Math.round(amount * conversionRate);
+                } else if (response.status === 429) {
+                    throw new Error("Too Many Requests");
+                } else {
+                    throw new Error("Error al obtener las tasas de cambio.");
+                }
+            } catch (error) {
+                throw new Error("Error en convertCurrency: " + error.message);
+            }
+        }
+
+        async function convertCurrency2(amount, fromCurrency, toCurrency) {
+            try {
+                var response = await fetch(`https://v6.exchangerate-api.com/v6/74b2ae015e9fd5a65d8ba28d/latest/${fromCurrency}`);
+                if (response.ok) {
+                    var jsonData = await response.json();
+                    var rates = jsonData.conversion_rates;
+                    var toRate = rates[toCurrency];
+                    return Math.round(amount * toRate);
+                } else {
+                    throw new Error("Error al obtener las tasas de cambio.");
+                }
+            } catch (error) {
+                throw new Error("Error en convertCurrency2: " + error.message);
+            }
+        }
+
+    </script>
+}

@@ -101,7 +101,7 @@
             <PropertyRef Name="id_producto" />
           </Key>
           <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="id_marca" Type="int" Nullable="false" />
+          <Property Name="id_marca" Type="int" />
           <Property Name="id_modelo" Type="int" />
           <Property Name="nombre" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="descripcion" Type="varchar" MaxLength="200" />
@@ -301,7 +301,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Productos_Marcas">
-          <End Role="Marcas" Type="Self.Marcas" Multiplicity="1" />
+          <End Role="Marcas" Type="Self.Marcas" Multiplicity="0..1" />
           <End Role="Productos" Type="Self.Productos" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Marcas">
@@ -651,7 +651,7 @@
             <PropertyRef Name="id_producto" />
           </Key>
           <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="id_marca" Type="Int32" Nullable="false" />
+          <Property Name="id_marca" Type="Int32" />
           <Property Name="id_modelo" Type="Int32" />
           <Property Name="nombre" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="descripcion" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
@@ -866,7 +866,7 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Productos_Marcas">
-          <End Type="TFCModel.Marcas" Role="Marcas" Multiplicity="1" />
+          <End Type="TFCModel.Marcas" Role="Marcas" Multiplicity="0..1" />
           <End Type="TFCModel.Productos" Role="Productos" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Marcas">
