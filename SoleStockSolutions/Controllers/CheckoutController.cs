@@ -1,4 +1,5 @@
-﻿using SoleStockSolutions.Models;
+﻿using SoleStockSolutions.Filters;
+using SoleStockSolutions.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +8,7 @@ using System.Web.Mvc;
 
 namespace SoleStockSolutions.Controllers
 {
+    [LoadModelosRelevantes]
     public class CheckoutController : Controller
     {
         public ActionResult Cart()

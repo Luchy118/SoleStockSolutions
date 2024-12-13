@@ -67,7 +67,7 @@
                                             <div class="content">
                                                 <ul class="menu-col">
                                                     @{
-                                                        var modelosRelevantes = Session["modelosRelevantes"] as List<SoleStockSolutions.Models.Modelos>;
+                                                        var modelosRelevantes = ViewBag.ModelosRelevantes as List<SoleStockSolutions.Models.Modelos>;
                                                         foreach (var modelo in modelosRelevantes)
                                                         {
                                                             var cantidadProductos = db.Productos

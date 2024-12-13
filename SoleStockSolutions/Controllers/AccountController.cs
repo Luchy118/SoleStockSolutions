@@ -6,10 +6,12 @@ using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Security;
+using SoleStockSolutions.Filters;
 using SoleStockSolutions.Models;
 
 namespace SoleStockSolutions.Controllers
 {
+    [LoadModelosRelevantes]
     public class AccountController : Controller
     {
         private static TFCEntities db = new TFCEntities();
