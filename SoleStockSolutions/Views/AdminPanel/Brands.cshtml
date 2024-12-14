@@ -1,0 +1,183 @@
+﻿@model SoleStockSolutions.Models.Marcas
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Marcas</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Marcas</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID Marca</th>
+                                    <th>Nombre Marca</th>
+                                    <th>Logo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>ID Marca</th>
+                                    <th>Nombre Marca</th>
+                                    <th>Logo</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var marca in ViewBag.Marcas as List<SoleStockSolutions.Models.Marcas>)
+                                {
+                                    <tr>
+                                        <td>@marca.id_marca</td>
+                                        <td>@marca.nombre_marca</td>
+                                        <td><img src="@marca.logo_marca" alt="Logo Marca" width="75"></td>
+                                        <td>
+                                            <a href="#update" class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadBrandData(@marca.id_marca); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a href="" class="btn btn-sm btn-danger" onclick='var id = @marca.id_marca; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta marca?", "/adminpanel/deletebrand", id )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <div class="card-body">
+                <form id="createBrandForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="createNombreMarca">Nombre Marca</label>
+                        @Html.TextBoxFor(m => m.nombre_marca, new { @class = "form-control", id = "createNombreMarca", required = "required", maxlength = "50", onblur = "validateUniqueBrandName(this, 'createBrandForm')" })
+                        <span class="text-danger" id="createNombreMarcaError"></span>
+                        @Html.ValidationMessageFor(m => m.nombre_marca, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <label for="createLogoMarca">Logo Marca</label>
+                        <input type="file" class="form-control-file" id="createLogoMarca" name="logo_marca" accept="image/*" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Añadir Marca</button>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card-body">
+                <form id="updateBrandForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="updateIdMarca">ID Marca</label>
+                        @Html.TextBoxFor(m => m.id_marca, new { @class = "form-control", id = "updateIdMarca", @readonly = "readonly" })
+                    </div>
+                    <div class="form-group">
+                        <label for="updateNombreMarca">Nombre Marca</label>
+                        @Html.TextBoxFor(m => m.nombre_marca, new { @class = "form-control", id = "updateNombreMarca", required = "required", maxlength = "50", onblur = "validateUniqueBrandName(this, 'updateBrandForm')" })
+                        <span class="text-danger" id="updateNombreMarcaError"></span>
+                        @Html.ValidationMessageFor(m => m.nombre_marca, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <label for="updateLogoMarca">Logo Marca</label>
+                        <input type="file" class="form-control" id="updateLogoMarca" name="logo_marca" accept="image/*" />
+                        <img id="updateLogoPreview" src="" alt="Logo Marca" width="75" class="mt-2" />
+                    </div>
+                    <button type="submit" class="btn btn-primary">Modificar Marca</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                }
+            });
+
+            $('#createBrandForm').submit(function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '@Url.Action("CreateBrand", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert(data.error);
+                        }
+                    }
+                });
+            });
+
+            $('#updateBrandForm').submit(function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '@Url.Action("UpdateBrand", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            alert(data.error);
+                        }
+                    }
+                });
+            });
+        });
+
+        function loadBrandData(id) {
+            $.ajax({
+                url: '@Url.Action("GetBrand", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: id },
+                success: function (data) {
+                    $('#updateIdMarca').val(data.id_marca);
+                    $('#updateNombreMarca').val(data.nombre_marca);
+                    $('#updateLogoPreview').attr('src', data.logo_marca);
+                }
+            });
+        }
+
+        function validateUniqueBrandName(input, formId) {
+            var nombreMarca = $(input).val();
+            $.ajax({
+                url: '@Url.Action("IsBrandNameUnique", "AdminPanel")',
+                type: 'POST',
+                data: { nombre_marca: nombreMarca },
+                success: function (data) {
+                    if (data) {
+                        $('#' + formId + 'Error').text("El nombre de la marca ya existe.");
+                        $(input).val('');
+                    } else {
+                        $('#' + formId + 'Error').text('');
+                    }
+                }
+            });
+        }
+    </script>
+}

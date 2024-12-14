@@ -24,6 +24,7 @@ namespace SoleStockSolutions.Models
     
         public int id_marca { get; set; }
         public string nombre_marca { get; set; }
+        public string logo_marca { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Tallas_Marcas> Tallas_Marcas { get; set; }

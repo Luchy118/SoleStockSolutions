@@ -73,6 +73,7 @@
           </Key>
           <Property Name="id_marca" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="nombre_marca" Type="nvarchar" MaxLength="50" Nullable="false" />
+          <Property Name="logo_marca" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="Modelos">
           <Key>
@@ -617,6 +618,7 @@
           <NavigationProperty Name="Tallas_Marcas" Relationship="TFCModel.FK__Tallas_Ma__id_ma__6EC0713C" FromRole="Marcas" ToRole="Tallas_Marcas" />
           <NavigationProperty Name="Modelos" Relationship="TFCModel.FK_Modelos_Marcas" FromRole="Marcas" ToRole="Modelos" />
           <NavigationProperty Name="Productos" Relationship="TFCModel.FK_Productos_Marcas" FromRole="Marcas" ToRole="Productos" />
+          <Property Name="logo_marca" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
         </EntityType>
         <EntityType Name="Modelos">
           <Key>
@@ -1026,6 +1028,7 @@
           <EntitySetMapping Name="Marcas">
             <EntityTypeMapping TypeName="TFCModel.Marcas">
               <MappingFragment StoreEntitySet="Marcas">
+                <ScalarProperty Name="logo_marca" ColumnName="logo_marca" />
                 <ScalarProperty Name="nombre_marca" ColumnName="nombre_marca" />
                 <ScalarProperty Name="id_marca" ColumnName="id_marca" />
               </MappingFragment>

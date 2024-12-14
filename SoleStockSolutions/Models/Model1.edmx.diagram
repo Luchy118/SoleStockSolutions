@@ -5,7 +5,7 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="030b534f993b41288af3f81462a4b8c0" Name="Diagram1" ZoomLevel="100">
-        <EntityTypeShape EntityType="TFCModel.Categorías_Estados" Width="1.5" PointX="5.25" PointY="15.625" />
+        <EntityTypeShape EntityType="TFCModel.Categorías_Estados" Width="1.875" PointX="4.5" PointY="15.375" />
         <EntityTypeShape EntityType="TFCModel.Colores" Width="1.5" PointX="0.75" PointY="9.375" />
         <EntityTypeShape EntityType="TFCModel.Detalles_Pedidos" Width="1.5" PointX="12" PointY="8" />
         <EntityTypeShape EntityType="TFCModel.Direcciones" Width="1.5" PointX="7.5" PointY="8" />

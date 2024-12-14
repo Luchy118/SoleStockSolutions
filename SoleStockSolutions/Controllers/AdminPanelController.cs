@@ -105,7 +105,8 @@ namespace SoleStockSolutions.Controllers
 
                             producto.imagen = Url.Content(Path.Combine("~/Content/ProductImages", fileName));
                         }
-                        else { 
+                        else
+                        {
                             producto.imagen = existingProduct.imagen;
                         }
 
@@ -202,6 +203,120 @@ namespace SoleStockSolutions.Controllers
             {
                 var modelos = db.Modelos.Select(m => new { m.id_modelo, m.nombre_modelo }).ToList();
                 return Json(modelos, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult Brands()
+        {
+            using (var db = new TFCEntities())
+            {
+                ViewBag.Marcas = db.Marcas.ToList();
+                ViewBag.CurrentAction = "AdminMarcas";
+                return View();
+            }
+        }
+
+        [HttpPost]
+        [CustomAuthorize(Roles = "Admin")]
+        public ActionResult CreateBrand(Marcas marca, HttpPostedFileBase logo_marca)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (ModelState.IsValid)
+                {
+                    if (logo_marca != null && logo_marca.ContentLength > 0)
+                    {
+                        var fileName = Path.GetFileName(logo_marca.FileName);
+                        var path = Path.Combine(Server.MapPath("~/Content/BrandLogos"), fileName);
+                        logo_marca.SaveAs(path);
+
+                        marca.logo_marca = Url.Content(Path.Combine("~/Content/BrandLogos", fileName));
+                    }
+
+                    db.Marcas.Add(marca);
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [CustomAuthorize(Roles = "Admin")]
+        public ActionResult UpdateBrand(Marcas marca, HttpPostedFileBase logo_marca)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingMarca = db.Marcas.Find(marca.id_marca);
+                    if (existingMarca != null)
+                    {
+                        if (logo_marca != null && logo_marca.ContentLength > 0)
+                        {
+                            var fileName = Path.GetFileName(logo_marca.FileName);
+                            var path = Path.Combine(Server.MapPath("~/Content/BrandLogos"), fileName);
+                            logo_marca.SaveAs(path);
+
+                            marca.logo_marca = Url.Content(Path.Combine("~/Content/BrandLogos", fileName));
+                        }
+                        else
+                        {
+                            marca.logo_marca = existingMarca.logo_marca;
+                        }
+                        db.Entry(existingMarca).CurrentValues.SetValues(marca);
+                        db.SaveChanges();
+                        return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false, error = ModelState.Values.SelectMany(v => v.Errors).FirstOrDefault()?.ErrorMessage }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [CustomAuthorize(Roles = "Admin")]
+        public ActionResult DeleteBrand(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var marca = db.Marcas.Find(id);
+                if (marca != null)
+                {
+                    db.Marcas.Remove(marca);
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        [CustomAuthorize(Roles = "Admin")]
+        public JsonResult GetBrand(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var marca = db.Marcas.FirstOrDefault(m => m.id_marca == id);
+                if (marca == null)
+                    return Json(null, JsonRequestBehavior.AllowGet);
+
+                return Json(new
+                {
+                    marca.id_marca,
+                    marca.nombre_marca,
+                    marca.logo_marca
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult IsBrandNameUnique(string nombre_marca)
+        {
+            using (var db = new TFCEntities())
+            {
+                var isNotUnique = db.Marcas.Any(m => m.nombre_marca.Equals(nombre_marca, StringComparison.OrdinalIgnoreCase));
+                return Json(isNotUnique, JsonRequestBehavior.AllowGet);
             }
         }
     }
