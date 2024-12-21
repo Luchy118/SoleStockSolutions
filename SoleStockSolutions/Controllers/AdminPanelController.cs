@@ -786,6 +786,48 @@ namespace SoleStockSolutions.Controllers
             }
         }
 
+        public ActionResult Inventory()
+        {
+            using (var db = new TFCEntities())
+            {
+                var inventoryList = db.Inventario.Include(i => i.Productos).Include(i => i.Tallas_Universales).Include(i => i.Tallas_Marcas).ToList();
+                var groupedInventory = inventoryList
+                    .GroupBy(i => i.id_producto)
+                    .Select(g => new InventoryDatatable
+                    {
+                        SKU = g.Key,
+                        Image = g.First().Productos.imagen,
+                        ProductName = g.First().Productos.nombre,
+                        Brand = g.First().Productos.Marcas.nombre_marca,
+                        TotalStock = g.Sum(i => i.cantidad),
+                        MarketValue = g.Sum(i => i.cantidad * i.precio),
+                        TotalSales = g.Sum(i => i.veces_vendido),
+                        LastModified = g.Max(i => i.fecha_actualizacion)
+                    }).ToList();
+
+                ViewBag.Inventory = groupedInventory;
+                ViewBag.CurrentAction = "AdminInventory";
+                return View();
+            }
+        }
+
+        //[HttpGet]
+        //public JsonResult GetInventoryItem(string sku)
+        //{
+        //    using (var db = new TFCEntities())
+        //    {
+                
+        //    }
+        //}
+
+        //[HttpPost]
+        //public ActionResult DeleteInventory(string sku)
+        //{
+        //    using (var db = new TFCEntities())
+        //    {
+                
+        //    }
+        //}
 
     }
 }

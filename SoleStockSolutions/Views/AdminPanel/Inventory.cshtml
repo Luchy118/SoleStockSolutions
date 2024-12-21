@@ -1,0 +1,140 @@
+﻿@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Inventario</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Inventario</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre Producto</th>
+                                    <th>Marca</th>
+                                    <th>Existencias Totales</th>
+                                    <th>Valor Total Mercado</th>
+                                    <th>Total Ventas</th>
+                                    <th>Última Modificación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>SKU</th>
+                                    <th>Imagen</th>
+                                    <th>Nombre Producto</th>
+                                    <th>Marca</th>
+                                    <th>Existencias Totales</th>
+                                    <th>Valor Total Mercado</th>
+                                    <th>Total Ventas</th>
+                                    <th>Última Modificación</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var item in ViewBag.Inventory as List<SoleStockSolutions.Models.InventoryDatatable>)
+                                {
+                                    <tr>
+                                        <td>@item.SKU</td>
+                                        <td><img src="@item.Image" alt="Imagen Producto" width="75"></td>
+                                        <td>@item.ProductName</td>
+                                        <td>@item.Brand</td>
+                                        <td>@item.TotalStock</td>
+                                        <td>@item.MarketValue€</td>
+                                        <td>@item.TotalSales</td>
+                                        <td>@item.LastModified</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-info" data-toggle="tab" onclick='loadInventoryData("@item.SKU", true); $("#update-tab").tab("show");'><i class="fas fa-eye"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { sku: "@item.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteinventory", data )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <div class="card-body">
+                <ul class="nav nav-tabs" id="createSubTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="manual" aria-selected="true">Introducción manual</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="excel-tab" data-toggle="tab" href="#excel" role="tab" aria-controls="excel" aria-selected="false">Importación Excel</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="createSubTabContent">
+                    <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
+                        <!-- Contenido de Introducción manual -->
+                    </div>
+                    <div class="tab-pane fade" id="excel" role="tabpanel" aria-labelledby="excel-tab">
+                        <!-- Contenido de Importación Excel -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card-body">
+                <!-- Contenido de Modificar existente -->
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "order": [[0, "asc"]]
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id !== 'update-tab') {
+                    $('#updateInventoryForm')[0].reset();
+                }
+                if (e.target.id !== 'create-tab') {
+                    $('#createInventoryForm')[0].reset();
+                }
+            });
+        });
+
+        function loadInventoryData(sku, isUpdate = false) {
+            $.ajax({
+                url: '@Url.Action("GetInventoryItem", "AdminPanel").ToLower()',
+                type: 'GET',
+                data: { sku: sku },
+                success: function (data) {
+                    if (isUpdate) {
+                        // Lógica para cargar datos en el formulario de actualización
+                    } else {
+                        // Lógica para cargar datos en el formulario de creación
+                    }
+                }
+            });
+        }
+    </script>
+}

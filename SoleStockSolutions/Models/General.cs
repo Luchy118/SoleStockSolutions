@@ -43,4 +43,16 @@ namespace SoleStockSolutions.Models
         public int Id_Marca { get; set; }
         public string Nombre_Marca { get; set; }
     }
+
+    public class InventoryDatatable
+    {
+        public string SKU { get; set; }
+        public string Image { get; set; }
+        public string ProductName { get; set; }
+        public string Brand { get; set; }
+        public int TotalStock { get; set; }
+        public decimal MarketValue { get; set; }
+        public decimal TotalSales { get; set; }
+        public DateTime LastModified { get; set; }
+    }
 }

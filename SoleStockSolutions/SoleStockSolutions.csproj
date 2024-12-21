@@ -2315,6 +2315,7 @@
     <Content Include="Views\AdminPanel\Models.cshtml" />
     <Content Include="Views\AdminPanel\Sizes.cshtml" />
     <Content Include="Views\AdminPanel\Colors.cshtml" />
+    <Content Include="Views\AdminPanel\Inventory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
