@@ -15,9 +15,9 @@ namespace SoleStockSolutions.Models
     public partial class Productos_Colores
     {
         public string id_producto { get; set; }
-        public int id_color { get; set; }
+        public string hex { get; set; }
     
-        public virtual Colores Colores { get; set; }
         public virtual Productos Productos { get; set; }
+        public virtual Colores Colores { get; set; }
     }
 }

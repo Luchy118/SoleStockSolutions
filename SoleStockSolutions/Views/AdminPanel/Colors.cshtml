@@ -1,0 +1,399 @@
+﻿@model SoleStockSolutions.Models.Colores
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Colores</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Colores</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Vista Previa</th>
+                                    <th>ID Color</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>Vista Previa</th>
+                                    <th>ID Color</th>
+                                    <th>Nombre</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var color in ViewBag.Colores as List<SoleStockSolutions.Models.Colores>)
+                                {
+                                    <tr>
+                                        <td style="background-color:@color.hex; width: 50px;"></td>
+                                        <td>@color.hex</td>
+                                        <td>@color.nombre_color</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadColorData("@color.hex", true); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { hex: "@color.hex" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este color?", "/adminpanel/deletecolor", data )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <div class="card-body">
+                <form id="createColorForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="createNombreColor">Nombre Color</label>
+                        <input type="text" class="form-control" id="createNombreColor" name="nombre_color" required />
+                        <span class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="createHex">Hex</label>
+                        <input type="text" class="form-control" id="createHex" name="hex" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="createColorPicker">Seleccionar Color</label>
+                        <input type="color" class="form-control" id="createColorPicker" />
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled>Añadir Color</button>
+                    <button type="button" class="btn btn-warning" onclick="clearCreateForm()" disabled>Limpiar Campos</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelCreateForm()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card-body">
+                <form id="updateColorForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="searchColor">Buscar Color</label>
+                        <input type="text" class="form-control" id="searchColor" placeholder="Buscar color..." />
+                        <div id="searchColorResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateHex">Hex</label>
+                        <input type="text" class="form-control" id="updateHex" name="hex" readonly disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="updateNombreColor">Nombre Color</label>
+                        <input type="text" class="form-control" id="updateNombreColor" name="nombre_color" required disabled />
+                        <span class="text-danger"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateColorPicker">Seleccionar Color</label>
+                        <input type="color" class="form-control" id="updateColorPicker" disabled />
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled>Modificar Color</button>
+                    <button type="button" class="btn btn-warning" id="clearUpdateForm" disabled>Limpiar Campos</button>
+                    <button type="button" id="cancelUpdateColor" class="btn btn-secondary">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 }
+                ],
+                "order": [[1, "asc"]]
+            });
+
+            $('#createColorForm').submit(function (e) {
+                e.preventDefault();
+                submitCreateForm();
+            });
+
+            $('#updateColorForm').submit(function (e) {
+                e.preventDefault();
+                submitUpdateForm();
+            });
+
+            $('#createColorPicker').on('input', function () {
+                $('#createHex').val($(this).val());
+                checkCreateForm();
+            });
+
+            $('#updateColorPicker').on('input', function () {
+                $('#updateHex').val($(this).val());
+                checkUpdateForm();
+            });
+
+            $('#searchColor').on('input', function () {
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchColores", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchColorResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (color) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action d-flex align-items-center" data-hex="' + color.hex + '"><div style="width: 20px; height: 20px; background-color:' + color.hex + '; margin-right: 10px;"></div>' + color.nombre_color + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchColorResults').empty();
+                }
+            });
+
+            $('#searchColorResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var hex = $(this).data('hex');
+                var nombreColor = $(this).text();
+                $('#searchColor').val(nombreColor);
+                $('#searchColorResults').empty();
+
+                loadColorData(hex, true);
+                $('#searchColor').prop('disabled', true);
+            });
+
+            $('#updateNombreColor').on('input change', function () {
+                var initialNombreColor = $('#updateNombreColor').data('initial');
+                var currentNombreColor = $(this).val();
+                if (currentNombreColor && currentNombreColor !== initialNombreColor) {
+                    $('#updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', false);
+                } else {
+                    $('#updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                }
+            });
+
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#searchColor, #searchColorResults').length) {
+                    $('#searchColorResults').empty();
+                }
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id !== 'update-tab') {
+                    $('#updateColorForm')[0].reset();
+                    $('#updateNombreColor').removeClass('is-invalid');
+                    $('#updateNombreColor').siblings('.text-danger').text('');
+                    $('#updateColorForm input:not(#searchColor), #updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                }
+                if (e.target.id !== 'create-tab') {
+                    $('#createColorForm')[0].reset();
+                    $('#createNombreColor').removeClass('is-invalid');
+                    $('#createNombreColor').siblings('.text-danger').text('');
+                    $('#createColorForm button[type="submit"], #createColorForm button.btn-warning').prop('disabled', true);
+                }
+            });
+
+            $('#createNombreColor').on('blur', function () {
+                var nombreColor = $(this).val();
+                if (nombreColor) {
+                    $.ajax({
+                        url: '@Url.Action("CheckDuplicateColorName", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_color: nombreColor },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#createNombreColor').addClass('is-invalid');
+                                $('#createNombreColor').siblings('.text-danger').text('El nombre del color ya existe.');
+                                $('#createColorForm button[type="submit"]').prop('disabled', true);
+                            } else {
+                                $('#createNombreColor').removeClass('is-invalid');
+                                $('#createNombreColor').siblings('.text-danger').text('');
+                                checkCreateForm();
+                            }
+                        }
+                    });
+                } else {
+                    $('#createNombreColor').removeClass('is-invalid');
+                    $('#createNombreColor').siblings('.text-danger').text('');
+                    checkCreateForm();
+                }
+            });
+
+            $('#createNombreColor').on('input', function () {
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+                checkCreateForm();
+            });
+
+            $('#updateNombreColor').on('blur', function () {
+                var initialNombreColor = $('#updateNombreColor').data('initial');
+                var currentNombreColor = $(this).val();
+                if (currentNombreColor && currentNombreColor !== initialNombreColor) {
+                    $.ajax({
+                        url: '@Url.Action("CheckDuplicateColorName", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_color: currentNombreColor },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#updateNombreColor').addClass('is-invalid');
+                                $('#updateNombreColor').siblings('.text-danger').text('El nombre del color ya existe.');
+                                $('#updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                            } else {
+                                $('#updateNombreColor').removeClass('is-invalid');
+                                $('#updateNombreColor').siblings('.text-danger').text('');
+                                checkUpdateForm();
+                            }
+                        }
+                    });
+                } else {
+                    $('#updateNombreColor').removeClass('is-invalid');
+                    $('#updateNombreColor').siblings('.text-danger').text('');
+                    checkUpdateForm();
+                }
+            });
+
+            $('#updateNombreColor').on('input', function () {
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+                checkUpdateForm();
+            });
+
+            $('#createColorForm').on('reset', function () {
+                $('button[type="submit"], button.btn-warning').prop('disabled', true);
+            });
+
+            $('#clearUpdateForm').on('click', function () {
+                $('#updateColorForm')[0].reset();
+                $('#updateColorForm input, #updateColorForm button').prop('disabled', true);
+                $('#searchColor').prop('disabled', false);
+            });
+
+            $('#cancelUpdateColor').on('click', function () {
+                $('#read-tab').tab('show');
+            });
+        });
+
+        function checkCreateForm() {
+            var nombreColor = $('#createNombreColor').val();
+            var hex = $('#createHex').val();
+            if (nombreColor && hex && !$('#createNombreColor').hasClass('is-invalid')) {
+                $('#createColorForm button[type="submit"], #createColorForm button.btn-warning').prop('disabled', false);
+            } else {
+                $('#createColorForm button[type="submit"], #createColorForm button.btn-warning').prop('disabled', true);
+            }
+        }
+
+        function checkUpdateForm() {
+            var nombreColor = $('#updateNombreColor').val();
+            var hex = $('#updateHex').val();
+            if (nombreColor && hex && !$('#updateNombreColor').hasClass('is-invalid')) {
+                $('#updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', false);
+            } else {
+                $('#updateColorForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+            }
+        }
+
+        function loadColorData(hex, isUpdate = false) {
+            $.ajax({
+                url: '@Url.Action("GetColor", "AdminPanel").ToLower()',
+                type: 'GET',
+                data: { hex: hex },
+                success: function (data) {
+                    if (isUpdate) {
+                        $('#updateHex').val(data.hex);
+                        $('#updateNombreColor').val(data.nombre_color).data('initial', data.nombre_color);
+                        $('#updateColorPicker').val(data.hex);
+                        $('#searchColor').prop('disabled', true);
+                        enableUpdateForm();
+                    } else {
+                        $('#createHex').val(data.hex);
+                        $('#createNombreColor').val(data.nombre_color);
+                        $('#createColorPicker').val(data.hex);
+                        checkCreateForm();
+                    }
+                }
+            });
+        }
+
+        function enableUpdateForm() {
+            $('#updateColorForm input:not(#searchColor), #updateColorForm button').prop('disabled', false);
+        }
+
+        function submitCreateForm() {
+            var formData = new FormData($('#createColorForm')[0]);
+            $.ajax({
+                url: '@Url.Action("CreateColor", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Color añadido exitosamente.", "Redirigiendo a la lista de colores...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Colors", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer("Error al añadir el color.");
+                    }
+                }
+            });
+        }
+
+        function submitUpdateForm() {
+            var formData = new FormData($('#updateColorForm')[0]);
+            $.ajax({
+                url: '@Url.Action("UpdateColor", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Color modificado exitosamente.", "Redirigiendo a la lista de colores...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("Colors", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer("Error al modificar el color.");
+                    }
+                }
+            });
+        }
+
+        function clearCreateForm() {
+            $('#createColorForm')[0].reset();
+            $('#createNombreColor').removeClass('is-invalid');
+            $('#createNombreColor').siblings('.text-danger').text('');
+            $('#createColorForm button[type="submit"], #createColorForm button.btn-warning').prop('disabled', true);
+        }
+
+        function cancelCreateForm() {
+            clearCreateForm();
+            $('#read-tab').tab('show');
+        }
+    </script>
+}
+

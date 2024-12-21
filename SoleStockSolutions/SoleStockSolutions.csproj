@@ -2312,6 +2312,9 @@
     <Content Include="Views\AdminPanel\Index.cshtml" />
     <Content Include="Views\AdminPanel\Products.cshtml" />
     <Content Include="Views\AdminPanel\Brands.cshtml" />
+    <Content Include="Views\AdminPanel\Models.cshtml" />
+    <Content Include="Views\AdminPanel\Sizes.cshtml" />
+    <Content Include="Views\AdminPanel\Colors.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,0 +1,529 @@
+﻿@model SoleStockSolutions.Models.Modelos
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Modelos</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Modelos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID Modelo</th>
+                                    <th>Nombre Modelo</th>
+                                    <th>Marca</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>ID Modelo</th>
+                                    <th>Nombre Modelo</th>
+                                    <th>Marca</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var modelo in ViewBag.Modelos as List<SoleStockSolutions.Models.ModelsDatatable>)
+                                {
+                                    <tr>
+                                        <td>@modelo.Id_Modelo</td>
+                                        <td>@modelo.Nombre_Modelo</td>
+                                        <td>@modelo.Nombre_Marca</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadModelData(@modelo.Id_Modelo, true); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { id: "@modelo.Id_Modelo" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este modelo?", "/adminpanel/deletemodel", data )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <div class="card-body">
+                <form id="createModelForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="searchMarcaCreate">Marca</label>
+                        <input type="text" class="form-control" id="searchMarcaCreate" placeholder="Buscar marca..." required />
+                        <span class="text-danger"></span>
+                        <div id="searchMarcaCreateResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                    </div>
+                    <div class="form-group" style="display: none !important">
+                        <label for="createIdMarca">ID Marca</label>
+                        <input type="text" class="form-control" id="createIdMarca" name="id_marca" readonly />
+                    </div>
+                    <div class="form-group">
+                        <label for="createNombreModelo">Nombre Modelo</label>
+                        @Html.TextBoxFor(m => m.nombre_modelo, new { @class = "form-control", id = "createNombreModelo", required = "required", maxlength = "50", onblur = "validateUniqueModelName(this)" })
+                        @Html.ValidationMessageFor(m => m.nombre_modelo, "", new { @class = "text-danger" })
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled>Añadir Modelo</button>
+                    <button type="button" class="btn btn-warning" onclick="clearCreateForm()" disabled>Limpiar Campos</button>
+                    <button type="button" class="btn btn-secondary" onclick="cancelCreateForm()">Cancelar</button>
+                </form>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card-body">
+                <form id="updateModelForm" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="searchModelo">Buscar Modelo</label>
+                        <input type="text" class="form-control" id="searchModelo" placeholder="Buscar modelo..." />
+                        <div id="searchModeloResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label for="updateIdModelo">ID Modelo</label>
+                        <input type="text" class="form-control" id="updateIdModelo" name="id_modelo" readonly disabled />
+                    </div>
+                    <div class="form-group">
+                        <label for="updateNombreModelo">Nombre Modelo</label>
+                        @Html.TextBoxFor(m => m.nombre_modelo, new { @class = "form-control", id = "updateNombreModelo", required = "required", maxlength = "50", onblur = "validateUniqueModelName(this)", disabled = "disabled" })
+                        @Html.ValidationMessageFor(m => m.nombre_modelo, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <label for="searchMarcaUpdate">Marca</label>
+                        <input type="text" class="form-control" id="searchMarcaUpdate" placeholder="Buscar marca..." required disabled />
+                        <div id="searchMarcaUpdateResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                        <span class="text-danger"></span>
+                    </div>
+                    <div class="form-group" style="display: none !important">
+                        <label for="updateIdMarca">ID Marca</label>
+                        <input type="text" class="form-control" id="updateIdMarca" name="id_marca" readonly disabled />
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled>Modificar Modelo</button>
+                    <button type="button" class="btn btn-warning" id="clearUpdateForm" disabled>Limpiar Campos</button>
+                    <button type="button" id="cancelUpdateModel" class="btn btn-secondary">Cancelar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                }
+            });
+
+            $('#createModelForm').submit(function (e) {
+                e.preventDefault();
+
+                var nombreMarca = $('#searchMarcaCreate').val().trim();
+                var idMarca = $('#createIdMarca').val().trim();
+
+                if (idMarca === '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#createIdMarca').val(data.id_marca);
+                                submitCreateForm();
+                            } else {
+                                $('#searchMarcaCreate').addClass('is-invalid');
+                                $('#searchMarcaCreate').siblings('.text-danger').text('La marca no existe.');
+                                $('#searchMarcaCreate').data('isUnique', false);
+                            }
+                        }
+                    });
+                } else {
+                    submitCreateForm();
+                }
+            });
+
+            $('#updateModelForm').submit(function (e) {
+                e.preventDefault();
+
+                var nombreMarca = $('#searchMarcaUpdate').val().trim();
+                var idMarca = $('#updateIdMarca').val().trim();
+
+                if (idMarca === '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#updateIdMarca').val(data.id_marca);
+                                submitUpdateForm();
+                            } else {
+                                $('#searchMarcaUpdate').addClass('is-invalid');
+                                $('#searchMarcaUpdate').siblings('.text-danger').text('La marca no existe.');
+                                $('#searchMarcaUpdate').data('isUnique', false);
+                            }
+                        }
+                    });
+                } else {
+                    submitUpdateForm();
+                }
+            });
+
+            $('#searchMarcaCreate').on('input', function () {
+                $('#createIdMarca').val('');
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchMarcas", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchMarcaCreateResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (marca) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + marca.id_marca + '">' + marca.nombre_marca + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchMarcaCreateResults').empty();
+                }
+            }).on('blur', function () {
+                var nombreMarca = $(this).val().trim();
+                if (nombreMarca !== '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#createIdMarca').val(data.id_marca);
+                            } else {
+                                $('#searchMarcaCreate').addClass('is-invalid');
+                                $('#searchMarcaCreate').siblings('.text-danger').text('La marca no existe.');
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#searchMarcaCreateResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var idMarca = $(this).data('id');
+                var nombreMarca = $(this).text();
+                $('#searchMarcaCreate').val(nombreMarca);
+                $('#createIdMarca').val(idMarca);
+                $('#searchMarcaCreateResults').empty();
+                $('#searchMarcaCreate').removeClass('is-invalid');
+                $('#searchMarcaCreate').next('.text-danger').text('');
+            });
+
+            $('#searchModelo').on('input', function () {
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchModelos", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchModeloResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (modelo) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + modelo.id_modelo + '">' + modelo.nombre_modelo + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchModeloResults').empty();
+                }
+            });
+
+            $('#searchModeloResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var idModelo = $(this).data('id');
+                var nombreModelo = $(this).text();
+                $('#searchModelo').val(nombreModelo);
+                $('#searchModeloResults').empty();
+
+                loadModelData(idModelo);
+                enableUpdateForm();
+            });
+
+            $('#searchMarcaUpdate').on('input', function () {
+                $('#updateIdMarca').val('');
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchMarcas", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchMarcaUpdateResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (marca) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + marca.id_marca + '">' + marca.nombre_marca + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchMarcaUpdateResults').empty();
+                }
+            }).on('blur', function () {
+                var nombreMarca = $(this).val().trim();
+                if (nombreMarca !== '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#updateIdMarca').val(data.id_marca);
+                            } else {
+                                $('#searchMarcaUpdate').addClass('is-invalid');
+                                $('#searchMarcaUpdate').siblings('.text-danger').text('La marca no existe.');
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#searchMarcaUpdateResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var idMarca = $(this).data('id');
+                var nombreMarca = $(this).text();
+                $('#searchMarcaUpdate').val(nombreMarca);
+                $('#updateIdMarca').val(idMarca);
+                $('#searchMarcaUpdateResults').empty();
+                $('#searchMarcaUpdate').removeClass('is-invalid');
+                $('#searchMarcaUpdate').next('.text-danger').text('');
+            });
+
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#searchMarcaCreate, #searchMarcaCreateResults').length) {
+                    $('#searchMarcaCreateResults').empty();
+                }
+                if (!$(e.target).closest('#searchMarcaUpdate, #searchMarcaUpdateResults').length) {
+                    $('#searchMarcaUpdateResults').empty();
+                }
+                if (!$(e.target).closest('#searchModelo, #searchModeloResults').length) {
+                    $('#searchModeloResults').empty();
+                }
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id !== 'update-tab') {
+                    $('#updateModelForm')[0].reset();
+                    $('#updateNombreModelo').removeClass('is-invalid');
+                    $('#updateNombreModelo').next('.text-danger').text('');
+                    $('#updateModelForm input:not(#searchModelo), #updateModelForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                }
+                if (e.target.id !== 'create-tab') {
+                    $('#createModelForm')[0].reset();
+                    $('#createNombreModelo').removeClass('is-invalid');
+                    $('#createNombreModelo').next('.text-danger').text('');
+                    $('#createModelForm button[type="submit"], #createModelForm button.btn-warning').prop('disabled', true);
+                }
+            });
+
+            $('#searchMarcaCreate, #createNombreModelo').on('input change', function () {
+                checkCreateForm();
+            });
+
+            $('#createModelForm').on('reset', function () {
+                $('button[type="submit"], button.btn-warning', '#createModelForm').prop('disabled', true);
+            });
+
+            $('#createNombreModelo, #searchMarcaCreate').on('input', function () {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.text-danger').text('');
+            });
+
+            $('#updateNombreModelo, #searchMarcaUpdate').on('input', function () {
+                $(this).removeClass('is-invalid');
+                $(this).siblings('.text-danger').text('');
+            });
+
+            $('#updateModelForm input, #updateModelForm select').on('input change', function () {
+                checkUpdateForm();
+            });
+
+            $('#clearUpdateForm').click(function () {
+                clearUpdateForm();
+            });
+
+            $('#cancelUpdateModel').click(function () {
+                $('#updateModelForm')[0].reset();
+                $('#updateNombreModelo').removeClass('is-invalid');
+                $('#updateNombreModelo').next('.text-danger').text('');
+                $("#searchModelo").prop("disabled", false);
+                $('#updateModelForm input:not(#searchModelo), #updateModelForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                $('#read-tab').tab('show');
+            });
+        });
+
+        function submitCreateForm() {
+            if (!isModelNameUnique('#createNombreModelo'))
+                return;
+            var formData = new FormData($('#createModelForm')[0]);
+            $.ajax({
+                url: '@Url.Action("CreateModel", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Modelo añadido exitosamente.", "Redirigiendo a la lista de modelos...");
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Models", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                }
+            });
+        }
+
+        function submitUpdateForm() {
+            if (!isModelNameUnique('#updateNombreModelo'))
+                return;
+            var formData = new FormData($('#updateModelForm')[0]);
+            $.ajax({
+                url: '@Url.Action("UpdateModel", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Modelo modificado exitosamente.", "Redirigiendo a la lista de modelos...");
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Models", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                }
+            });
+        }
+
+        function checkCreateForm() {
+            var isMarcaFilled = $('#searchMarcaCreate').val().trim() !== '';
+            var isNombreModeloFilled = $('#createNombreModelo').val().trim() !== '';
+            var isFormValid = isMarcaFilled || isNombreModeloFilled;
+
+            $('button[type="submit"], button.btn-warning', '#createModelForm').prop('disabled', !isFormValid);
+        }
+
+        function clearCreateForm() {
+            $('#createModelForm')[0].reset();
+            $('#createLogoPreview').attr('src', '').hide();
+            $('#createNombreModelo, #searchMarcaCreate').removeClass('is-invalid');
+            $('#createNombreModelo, #searchMarcaCreate').next('.text-danger').text('');
+            $('button[type="submit"], button.btn-warning', '#createModelForm').prop('disabled', true);
+        }
+
+        function cancelCreateForm() {
+            clearCreateForm();
+            $('#read-tab').tab('show');
+        }
+
+        function checkUpdateForm() {
+            var isFormChanged = $('#updateModelForm input, #updateModelForm select').filter(function () {
+                return $(this).val().trim() !== '';
+            }).length > 0;
+
+            $('#clearUpdateForm').prop('disabled', !isFormChanged);
+        }
+
+        function clearUpdateForm() {
+            $('#updateModelForm')[0].reset();
+            $('#updateNombreModelo').removeClass('is-invalid');
+            $('#updateNombreModelo').next('.text-danger').text('');
+            $('#clearUpdateForm').prop('disabled', true);
+            $('#updateModelForm').find('input:not(#searchModelo)').prop('disabled', true);
+            $('#searchModelo').prop('disabled', false);
+            $('#updateModelForm button[type="submit"]').prop('disabled', true);
+        }
+
+        function loadModelData(idModelo, editRef) {
+            $.ajax({
+                url: '@Url.Action("GetModelData", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: idModelo },
+                success: function (data) {
+                    enableUpdateForm();
+                    if (editRef)
+                        $("#searchModelo").prop("disabled", true);
+                    $('#updateIdModelo').val(data.Id_Modelo);
+                    $('#updateNombreModelo').val(data.Nombre_Modelo).data('initialValue', data.Nombre_Modelo.toLowerCase()).blur();
+                    $('#updateIdMarca').val(data.Id_Marca);
+                    $('#searchMarcaUpdate').val(data.Nombre_Marca);
+                    checkUpdateForm();
+                }
+            });
+        }
+
+        function validateUniqueModelName(input) {
+            var nombreModelo = $(input).val().toLowerCase();
+            var initialValue = $(input).data('initialValue');
+
+            if (nombreModelo !== initialValue) {
+                $.ajax({
+                    url: '@Url.Action("IsModelNameUnique", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: { nombre_modelo: nombreModelo },
+                    success: function (data) {
+                        if (data) {
+                            $(input).addClass('is-invalid');
+                            $(input).next('.text-danger').text('El nombre del modelo ya existe.');
+                            $(input).data('isUnique', false);
+                        } else {
+                            $(input).removeClass('is-invalid');
+                            $(input).next('.text-danger').text('');
+                            $(input).data('isUnique', true);
+                        }
+                    }
+                });
+            } else {
+                $(input).removeClass('is-invalid');
+                $(input).next('.text-danger').text('');
+                $(input).data('isUnique', true);
+            }
+        }
+
+        function enableUpdateForm() {
+            $('#updateModelForm input, #updateModelForm button[type="submit"]').prop('disabled', false);
+        }
+
+        function isModelNameUnique(inputSelector) {
+            return $(inputSelector).data('isUnique') === true;
+        }
+    </script>
+}

@@ -65,7 +65,7 @@
                                         <td>@producto.VecesVisto</td>
                                         <td>
                                             <a href="#update" class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadProductData("@producto.SKU"); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
-                                            <a href="" class="btn btn-sm btn-danger" onclick='var id = "@producto.SKU"; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteproduct", id )'><i class="fas fa-trash"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { id: "@producto.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteproduct", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
                                 }
@@ -92,34 +92,35 @@
                                 <form id="createProductForm" enctype="multipart/form-data">
                                     <div class="form-group">
                                         <label for="manualSku">SKU</label>
-                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "manualSku", required = "required", maxlength = "50" })
+                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "manualSku", required = "required", maxlength = "50", oninput = "checkForm('createProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_producto, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="manualMarca">Marca</label>
-                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "manualMarca" })
+                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "manualMarca", oninput = "checkForm('createProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_marca, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="manualModelo">Modelo</label>
-                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "manualModelo" })
+                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "manualModelo", oninput = "checkForm('createProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_modelo, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="manualNombre">Nombre</label>
-                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "manualNombre", required = "required", maxlength = "100" })
+                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "manualNombre", required = "required", maxlength = "100", oninput = "checkForm('createProductForm')" })
                                         @Html.ValidationMessageFor(m => m.nombre, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="manualDescripcion">Descripción</label>
-                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "manualDescripcion", maxlength = "200" })
+                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "manualDescripcion", maxlength = "200", oninput = "checkForm('createProductForm')" })
                                     </div>
                                     <div class="form-group">
                                         <label for="manualFechaLanzamiento">Fecha de Lanzamiento</label>
-                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "manualFechaLanzamiento", type = "date" })
+                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "manualFechaLanzamiento", type = "date", oninput = "checkForm('createProductForm')" })
                                     </div>
-                                    <button type="button" class="btn btn-primary" onclick="submitForm()">Guardar</button>
-                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('manualImagePreview', 'manualImagen')">Limpiar Campos</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitForm()" id="manualGuardar" disabled>Guardar</button>
+                                    <button type="reset" class="btn btn-warning" onclick="clearFormErrors('createProductForm'); clearPreview('manualImagePreview', 'manualImagen')" id="manualLimpiar" disabled>Limpiar Campos</button>
+                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors('createProductForm'); clearPreview('manualImagePreview', 'manualImagen'); $('#read-tab').tab('show');">Cancelar</button>
                                 </form>
                             </div>
                             <div class="col-md-4">
@@ -146,35 +147,36 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentSku">SKU</label>
-                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "intelligentSku", required = "required", @disabled = "disabled", maxlength = "50" })
+                                        @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "intelligentSku", required = "required", @disabled = "disabled", maxlength = "50", oninput = "checkForm('intelligentProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_producto, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentMarca">Marca</label>
-                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "intelligentMarca" })
+                                        @Html.DropDownListFor(m => m.id_marca, new SelectList(ViewBag.Marcas, "id_marca", "nombre_marca"), "Seleccione una marca", new { @class = "form-control", id = "intelligentMarca", oninput = "checkForm('intelligentProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_marca, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentModelo">Modelo</label>
-                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "intelligentModelo" })
+                                        @Html.DropDownListFor(m => m.id_modelo, new SelectList(ViewBag.Modelos, "id_modelo", "nombre_modelo"), "Seleccione un modelo", new { @class = "form-control", id = "intelligentModelo", oninput = "checkForm('intelligentProductForm')" })
                                         @Html.ValidationMessageFor(m => m.id_modelo, "", new { @class = "text-danger" })
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentNombre">Nombre</label>
-                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "intelligentNombre", @disabled = "disabled", maxlength = "100" })
+                                        @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", id = "intelligentNombre", @disabled = "disabled", maxlength = "100", oninput = "checkForm('intelligentProductForm')" })
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentDescripcion">Descripción</label>
-                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "intelligentDescripcion", maxlength = "200" })
+                                        @Html.TextAreaFor(m => m.descripcion, new { @class = "form-control", id = "intelligentDescripcion", maxlength = "200", oninput = "checkForm('intelligentProductForm')" })
                                     </div>
                                     <div class="form-group">
                                         <label for="intelligentFechaLanzamiento">Fecha de Lanzamiento</label>
-                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "intelligentFechaLanzamiento", type = "date", @disabled = "disabled" })
+                                        @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "intelligentFechaLanzamiento", type = "date", @disabled = "disabled", oninput = "checkForm('intelligentProductForm')" })
                                     </div>
                                     @Html.HiddenFor(m => m.imagen, new { id = "intelligentImagenUrl" })
                                     @Html.HiddenFor(m => m.precio_medio_mercado, new { id = "intelligentPrecioMercado" })
-                                    <button type="button" class="btn btn-primary" onclick="submitIntelligentForm()">Guardar</button>
-                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('intelligentImagePreview')">Limpiar Campos</button>
+                                    <button type="button" class="btn btn-primary" onclick="submitIntelligentForm()" id="intelligentGuardar" disabled>Guardar</button>
+                                    <button type="reset" class="btn btn-warning" onclick="clearFormErrors('intelligentProductForm'); clearPreview('intelligentImagePreview')" id="intelligentLimpiar" disabled>Limpiar Campos</button>
+                                    <button type="reset" class="btn btn-secondary" onclick="clearFormErrors('intelligentProductForm'); clearPreview('intelligentImagePreview'); $('#read-tab').tab('show');">Cancelar</button>
                                 </form>
                             </div>
                             <div class="col-md-4">
@@ -226,7 +228,8 @@
                                 @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "updateFechaLanzamiento", type = "date", @disabled = "disabled" })
                             </div>
                             <button type="button" class="btn btn-primary" onclick="submitUpdateForm()" disabled>Guardar</button>
-                            <button type="reset" class="btn btn-secondary" onclick="clearFormErrors(); clearPreview('updateImagePreview', 'updateImagen'); disableUpdateFields();  $('#read-tab').tab('show');">Cancelar</button>
+                            <button type="reset" class="btn btn-warning" onclick="resetUpdateForm('updateProductForm')" id="updateLimpiar" disabled>Limpiar Campos</button>
+                            <button type="reset" class="btn btn-secondary" onclick="clearFormErrors('updateProductForm'); clearPreview('updateImagePreview', 'updateImagen'); disableUpdateFields(); $('#read-tab').tab('show');" id="updateCancelar">Cancelar</button>
                         </form>
                     </div>
                     <div class="col-md-4">
@@ -343,6 +346,7 @@
             });
 
             $('#intelligentMarca').change(function () {
+                $('#intelligentModelo').val('');
                 var marcaId = $(this).val();
                 if (marcaId) {
                     $.ajax({
@@ -398,10 +402,6 @@
                         }
                     });
                 }
-            });
-
-            $('#intelligentMarca').change(function () {
-                $('#intelligentModelo').val('');
             });
 
             $('#updateMarca').change(function (event, selectedModeloId) {
@@ -464,21 +464,6 @@
                 }
             });
 
-            $(document).click(function (event) {
-                var target = $(event.target);
-                if (!target.closest('#intelligentSearch').length && !target.closest('#searchResults').length) {
-                    $('#searchResults').hide();
-                    $('#intelligentSearch').val('');
-                }
-            });
-
-            $('#intelligentSearch').on('blur', function () {
-                setTimeout(function () {
-                    $('#searchResults').hide();
-                    $('#intelligentSearch').val('');
-                }, 200);
-            });
-
             $('#updateSearch').on('input', function () {
                 clearTimeout(this.delay);
                 this.delay = setTimeout(function () {
@@ -510,11 +495,56 @@
                 }.bind(this), 500);
             });
 
+            $('#intelligentSearch').on('blur', function () {
+                setTimeout(function () {
+                    $('#searchResults').hide();
+                    $('#intelligentSearch').val('');
+                }, 200);
+            });
+
             $('#updateSearch').on('blur', function () {
                 setTimeout(function () {
                     $('#updateSearchResults').hide();
                     $('#updateSearch').val('');
                 }, 200);
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                var target = $(e.target).attr("href");
+                if (target !== '#update') {
+                    $('#updateProductForm')[0].reset();
+                    disableUpdateFields();
+                    clearPreview('updateImagePreview', 'updateImagen');
+                }
+                if (target !== '#create') {
+                    $('#intelligentProductForm')[0].reset();
+                    $('#createProductForm')[0].reset();
+                    clearPreview('manualImagePreview', 'manualImagen');
+                    clearPreview('intelligentImagePreview');
+                }
+                if (target === '#manual') {
+                    $('#intelligentProductForm')[0].reset();
+                    clearPreview('intelligentImagePreview');
+                }
+                if (target === '#intelligent') {
+                    $('#createProductForm')[0].reset();
+                    clearPreview('manualImagePreview', 'manualImagen');
+                }
+            });
+
+            document.getElementById('intelligentSearch').addEventListener('input', function () {
+                clearTimeout(this.delay);
+                this.delay = setTimeout(function () {
+                    searchProducts();
+                }.bind(this), 500);
+            });
+
+            $(document).click(function (event) {
+                var target = $(event.target);
+                if (!target.closest('#intelligentSearch').length && !target.closest('#searchResults').length) {
+                    $('#searchResults').hide();
+                    $('#intelligentSearch').val('');
+                }
             });
         });
 
@@ -530,9 +560,22 @@
             }, 3000);
         }
 
-        function clearFormErrors() {
-            $('#createProductForm .is-invalid, #intelligentProductForm .is-invalid').removeClass('is-invalid');
-            $('#createProductForm .text-danger, #intelligentProductForm .text-danger').text('');
+        function clearFormErrors(formId) {
+            var form = document.getElementById(formId);
+            var inputs = form.querySelectorAll('input, select, textarea');
+
+            inputs.forEach(function (input) {
+                input.value = '';
+                if (input.hasAttribute('disabled')) {
+                    input.disabled = true;
+                }
+            });
+
+            var guardarButton = form.querySelector('button[type="button"]');
+            var limpiarButton = form.querySelector('button[type="reset"]');
+
+            guardarButton.disabled = true;
+            limpiarButton.disabled = true;
         }
 
         function previewImage(input, previewId) {
@@ -697,14 +740,6 @@
             });
         }
 
-
-        document.getElementById('intelligentSearch').addEventListener('input', function () {
-            clearTimeout(this.delay);
-            this.delay = setTimeout(function () {
-                searchProducts();
-            }.bind(this), 500);
-        });
-
         function loadProductData(sku) {
             $.ajax({
                 url: '@Url.Action("GetProduct", "AdminPanel").ToLower()',
@@ -719,13 +754,14 @@
                         $('#updateDescripcion').val(data.descripcion).prop('disabled', false);
                         $('#updateFechaLanzamiento').val(data.fecha_lanzamiento ? data.fecha_lanzamiento.split('T')[0] : '').prop('disabled', false);
                         $('#updateImagen').prop('disabled', false);
-                        $('button[type="button"]').prop('disabled', false);
+                        $('#updateProductForm button[type="button"]').prop('disabled', false);
                         if (data.imagen)
                             $('#updateImagePreview').attr('src', data.imagen).show();
                         else
                             $('#updateImagePreview').hide();
                         $('#updateMarca').trigger('change', [data.id_modelo]);
                         $('#updateSearchResults').hide();
+                        checkForm('updateProductForm');
                     } else
                         popups.showErrorTimer("No se pudo cargar la información del producto.");
                 },
@@ -742,32 +778,9 @@
             $('#updateDescripcion').prop('disabled', true);
             $('#updateFechaLanzamiento').prop('disabled', true);
             $('#updateImagen').prop('disabled', true);
-            $('#updateProductForm button[type="button"]').prop('disabled', true);
+            $('#updateProductForm button[type="button"]:not(#updateCancelar)').prop('disabled', true);
             $('#updateImagePreview').hide();
         }
-
-        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-            var target = $(e.target).attr("href");
-            if (target !== '#update') {
-                $('#updateProductForm')[0].reset();
-                disableUpdateFields();
-                clearPreview('updateImagePreview', 'updateImagen');
-            }
-            if (target !== '#create') {
-                $('#intelligentProductForm')[0].reset();
-                $('#createProductForm')[0].reset();
-                clearPreview('manualImagePreview', 'manualImagen');
-                clearPreview('intelligentImagePreview');
-            }
-            if (target === '#manual') {
-                $('#intelligentProductForm')[0].reset();
-                clearPreview('intelligentImagePreview');
-            }
-            if (target === '#intelligent') {
-                $('#createProductForm')[0].reset();
-                clearPreview('manualImagePreview', 'manualImagen');
-            }
-        });
 
         async function searchProducts() {
             var query = document.getElementById('intelligentSearch').value;
@@ -805,7 +818,7 @@
 
             if (data.hits != null) {
                 resultsToShow = data.hits.filter(hit => {
-                    return !/( PS |\(PS\)| TD |\(TD\)| GS |\(GS\)| Hydro |\(Infants\)|\(Kids\)|\(I\)|Vinyl)/i.test(hit.title) && hit.category.includes('Shoes');
+                    return !/( PS |\(PS\)| TD |\(TD\)| GS |\(GS\)| Hydro |\(Infants\)|\(Kids\)|\(I\)|Vinyl)/i.test(hit.title) && (hit.category.includes('Shoes') || hit.category.includes('sneakers'));
                 }).slice(0, maxResults);
             } else
                 noResults = true;
@@ -836,7 +849,7 @@
         }
 
         function fillProductDetails(hit) {
-            clearFormErrors();
+            clearFormErrors('intelligentProductForm');
             document.getElementById('intelligentSku').value = hit.sku;
             document.getElementById('intelligentNombre').value = hit.title;
             document.getElementById('intelligentFechaLanzamiento').value = hit.release_date;
@@ -845,6 +858,37 @@
             document.getElementById('intelligentPrecioMercado').value = hit.avg_price;
             document.getElementById('intelligentImagenUrl').value = hit.image;
             document.getElementById('searchResults').style.display = 'none';
+            checkForm('intelligentProductForm');
+        }
+
+        function resetUpdateForm() {
+            document.getElementById('updateProductForm').reset();
+            clearFormErrors('updateProductForm');
+            clearPreview('updateImagePreview', 'updateImagen');
+            disableUpdateFields();
+        }
+
+        function checkForm(formId) {
+            var form = document.getElementById(formId);
+            var inputs = form.querySelectorAll('input, select, textarea');
+            var isFilled = false;
+
+            inputs.forEach(function (input) {
+                if (input.value.trim() !== '') {
+                    isFilled = true;
+                }
+            });
+
+            var guardarButton = form.querySelector('button[type="button"]');
+            var limpiarButton = form.querySelector('button[type="reset"]');
+
+            if (isFilled) {
+                guardarButton.disabled = false;
+                limpiarButton.disabled = false;
+            } else {
+                guardarButton.disabled = true;
+                limpiarButton.disabled = true;
+            }
         }
 
         async function obtenerPrecioMedioMercado(precio) {

@@ -41,7 +41,12 @@
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider my-0">
+            <hr class="sidebar-divider">
+
+            <!-- Heading -->
+            <div class="sidebar-heading">
+                Resumen y estadísticas
+            </div>
 
             <!-- Nav Item - Dashboard -->
             <li class="nav-item @(currentAction == "AdminIndex" ? "active" : "")">
@@ -77,7 +82,7 @@
 
             <!-- Nav Item - Modelos -->
             <li class="nav-item @(currentAction == "AdminModels" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("Models")">
                     <i class="fas fa-sitemap"></i>
                     <span>Modelos</span>
                 </a>
@@ -85,7 +90,7 @@
 
             <!-- Nav Item - Tallas -->
             <li class="nav-item @(currentAction == "AdminSizes" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("Sizes")">
                     <i class="fas fa-shoe-prints"></i>
                     <span>Tallas</span>
                 </a>
@@ -93,7 +98,7 @@
 
             <!-- Nav Item - Colores -->
             <li class="nav-item @(currentAction == "AdminColors" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("Colors")">
                     <i class="fas fa-palette"></i>
                     <span>Colores</span>
                 </a>
@@ -104,7 +109,7 @@
 
             <!-- Heading -->
             <div class="sidebar-heading">
-                Stock, pedidos y envío
+                Stock, pedidos y envíos
             </div>
 
             <!-- Nav Item - Inventario -->

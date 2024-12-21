@@ -1,0 +1,762 @@
+﻿@model SoleStockSolutions.Models.SizesViewModel
+@{
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Tallas</h1>
+    <ul class="nav nav-tabs" id="mainTabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#consultar" role="tab" aria-controls="consultar" aria-selected="true">Consultar</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="create-tab" data-toggle="tab" href="#anadir" role="tab" aria-controls="anadir" aria-selected="false">Añadir Nuevo</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="update-tab" data-toggle="tab" href="#modificar" role="tab" aria-controls="modificar" aria-selected="false">Modificar Existente</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="mainTabsContent">
+        <div class="tab-pane fade show active" id="consultar" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <ul class="nav nav-tabs" id="consultarSubTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="consultar-universal-tab" data-toggle="tab" href="#consultar-universal" role="tab" aria-controls="consultar-universal" aria-selected="true">Tallas Universales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="consultar-brand-tab" data-toggle="tab" href="#consultar-brand" role="tab" aria-controls="consultar-brand" aria-selected="false">Tallas por Marca</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="consultarSubTabsContent">
+                    <div class="tab-pane fade show active card-body" id="consultar-universal" role="tabpanel" aria-labelledby="consultar-universal-tab">
+                        <div class="card-header p-0 pb-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Tallas Universales</h6>
+                        </div>
+                        <table id="universalSizesTable" class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Talla</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var size in Model.UniversalSizes)
+                                {
+                                    <tr>
+                                        <td>@size.talla_eu</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadSizeData("@size.talla_eu", true); $("#update-tab").tab("show"); $("#update-universal-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { talla_eu: "@size.talla_eu" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta talla?", "/adminpanel/deleteuniversalsize", data )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade card-body" id="consultar-brand" role="tabpanel" aria-labelledby="consultar-brand-tab">
+                        <div class="card-header p-0 pb-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Tallas por Marca</h6>
+                        </div>
+                        <table id="brandSizesTable" class="table table-bordered mt-3">
+                            <thead>
+                                <tr>
+                                    <th>Marca</th>
+                                    <th>Talla</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var size in Model.BrandSizes)
+                                {
+                                    <tr>
+                                        <td>@size.Nombre_Marca</td>
+                                        <td>@size.Talla_Eu</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadSizeData("@size.Talla_Eu", false); $("#update-tab").tab("show"); $("#update-brand-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { talla_eu: "@size.Talla_Eu", id_marca: "@size.Id_Marca" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta talla?", "/adminpanel/deletebrandsize", data )'><i class="fas fa-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="anadir" role="tabpanel" aria-labelledby="create-tab">
+            <div class="card shadow mb-4">
+                <ul class="nav nav-tabs" id="anadirSubTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="anadir-universal-tab" data-toggle="tab" href="#anadir-universal" role="tab" aria-controls="anadir-universal" aria-selected="true">Tallas Universales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="anadir-brand-tab" data-toggle="tab" href="#anadir-brand" role="tab" aria-controls="anadir-brand" aria-selected="false">Tallas por Marca</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="anadirSubTabsContent">
+                    <div class="tab-pane fade show active card-body" id="anadir-universal" role="tabpanel" aria-labelledby="anadir-universal-tab">
+                        <form id="createUniversalSizeForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="createUniversalSize">Talla EU</label>
+                                <input type="text" class="form-control" id="createUniversalSize" name="talla_eu" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="createUniversalSizeUS">Talla US</label>
+                                <input type="text" class="form-control" id="createUniversalSizeUS" name="talla_us" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="createUniversalSizeUK">Talla UK</label>
+                                <input type="text" class="form-control" id="createUniversalSizeUK" name="talla_uk" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Añadir Talla Universal</button>
+                            <button type="button" id="clearCreateUniversal" class="btn btn-warning" disabled>Limpiar Campos</button>
+                            <button type="button" id="cancelCreateUniversal" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade card-body" id="anadir-brand" role="tabpanel" aria-labelledby="anadir-brand-tab">
+                        <form id="createBrandSizeForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="searchMarcaCreate">Marca</label>
+                                <input type="text" class="form-control" id="searchMarcaCreate" name="searchMarcaCreate" placeholder="Buscar marca..." required />
+                                <div id="searchMarcaCreateResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                                <div class="text-danger"></div>
+                            </div>
+                            <div class="form-group" style="display: none !important">
+                                <label for="createIdMarca">ID Marca</label>
+                                <input type="text" class="form-control" id="createIdMarca" name="id_marca" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="createBrandSize">Talla EU</label>
+                                <input type="text" class="form-control" id="createBrandSize" name="talla_eu" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="createBrandSizeUS">Talla US</label>
+                                <input type="text" class="form-control" id="createBrandSizeUS" name="talla_us" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="createBrandSizeUK">Talla UK</label>
+                                <input type="text" class="form-control" id="createBrandSizeUK" name="talla_uk" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Añadir Talla por Marca</button>
+                            <button type="button" id="clearCreateBrand" class="btn btn-warning" disabled>Limpiar Campos</button>
+                            <button type="button" id="cancelCreateBrand" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="modificar" role="tabpanel" aria-labelledby="update-tab">
+            <div class="card shadow mb-4">
+                <ul class="nav nav-tabs" id="modificarSubTabs" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="update-universal-tab" data-toggle="tab" href="#update-universal" role="tab" aria-controls="update-universal" aria-selected="true">Tallas Universales</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="update-brand-tab" data-toggle="tab" href="#update-brand" role="tab" aria-controls="update-brand" aria-selected="false">Tallas por Marca</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="modificarSubTabsContent">
+                    <div class="tab-pane fade show active card-body" id="update-universal" role="tabpanel" aria-labelledby="update-universal-tab">
+                        <form id="updateUniversalSizeForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="searchUniversalSize">Talla EU</label>
+                                <input type="text" class="form-control" id="searchUniversalSize" name="talla_eu" placeholder="Buscar talla..." required />
+                                <div class="text-danger"></div>
+                                <div id="searchUniversalSizeResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUniversalSizeUS">Talla US</label>
+                                <input type="text" class="form-control" id="updateUniversalSizeUS" name="talla_us" required disabled />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUniversalSizeUK">Talla UK</label>
+                                <input type="text" class="form-control" id="updateUniversalSizeUK" name="talla_uk" required disabled />
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Actualizar Talla Universal</button>
+                            <button type="button" id="clearUpdateUniversal" class="btn btn-warning" disabled>Limpiar Campos</button>
+                            <button type="button" id="cancelUpdateUniversal" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade card-body" id="update-brand" role="tabpanel" aria-labelledby="update-brand-tab">
+                        <form id="updateBrandSizeForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="searchMarcaUpdate">Marca</label>
+                                <input type="text" class="form-control" id="searchMarcaUpdate" placeholder="Buscar marca..." required />
+                                <div id="searchMarcaUpdateResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                                <div class="text-danger"></div>
+                            </div>
+                            <div class="form-group" style="display: none !important">
+                                <label for="updateIdMarca">ID Marca</label>
+                                <input type="text" class="form-control" id="updateIdMarca" name="id_marca" readonly />
+                            </div>
+                            <div class="form-group">
+                                <label for="searchBrandSize">Talla EU</label>
+                                <input type="text" class="form-control" id="searchBrandSize" name="talla_eu" placeholder="Buscar talla..." required disabled />
+                                <div class="text-danger"></div>
+                                <div id="searchBrandSizeResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBrandSizeUS">Talla US</label>
+                                <input type="text" class="form-control" id="updateBrandSizeUS" name="talla_us" required disabled />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateBrandSizeUK">Talla UK</label>
+                                <input type="text" class="form-control" id="updateBrandSizeUK" name="talla_uk" required disabled />
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Actualizar Talla por Marca</button>
+                            <button type="button" id="clearUpdateBrand" class="btn btn-warning" disabled>Limpiar Campos</button>
+                            <button type="reset" id="cancelUpdateBrand" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $('#universalSizesTable').DataTable();
+            $('#brandSizesTable').DataTable();
+
+            $('#searchMarcaCreate').on('input', function () {
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchMarcas", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchMarcaCreateResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (marca) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + marca.id_marca + '">' + marca.nombre_marca + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchMarcaCreateResults').empty();
+                }
+
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+            });
+
+            $('#searchMarcaUpdate').on('input', function () {
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 2) {
+                    $.ajax({
+                        url: '@Url.Action("SearchBrands", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchMarcaUpdateResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (marca) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + marca.id_marca + '">' + marca.nombre_marca + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchMarcaUpdateResults').empty();
+                }
+
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+            });
+
+            $('#searchMarcaCreateResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var idMarca = $(this).data('id');
+                var nombreMarca = $(this).text();
+                $('#searchMarcaCreate').val(nombreMarca);
+                $('#createIdMarca').val(idMarca);
+                $('#searchMarcaCreateResults').empty();
+            });
+
+            $('#searchMarcaUpdateResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var idMarca = $(this).data('id');
+                var nombreMarca = $(this).text();
+                $('#searchMarcaUpdate').val(nombreMarca);
+                $('#updateIdMarca').val(idMarca);
+                $('#searchMarcaUpdateResults').empty();
+                $('#searchBrandSize').prop('disabled', false);
+
+                if ($("#searchMarcaUpdate").hasClass('is-invalid')) {
+                    $("#searchMarcaUpdate").removeClass('is-invalid');
+                    $("#searchMarcaUpdate").siblings('.text-danger').text('');
+                }
+            });
+
+            $('#searchMarcaUpdate').on('blur', function () {
+                var nombreMarca = $(this).val();
+                if (nombreMarca !== "") {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#searchMarcaUpdate').removeClass('is-invalid');
+                                $('#searchMarcaUpdate').siblings('.text-danger').text('');
+                                $('#searchMarcaUpdate').data('isValid', true);
+                                $('#searchBrandSize').prop('disabled', false);
+                                $("#updateIdMarca").val(data.id_marca);
+                            } else {
+                                $('#searchMarcaUpdate').addClass('is-invalid');
+                                $('#searchMarcaUpdate').siblings('.text-danger').text('La marca no existe.');
+                                $('#searchMarcaUpdate').data('isValid', false);
+                                $('#searchBrandSize').prop('disabled', true);
+                                $("#updateIdMarca").val('');
+                            }
+                        },
+                        error: function () {
+                            console.error("Error al verificar la existencia de la marca.");
+                        }
+                    });
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+            });
+
+            $('#searchUniversalSize').on('input', function () {
+                var searchTerm = $(this).val();
+                if (searchTerm.length >= 1) {
+                    $.ajax({
+                        url: '@Url.Action("SearchUniversalSizes", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchUniversalSizeResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.slice(0, 7).forEach(function (size) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + size.talla_eu + '">' + size.talla_eu + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
+                            }
+                        }
+                    });
+                } else {
+                    $('#searchUniversalSizeResults').empty();
+                }
+            });
+
+            $('#searchUniversalSizeResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var sizeId = $(this).data('id');
+                $('#searchUniversalSize').val(sizeId);
+                loadSizeData(sizeId, true);
+                $('#updateUniversalSizeUS').prop('disabled', false);
+                $('#updateUniversalSizeUK').prop('disabled', false);
+                $('#searchUniversalSizeResults').empty();
+                $('#searchUniversalSize').removeClass('is-invalid');
+                $('#searchUniversalSize').next('.text-danger').text('');
+            });
+
+            $('#searchBrandSize').on('input', function () {
+                var searchTerm = $(this).val();
+                var idMarca = $('#updateIdMarca').val();
+                if (idMarca) {
+                    $.ajax({
+                        url: '@Url.Action("SearchBrandSizes", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { idMarca: idMarca, searchTerm: searchTerm },
+                        success: function (data) {
+                            var results = $('#searchBrandSizeResults');
+                            results.empty();
+                            if (data.length > 0) {
+                                data.forEach(function (talla) {
+                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + talla + '">' + talla + '</a>');
+                                });
+                            } else {
+                                results.append('<p class="list-group-item">No se encontraron tallas</p>');
+                            }
+                        }
+                    });
+                }
+            });
+
+            $('#searchBrandSizeResults').on('click', '.list-group-item', function (e) {
+                e.preventDefault();
+                var sizeId = $(this).data('id');
+                $('#searchBrandSize').val(sizeId);
+                loadSizeData(sizeId, false);
+                $('#searchBrandSizeResults').empty();
+                $('#searchBrandSize').removeClass('is-invalid');
+                $('#searchBrandSize').next('.text-danger').text('');
+            });
+
+            $('#createUniversalSizeForm').submit(function (e) {
+                e.preventDefault();
+                var formData = new FormData(this);
+                $.ajax({
+                    url: '@Url.Action("CreateUniversalSize", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (data) {
+                        if (data.success) {
+                            popups.showSuccessTimer("Talla universal añadida exitosamente.", "Redirigiendo a la lista de tallas...");
+                            setTimeout(function() {
+                                window.location.href = '@Url.Action("Sizes", "AdminPanel").ToLower()';
+                            }, 2000);
+                        } else {
+                            popups.showErrorTimer(data.error);
+                        }
+                    }
+                });
+            });
+
+            $('#createBrandSizeForm').submit(function (e) {
+                enableFieldsBeforeSubmit(this);
+                e.preventDefault();
+
+                var nombreMarca = $('#searchMarcaCreate').val().trim();
+                var idMarca = $('#createIdMarca').val().trim();
+                var tallaEU = $('#createBrandSize').val().trim();
+                var tallaUS = $('#createBrandSizeUS').val().trim();
+                var tallaUK = $('#createBrandSizeUK').val().trim();
+
+                if (nombreMarca === '' || tallaEU === '' || tallaUS === '' || tallaUK === '') {
+                    this.reportValidity();
+                } else if (idMarca === '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#createIdMarca').val(data.id_marca);
+                                submitCreateForm();
+                            } else {
+                                $('#searchMarcaCreate').addClass('is-invalid');
+                                $('#searchMarcaCreate').siblings('.text-danger').text('La marca no existe.');
+                                $('#searchMarcaCreate').data('isUnique', false);
+                            }
+                        }
+                    });
+                } else {
+                    submitCreateForm();
+                }
+            });
+
+            $('#searchUniversalSize').on('blur', function () {
+                var tallaEu = $(this).val();
+
+                if (tallaEu !== "") {
+                    $.ajax({
+                        url: '@Url.Action("DoesSizeExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { talla_eu: tallaEu },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#searchUniversalSize').removeClass('is-invalid');
+                                $('#searchUniversalSize').siblings('.text-danger').text('');
+                                $('#searchUniversalSize').data('isUnique', true);
+
+                                $('#updateUniversalSizeUS').val(data.talla_us).prop('disabled', false);
+                                $('#updateUniversalSizeUK').val(data.talla_uk).prop('disabled', false);
+                            } else {
+                                $('#searchUniversalSize').addClass('is-invalid');
+                                $('#searchUniversalSize').siblings('.text-danger').text('La talla no existe.');
+                                $('#searchUniversalSize').data('isUnique', false);
+
+                                $('#updateUniversalSizeUS').val('').prop('disabled', true);
+                                $('#updateUniversalSizeUK').val('').prop('disabled', true);
+                            }
+                        },
+                        error: function () {
+                            console.error("Error al verificar la existencia de la talla.");
+                        }
+                    });
+                } else {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                    $('#updateUniversalSizeUS').val('').prop('disabled', true);
+                    $('#updateUniversalSizeUK').val('').prop('disabled', true);
+                }
+            });
+
+            $('#updateUniversalSizeForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var tallaEu = $('#searchUniversalSize').val();
+                var tallaUs = $('#updateUniversalSizeUS').val();
+                var tallaUk = $('#updateUniversalSizeUK').val();
+
+                if (!tallaUs || !tallaUk)
+                    this.reportValidity();
+                else {
+                    $.ajax({
+                        url: '@Url.Action("DoesSizeExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { talla_eu: tallaEu },
+                        success: function (response) {
+                            if (response.exists) {
+                                enableFieldsBeforeSubmit(this);
+                                var formData = $('#updateUniversalSizeForm').serializeArray();
+                                var tallaEuExists = formData.some(function (field) {
+                                    return field.name === 'talla_eu';
+                                });
+
+                                if (!tallaEuExists) {
+                                    formData.push({ name: 'talla_eu', value: tallaEu });
+                                }
+
+                                $.ajax({
+                                    url: '@Url.Action("UpdateUniversalSize", "AdminPanel").ToLower()',
+                                    type: 'POST',
+                                    data: $.param(formData),
+                                    success: function (response) {
+                                        popups.showSuccessTimer("Talla universal modificada exitosamente.", "Redirigiendo a la lista de tallas...");
+                                        setTimeout(function() {
+                                            window.location.href = '@Url.Action("Sizes", "AdminPanel").ToLower()';
+                                        }, 2000);
+                                    },
+                                    error: function () {
+                                        popups.showErrorTimer("Error al actualizar la talla.");
+                                    }
+                                });
+                            } else {
+                                $('#searchUniversalSize').addClass('is-invalid');
+                                $('#searchUniversalSize').siblings('.text-danger').text('La talla no existe.');
+                                $('#searchUniversalSize').data('isUnique', false);
+                            }
+                        },
+                        error: function () {
+                            console.error("Error al verificar la existencia de la talla.");
+                        }
+                    });
+                }
+            });
+
+            $('#updateBrandSizeForm').submit(function (e) {
+                e.preventDefault();
+
+                var nombreMarca = $('#searchMarcaUpdate').val().trim();
+                var idMarca = $('#updateIdMarca').val().trim();
+                var tallaEU = $('#searchBrandSize').val().trim();
+                var tallaUS = $('#updateBrandSizeUS').val().trim();
+                var tallaUK = $('#updateBrandSizeUK').val().trim();
+
+                if (nombreMarca === '' || tallaEU === '' || tallaUS === '' || tallaUK === '')
+                    this.reportValidity();
+                else if (idMarca === '') {
+                    $.ajax({
+                        url: '@Url.Action("DoesBrandExist", "AdminPanel").ToLower()',
+                        type: 'POST',
+                        data: { nombre_marca: nombreMarca },
+                        success: function (data) {
+                            if (data.exists) {
+                                $('#updateIdMarca').val(data.id_marca);
+                                submitUpdateForm();
+                            } else {
+                                $('#searchMarcaUpdate').addClass('is-invalid');
+                                $('#searchMarcaUpdate').siblings('.text-danger').text('La marca no existe.');
+                                $('#searchMarcaUpdate').data('isUnique', false);
+                            }
+                        }
+                    });
+                } else {
+                    submitUpdateForm();
+                }
+            });
+
+            $('#cancelUpdateUniversal').click(function () {
+                $('#updateUniversalSizeForm')[0].reset();
+                $('#searchUniversalSize').prop('disabled', false);
+                $('#updateUniversalSizeUS').prop('disabled', true);
+                $('#updateUniversalSizeUK').prop('disabled', true);
+                $('#read-tab').tab('show');
+            });
+
+            $('#cancelUpdateBrand').click(function () {
+                $('#updateBrandSizeForm')[0].reset();
+                $('#searchMarcaUpdate').prop('disabled', false);
+                $('#searchBrandSize').prop('disabled', false);
+                $('#updateBrandSizeUS').prop('disabled', true);
+                $('#updateBrandSizeUK').prop('disabled', true);
+                $('#read-tab').tab('show');
+            });
+
+            $('#createUniversalSizeForm input').on('input', function () {
+                var isFormFilled = $('#createUniversalSizeForm input').filter(function () {
+                    return this.value.trim() !== '';
+                }).length > 0;
+                $('#createUniversalSizeForm button[type="submit"]').prop('disabled', !isFormFilled);
+                $('#clearCreateUniversal').prop('disabled', !isFormFilled);
+            });
+
+            $('#clearCreateUniversal').click(function () {
+                $('#createUniversalSizeForm')[0].reset();
+                $('#createUniversalSizeForm button[type="submit"]').prop('disabled', true);
+                $(this).prop('disabled', true);
+            });
+
+            $('#cancelCreateUniversal').click(function () {
+                $('#createUniversalSizeForm')[0].reset();
+                $('#createUniversalSizeForm button[type="submit"]').prop('disabled', true);
+                $('#clearCreateUniversal').prop('disabled', true);
+                $('#read-tab').tab('show');
+            });
+
+            $('#createBrandSizeForm input').on('input', function () {
+                var isFormFilled = $('#createBrandSizeForm input').filter(function () {
+                    return this.value.trim() !== '';
+                }).length > 0;
+                $('#createBrandSizeForm button[type="submit"]').prop('disabled', !isFormFilled);
+                $('#clearCreateBrand').prop('disabled', !isFormFilled);
+            });
+
+            $('#clearCreateBrand').click(function () {
+                $('#createBrandSizeForm')[0].reset();
+                $('#createBrandSizeForm button[type="submit"]').prop('disabled', true);
+                $(this).prop('disabled', true);
+            });
+
+            $('#cancelCreateBrand').click(function () {
+                $('#createBrandSizeForm')[0].reset();
+                $('#createBrandSizeForm button[type="submit"]').prop('disabled', true);
+                $('#clearCreateBrand').prop('disabled', true);
+                $('#read-tab').tab('show');
+            });
+
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#searchMarcaCreate, #searchMarcaCreateResults').length)
+                    $('#searchMarcaCreateResults').empty();
+                if (!$(e.target).closest('#searchMarcaUpdate, #searchMarcaUpdateResults').length)
+                    $('#searchMarcaUpdateResults').empty();
+                if (!$(e.target).closest('#searchUniversalSize, #searchUniversalSizeResults').length)
+                    $('#searchUniversalSizeResults').empty();
+                if (!$(e.target).closest('#searchBrandSize, #searchBrandSizeResults').length)
+                    $('#searchBrandSizeResults').empty();
+            });
+
+            $('#updateUniversalSizeForm input').on('input', function () {
+                toggleButtons('#updateUniversalSizeForm');
+            });
+
+            $('#updateBrandSizeForm input').on('input', function () {
+                toggleButtons('#updateBrandSizeForm');
+            });
+
+            $('#clearUpdateUniversal').click(function () {
+                $('#updateUniversalSizeForm')[0].reset();
+                $('#searchUniversalSize').removeClass('is-invalid');
+                $('#searchUniversalSize').next('.text-danger').text('');
+                $('#searchUniversalSize').prop('disabled', false);
+                $('#updateUniversalSizeUS, #updateUniversalSizeUK').prop('disabled', true);
+                toggleButtons('#updateUniversalSizeForm');
+            });
+
+            $('#clearUpdateBrand').on('click', function () {
+                $('#searchMarcaUpdate').val('').removeClass('is-invalid').prop('disabled', false);
+                $('#searchMarcaUpdate').siblings('.text-danger').text('');
+                $('#updateIdMarca').val('');
+                $('#searchBrandSize').val('').prop('disabled', true);
+                $('#updateBrandSizeUS').val('').prop('disabled', true);
+                $('#updateBrandSizeUK').val('').prop('disabled', true);
+                toggleButtons('#updateBrandSizeForm');
+            });
+        });
+
+        function submitCreateForm() {
+            var formData = new FormData($('#createBrandSizeForm')[0]);
+            $.ajax({
+                url: '@Url.Action("CreateBrandSize", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Talla por marca añadida exitosamente.", "Redirigiendo a la lista de tallas...");
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Sizes", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                }
+            });
+        }
+
+        function submitUpdateForm() {
+            var formData = new FormData($('#updateBrandSizeForm')[0]);
+            if (!formData.has('talla_eu')) {
+                var tallaEu = $('#searchBrandSize').val();
+                formData.append('talla_eu', tallaEu);
+            }
+            $.ajax({
+                url: '@Url.Action("UpdateBrandSize", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Talla por marca actualizada exitosamente.", "Redirigiendo a la lista de tallas...");
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("Sizes", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                }
+            });
+        }
+
+        function loadSizeData(sizeId, isUniversal) {
+            $.ajax({
+                url: isUniversal ? '@Url.Action("GetUniversalSize", "AdminPanel").ToLower()' : '@Url.Action("GetBrandSize", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: sizeId },
+                success: function (data) {
+                    if (isUniversal) {
+                        $('#searchUniversalSize').val(data.talla_eu).prop('disabled', true);
+                        $('#updateUniversalSizeUS').val(data.talla_us).prop('disabled', false);
+                        $('#updateUniversalSizeUK').val(data.talla_uk).prop('disabled', false);
+                    } else {
+                        $('#updateIdMarca').val(data.id_marca);
+                        $('#searchMarcaUpdate').val(data.nombre_marca).prop('disabled', true);
+                        $('#searchBrandSize').val(data.talla_eu).prop('disabled', true);
+                        $('#updateBrandSizeUS').val(data.talla_us).prop('disabled', false);
+                        $('#updateBrandSizeUK').val(data.talla_uk).prop('disabled', false);
+                    }
+                }
+            });
+        }
+
+        function toggleButtons(formId) {
+            var form = $(formId);
+            var hasContent = form.find('input').filter(function () {
+                return this.value.trim() !== "";
+            }).length > 0;
+            form.find('button[type="submit"], button[type="button"]').prop('disabled', !hasContent);
+        }
+
+        function enableFieldsBeforeSubmit(form) {
+            setTimeout(function () {
+                $(form).find(':disabled').prop('disabled', false);
+            }, 2000);
+        }
+    </script>
+}

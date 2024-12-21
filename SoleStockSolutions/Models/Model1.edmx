@@ -14,9 +14,9 @@
         </EntityType>
         <EntityType Name="Colores">
           <Key>
-            <PropertyRef Name="id_color" />
+            <PropertyRef Name="hex" />
           </Key>
-          <Property Name="id_color" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="hex" Type="nvarchar" MaxLength="7" Nullable="false" />
           <Property Name="nombre_color" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Detalles_Pedidos">
@@ -115,10 +115,10 @@
         <EntityType Name="Productos_Colores">
           <Key>
             <PropertyRef Name="id_producto" />
-            <PropertyRef Name="id_color" />
+            <PropertyRef Name="hex" />
           </Key>
           <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="id_color" Type="int" Nullable="false" />
+          <Property Name="hex" Type="nvarchar" MaxLength="7" Nullable="false" />
         </EntityType>
         <EntityType Name="Tallas_Marcas">
           <Key>
@@ -234,20 +234,6 @@
             </Principal>
             <Dependent Role="Estados">
               <PropertyRef Name="id_categoria_estado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_Inventario_Tallas_Marcas">
-          <End Role="Tallas_Marcas" Type="Self.Tallas_Marcas" Multiplicity="0..1" />
-          <End Role="Inventario" Type="Self.Inventario" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Tallas_Marcas">
-              <PropertyRef Name="id_marca" />
-              <PropertyRef Name="talla_eu" />
-            </Principal>
-            <Dependent Role="Inventario">
-              <PropertyRef Name="id_marca" />
-              <PropertyRef Name="talla_eu_marca" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -401,10 +387,6 @@
             <End Role="Categorías_Estados" EntitySet="Categorías_Estados" />
             <End Role="Estados" EntitySet="Estados" />
           </AssociationSet>
-          <AssociationSet Name="FK_Inventario_Tallas_Marcas" Association="Self.FK_Inventario_Tallas_Marcas">
-            <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
-            <End Role="Inventario" EntitySet="Inventario" />
-          </AssociationSet>
           <AssociationSet Name="FK_Inventario_Tallas_Universales" Association="Self.FK_Inventario_Tallas_Universales">
             <End Role="Tallas_Universales" EntitySet="Tallas_Universales" />
             <End Role="Inventario" EntitySet="Inventario" />
@@ -448,7 +430,6 @@
       <Schema Namespace="TFCModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="TFCEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Categorías_Estados" EntityType="TFCModel.Categorías_Estados" />
-          <EntitySet Name="Colores" EntityType="TFCModel.Colores" />
           <EntitySet Name="Detalles_Pedidos" EntityType="TFCModel.Detalles_Pedidos" />
           <EntitySet Name="Direcciones" EntityType="TFCModel.Direcciones" />
           <EntitySet Name="Estados" EntityType="TFCModel.Estados" />
@@ -457,7 +438,6 @@
           <EntitySet Name="Modelos" EntityType="TFCModel.Modelos" />
           <EntitySet Name="Pedidos" EntityType="TFCModel.Pedidos" />
           <EntitySet Name="Productos" EntityType="TFCModel.Productos" />
-          <EntitySet Name="Productos_Colores" EntityType="TFCModel.Productos_Colores" />
           <EntitySet Name="Tallas_Marcas" EntityType="TFCModel.Tallas_Marcas" />
           <EntitySet Name="Tallas_Universales" EntityType="TFCModel.Tallas_Universales" />
           <EntitySet Name="Usuarios" EntityType="TFCModel.Usuarios" />
@@ -526,12 +506,14 @@
             <End Role="Usuarios" EntitySet="Usuarios" />
             <End Role="Wishlist" EntitySet="Wishlist" />
           </AssociationSet>
-          <AssociationSet Name="ColoresProductos_Colores" Association="TFCModel.ColoresProductos_Colores">
-            <End Role="Colores" EntitySet="Colores" />
-            <End Role="Productos_Colores" EntitySet="Productos_Colores" />
-          </AssociationSet>
+          <EntitySet Name="Colores" EntityType="TFCModel.Colores" />
+          <EntitySet Name="Productos_Colores" EntityType="TFCModel.Productos_Colores" />
           <AssociationSet Name="ProductosProductos_Colores" Association="TFCModel.ProductosProductos_Colores">
             <End Role="Productos" EntitySet="Productos" />
+            <End Role="Productos_Colores" EntitySet="Productos_Colores" />
+          </AssociationSet>
+          <AssociationSet Name="ColoresProductos_Colores" Association="TFCModel.ColoresProductos_Colores">
+            <End Role="Colores" EntitySet="Colores" />
             <End Role="Productos_Colores" EntitySet="Productos_Colores" />
           </AssociationSet>
         </EntityContainer>
@@ -542,14 +524,6 @@
           <Property Name="id_categoria_estado" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="nombre_categoria" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Estados" Relationship="TFCModel.FK_Estados_Categorias" FromRole="Categorías_Estados" ToRole="Estados" />
-        </EntityType>
-        <EntityType Name="Colores">
-          <Key>
-            <PropertyRef Name="id_color" />
-          </Key>
-          <Property Name="id_color" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="nombre_color" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Colores" ToRole="Productos_Colores" />
         </EntityType>
         <EntityType Name="Detalles_Pedidos">
           <Key>
@@ -665,18 +639,8 @@
           <NavigationProperty Name="Marcas" Relationship="TFCModel.FK_Productos_Marcas" FromRole="Productos" ToRole="Marcas" />
           <NavigationProperty Name="Modelos" Relationship="TFCModel.FK_Productos_Modelos" FromRole="Productos" ToRole="Modelos" />
           <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_producto_wishlist" FromRole="Productos" ToRole="Wishlist" />
-          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos" ToRole="Productos_Colores" />
           <Property Name="veces_visto" Type="Int32" Nullable="false" />
-        </EntityType>
-        <EntityType Name="Productos_Colores">
-          <Key>
-            <PropertyRef Name="id_producto" />
-            <PropertyRef Name="id_color" />
-          </Key>
-          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="id_color" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Productos_Colores" ToRole="Colores" />
-          <NavigationProperty Name="Productos" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos_Colores" ToRole="Productos" />
+          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos" ToRole="Productos_Colores" />
         </EntityType>
         <EntityType Name="Tallas_Marcas">
           <Key>
@@ -927,18 +891,24 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="ColoresProductos_Colores">
-          <End Type="TFCModel.Colores" Role="Colores" Multiplicity="1" />
-          <End Type="TFCModel.Productos_Colores" Role="Productos_Colores" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Colores">
-              <PropertyRef Name="id_color" />
-            </Principal>
-            <Dependent Role="Productos_Colores">
-              <PropertyRef Name="id_color" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
+        <EntityType Name="Colores">
+          <Key>
+            <PropertyRef Name="hex" />
+          </Key>
+          <Property Name="hex" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="true" />
+          <Property Name="nombre_color" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Colores" ToRole="Productos_Colores" />
+        </EntityType>
+        <EntityType Name="Productos_Colores">
+          <Key>
+            <PropertyRef Name="id_producto" />
+            <PropertyRef Name="hex" />
+          </Key>
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="hex" Type="String" Nullable="false" MaxLength="7" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos_Colores" ToRole="Productos" />
+          <NavigationProperty Name="Colores" Relationship="TFCModel.ColoresProductos_Colores" FromRole="Productos_Colores" ToRole="Colores" />
+        </EntityType>
         <Association Name="ProductosProductos_Colores">
           <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1" />
           <End Type="TFCModel.Productos_Colores" Role="Productos_Colores" Multiplicity="*" />
@@ -948,6 +918,18 @@
             </Principal>
             <Dependent Role="Productos_Colores">
               <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="ColoresProductos_Colores">
+          <End Type="TFCModel.Colores" Role="Colores" Multiplicity="1" />
+          <End Type="TFCModel.Productos_Colores" Role="Productos_Colores" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Colores">
+              <PropertyRef Name="hex" />
+            </Principal>
+            <Dependent Role="Productos_Colores">
+              <PropertyRef Name="hex" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -962,14 +944,6 @@
               <MappingFragment StoreEntitySet="Categorías_Estados">
                 <ScalarProperty Name="nombre_categoria" ColumnName="nombre_categoria" />
                 <ScalarProperty Name="id_categoria_estado" ColumnName="id_categoria_estado" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Colores">
-            <EntityTypeMapping TypeName="TFCModel.Colores">
-              <MappingFragment StoreEntitySet="Colores">
-                <ScalarProperty Name="nombre_color" ColumnName="nombre_color" />
-                <ScalarProperty Name="id_color" ColumnName="id_color" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1074,14 +1048,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Productos_Colores">
-            <EntityTypeMapping TypeName="TFCModel.Productos_Colores">
-              <MappingFragment StoreEntitySet="Productos_Colores">
-                <ScalarProperty Name="id_color" ColumnName="id_color" />
-                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Tallas_Marcas">
             <EntityTypeMapping TypeName="TFCModel.Tallas_Marcas">
               <MappingFragment StoreEntitySet="Tallas_Marcas">
@@ -1122,6 +1088,22 @@
                 <ScalarProperty Name="en_stock" ColumnName="en_stock" />
                 <ScalarProperty Name="id_producto" ColumnName="id_producto" />
                 <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Colores">
+            <EntityTypeMapping TypeName="TFCModel.Colores">
+              <MappingFragment StoreEntitySet="Colores">
+                <ScalarProperty Name="nombre_color" ColumnName="nombre_color" />
+                <ScalarProperty Name="hex" ColumnName="hex" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Productos_Colores">
+            <EntityTypeMapping TypeName="TFCModel.Productos_Colores">
+              <MappingFragment StoreEntitySet="Productos_Colores">
+                <ScalarProperty Name="hex" ColumnName="hex" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

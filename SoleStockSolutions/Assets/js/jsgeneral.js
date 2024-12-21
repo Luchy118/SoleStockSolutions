@@ -95,7 +95,7 @@
         });
     }
 
-    showConfirmDelete(title, msg, url, id) {
+    showConfirmDelete(title, msg, url, data) {
         Swal.fire({
             title: title,
             text: msg,
@@ -110,7 +110,7 @@
                 $.ajax({
                     url: url,
                     type: 'POST',
-                    data: { id: id },
+                    data: data,
                     success: function (response) {
                         if (response.success) {
                             Swal.fire({

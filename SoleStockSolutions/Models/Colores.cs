@@ -20,7 +20,7 @@ namespace SoleStockSolutions.Models
             this.Productos_Colores = new HashSet<Productos_Colores>();
         }
     
-        public int id_color { get; set; }
+        public string hex { get; set; }
         public string nombre_color { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
