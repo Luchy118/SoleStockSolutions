@@ -55,4 +55,11 @@ namespace SoleStockSolutions.Models
         public decimal TotalSales { get; set; }
         public DateTime LastModified { get; set; }
     }
+
+    public class SizeStockPrice
+    {
+        public string Size { get; set; }
+        public int Stock { get; set; }
+        public int Price { get; set; }
+    }
 }

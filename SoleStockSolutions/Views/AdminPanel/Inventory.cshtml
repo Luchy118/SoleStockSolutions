@@ -1,4 +1,5 @@
-﻿@{
+﻿@using Newtonsoft.Json
+@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
@@ -10,9 +11,6 @@
         </li>
         <li class="nav-item">
             <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
         </li>
     </ul>
     <div class="tab-content" id="myTabContent">
@@ -63,7 +61,7 @@
                                         <td>@item.TotalSales</td>
                                         <td>@item.LastModified</td>
                                         <td>
-                                            <a class="btn btn-sm btn-info" data-toggle="tab" onclick='loadInventoryData("@item.SKU", true); $("#update-tab").tab("show");'><i class="fas fa-eye"></i></a>
+                                            <a class="btn btn-sm btn-info" data-toggle="tab" onclick='loadInventoryItemDetails("@item.SKU"); $("#read").removeClass("active"); $("#details").addClass("show active");'><i class="fas fa-eye"></i></a>
                                             <a class="btn btn-sm btn-danger" onclick='var data = { sku: "@item.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteinventory", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
@@ -75,18 +73,57 @@
             </div>
         </div>
         <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+            <ul class="nav nav-tabs" id="createSubTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="manual" aria-selected="true">Introducción manual</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="excel-tab" data-toggle="tab" href="#excel" role="tab" aria-controls="excel" aria-selected="false">Importación Excel</a>
+                </li>
+            </ul>
             <div class="card-body">
-                <ul class="nav nav-tabs" id="createSubTab" role="tablist">
-                    <li class="nav-item">
-                        <a class="nav-link active" id="manual-tab" data-toggle="tab" href="#manual" role="tab" aria-controls="manual" aria-selected="true">Introducción manual</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" id="excel-tab" data-toggle="tab" href="#excel" role="tab" aria-controls="excel" aria-selected="false">Importación Excel</a>
-                    </li>
-                </ul>
                 <div class="tab-content" id="createSubTabContent">
                     <div class="tab-pane fade show active" id="manual" role="tabpanel" aria-labelledby="manual-tab">
-                        <!-- Contenido de Introducción manual -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form id="newProductForm">
+                                    <div class="form-group position-relative">
+                                        <label for="productId">Id de Producto</label>
+                                        <input type="text" class="form-control" id="productId" placeholder="Introduzca el Id del producto" autocomplete="off">
+                                        <div class="dropdown-menu" id="productDropdown" style="position: absolute; width: 100%;"></div>
+                                    </div>
+                                    <div class="table-responsive" style="height: 700px; overflow-y: auto;">
+                                        <table class="table table-bordered" id="sizesTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>Talla</th>
+                                                    <th>Cantidad</th>
+                                                    <th>Precio</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td><input type="text" class="form-control" name="size" required disabled></td>
+                                                    <td><input type="number" class="form-control" name="quantity" required min="1" value="1"></td>
+                                                    <td><input type="number" class="form-control" name="price" required min="1" step="1" value="1"></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-success" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                                                    </td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="submitButton" disabled>Guardar</button>
+                                    <button type="button" class="btn btn-warning" id="clearButton" onclick="clearForm()" disabled>Limpiar Campos</button>
+                                    <button type="button" class="btn btn-secondary" onclick="$('#read-tab').click()">Cancelar</button>
+                                </form>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <h4 class="m-0 font-weight-bold" id="createNewTitle" style="color: #858796;"></h4>
+                                <img id="productImage" src="#" alt="Imagen Producto" class="img-fluid" style="max-height: 500px; display: none;">
+                            </div>
+                        </div>
                     </div>
                     <div class="tab-pane fade" id="excel" role="tabpanel" aria-labelledby="excel-tab">
                         <!-- Contenido de Importación Excel -->
@@ -94,9 +131,38 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="tab-pane fade card shadow" id="details" role="tabpanel">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary" id="detailsHeader">Vista Detallada</h6>
+            </div>
             <div class="card-body">
-                <!-- Contenido de Modificar existente -->
+                <div class="row">
+                    <div class="col-md-8 d-flex flex-column justify-content-between">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="detailsTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Talla</th>
+                                        <th>Existencias</th>
+                                        <th>Precio</th>
+                                        <th>Nº Ventas</th>
+                                        <th>Última Modificación</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody />
+                            </table>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary mt-3" onclick="showAddStockPopup();" style="align-self: flex-start;">Añadir Existencias</button>
+                            <button class="btn btn-secondary mt-3" onclick="location.reload();" style="align-self: flex-start;">Volver</button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h4 class="m-0 font-weight-bold" id="detailsTitle" style="color: #858796;"></h4>
+                        <img id="detailsImage" src="#" alt="Imagen Producto" class="img-fluid" style="max-height: 500px">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -109,32 +175,446 @@
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
                 },
-                "order": [[0, "asc"]]
+                "order": [[0, "asc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": [1, 8] }
+                ]
+            });
+
+            $('#productId').on('input', function () {
+                setTimeout(function () {
+                    var query = $('#productId').val();
+                    if (query.length > 2) {
+                        $.ajax({
+                            url: '@Url.Action("SearchProducts", "AdminPanel").ToLower()',
+                            type: 'POST',
+                            data: { searchTerm: query },
+                            success: function (data) {
+                                var dropdown = $('#productDropdown');
+                                dropdown.empty();
+                                data.forEach(function (item) {
+                                    dropdown.append(`
+                                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);" onclick="selectProduct('${item.id_producto}', '${item.imagen}', '${item.nombre}')">
+                                            <img src="${item.imagen}" alt="Imagen Producto" width="50" class="mr-2">
+                                            <span>${item.nombre}</span>
+                                        </a>
+                                    `);
+                                });
+                                dropdown.show();
+                            }
+                        });
+                    } else {
+                        $('#productDropdown').hide();
+                    }
+                }, 1000);
+
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').remove();
+                }
+            });
+
+            $('#sizesTable').on('input', 'input[name="size"]', function () {
+                var sizeInput = $(this);
+                var sizeValue = sizeInput.val();
+                var productId = $('#productId').val();
+
+                validateSize(sizeInput, sizeValue, productId);
+            });
+
+            $('#newProductForm').on('input change', function () {
+                checkForm();
+            });
+
+            $('#newProductForm').on('submit', function (e) {
+                submitNewItemForm(e);
             });
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-                if (e.target.id !== 'update-tab') {
-                    $('#updateInventoryForm')[0].reset();
-                }
-                if (e.target.id !== 'create-tab') {
-                    $('#createInventoryForm')[0].reset();
+                if (e.target.id !== 'create-tab')
+                    clearForm();
+            });
+
+            $(document).click(function (e) {
+                if (!$(e.target).closest('#productId, #productDropdown').length) {
+                    $('#productDropdown').hide();
                 }
             });
         });
 
-        function loadInventoryData(sku, isUpdate = false) {
+        function loadInventoryItemDetails(sku) {
             $.ajax({
-                url: '@Url.Action("GetInventoryItem", "AdminPanel").ToLower()',
+                url: '@Url.Action("GetInventoryItemDetails", "AdminPanel").ToLower()',
                 type: 'GET',
                 data: { sku: sku },
                 success: function (data) {
-                    if (isUpdate) {
-                        // Lógica para cargar datos en el formulario de actualización
-                    } else {
-                        // Lógica para cargar datos en el formulario de creación
-                    }
+                    $('#detailsHeader').data('product-id', data.SKU);
+                    $('#detailsTitle').html(`${data.SKU} / ${data.ProductName}`);
+                    $('#detailsImage').attr('src', data.Image);
+
+                    if ($.fn.DataTable.isDataTable('#detailsTable'))
+                        $('#detailsTable').DataTable().clear().destroy();
+
+                    $('#detailsTable tbody').empty();
+
+                    data.Details.forEach(function (item) {
+                        $('#detailsTable tbody').append(`
+                            <tr>
+                                <td>${item.Size}</td>
+                                <td>${item.Stock}</td>
+                                <td>${item.Price}€</td>
+                                <td>${item.SalesNo}</td>
+                                <td>${new Date(parseInt(item.LastModified.substr(6))).toLocaleString()}</td>
+                                <td>
+                                    <a class="btn btn-sm btn-primary" onclick="showEditPopup('${data.SKU}', '${item.Size}', ${item.Stock}, ${item.Price})"><i class="fas fa-edit"></i></a>
+                                    <a class="btn btn-sm btn-danger" onclick="var data = { productId: '${data.SKU}', size: '${item.Size}' }; popups.showConfirmDelete('Confirmar Eliminación', '¿Está seguro de que desea eliminar esta talla?', '/adminpanel/deleteinventoryitemsize', data, 'loadInventoryItemDetails(&quot;${data.SKU}&quot;)')"><i class="fas fa-trash"></i></a>
+                                </td>
+                            </tr>
+                        `);
+                    });
+
+                    $('#detailsTable').DataTable({
+                        "language": {
+                            "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                        },
+                        "order": [[0, "asc"]],
+                        "columnDefs": [
+                            { "orderable": false, "targets": [5] }
+                        ]
+                    });
                 }
             });
         }
+
+        function showEditPopup(productId, size, stock, price) {
+            var html = `
+                    <form id="editForm" onsubmit="submitEditForm(event, '${productId}')">
+                        <div class="form-group text-left">
+                            <label for="size">Talla</label>
+                            <input type="text" class="form-control" id="size" value="${size}" disabled>
+                        </div>
+                        <div class="form-group text-left">
+                            <label for="stock">Existencias</label>
+                            <input type="number" class="form-control" id="stock" value="${stock}" required min="0">
+                        </div>
+                        <div class="form-group text-left">
+                            <label for="price">Precio</label>
+                            <input type="number" class="form-control" id="price" value="${price}" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" onclick="Swal.close()">Cancelar</button>
+                    </form>
+                `;
+            popups.showHTMLPopup("Editar Línea", html, false);
+        }
+
+        function submitEditForm(event, productId) {
+            event.preventDefault();
+            var formData = {
+                productId: productId,
+                size: $('#size').val(),
+                stock: $('#stock').val(),
+                price: $('#price').val(),
+            };
+
+            $.ajax({
+                url: '@Url.Action("UpdateInventoryItem", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        Swal.close();
+                        popups.showSuccessTimer("Línea modificada exitosamente.", "Actualizando inventario...")
+                        loadInventoryItemDetails(formData.productId);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                },
+                error: function (error) {
+                    console.error("Error al actualizar la línea del producto:", error);
+                }
+            });
+        }
+
+        function showAddStockPopup() {
+            var html = `
+                    <form id="addStockForm" onsubmit="submitAddStockForm(event)">
+                        <div class="form-group text-left">
+                            <label for="newSize">Talla</label>
+                            <input type="text" class="form-control" id="newSize" required>
+                            <div class="text-danger"></div>
+                        </div>
+                        <div class="form-group text-left">
+                            <label for="newStock">Existencias</label>
+                            <input type="number" class="form-control" id="newStock" required value="1" min="1">
+                        </div>
+                        <div class="form-group text-left">
+                            <label for="newPrice">Precio</label>
+                            <input type="number" class="form-control" id="newPrice" required value="1" min="1">
+                        </div>
+                        <button type="submit" id="submitButton" class="btn btn-primary" disabled>Añadir Existencias</button>
+                        <button type="button" id="clearButton" class="btn btn-warning" onclick="clearAddStockForm()" disabled>Limpiar Campos</button>
+                        <button type="button" class="btn btn-secondary" onclick="Swal.close()">Cancelar</button>
+                    </form>
+                `;
+            popups.showHTMLPopup("Añadir Existencias", html, false);
+
+            var initialSize = $('#newSize').val();
+            var initialStock = $('#newStock').val();
+            var initialPrice = $('#newPrice').val();
+
+            $('#newSize, #newStock, #newPrice').on('input change', function () {
+                checkFields(initialSize, initialStock, initialPrice);
+            });
+
+            $('#newSize').on('input change', function () {
+                if ($(this).hasClass('is-invalid')) {
+                    $(this).removeClass('is-invalid');
+                    $(this).siblings('.text-danger').text('');
+                }
+            });
+
+            checkFields(initialSize, initialStock, initialPrice);
+        }
+
+        function checkFields(initialSize, initialStock, initialPrice) {
+            var size = $('#newSize').val();
+            var stock = $('#newStock').val();
+            var price = $('#newPrice').val();
+            var hasError = $('#newSize').hasClass('is-invalid') || $('#newStock').hasClass('is-invalid') || $('#newPrice').hasClass('is-invalid');
+
+            if (size && stock && price && !hasError)
+                $('#submitButton').prop('disabled', false);
+            else
+                $('#submitButton').prop('disabled', true);
+
+            if (size !== initialSize || stock !== initialStock || price !== initialPrice)
+                $('#clearButton').prop('disabled', false);
+            else
+                $('#clearButton').prop('disabled', true);
+        }
+
+        function clearAddStockForm() {
+            $('#newSize').val('');
+            $('#newStock').val('1');
+            $('#newPrice').val('1');
+            $('#newSize').removeClass('is-invalid');
+            $('#newSize').siblings('.text-danger').text('');
+            $('#submitButton').prop('disabled', true);
+            $('#clearButton').prop('disabled', true);
+        }
+
+        function submitAddStockForm(event) {
+            event.preventDefault();
+            var productId = $('#detailsHeader').data('product-id');
+            var newSize = $('#newSize').val();
+            var newStock = parseInt($('#newStock').val());
+            var newPrice = parseFloat($('#newPrice').val());
+
+            var formData = {
+                productId: productId,
+                size: newSize,
+                stock: newStock,
+                price: newPrice
+            };
+
+            $.ajax({
+                url: '@Url.Action("AddStock", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                success: function (data) {
+                    if (data.success) {
+                        Swal.close();
+                        popups.showSuccessTimer("Existencias añadidas exitosamente.", "Actualizando inventario...");
+                        loadInventoryItemDetails(productId);
+                    } else if (data.error === "Talla no válida.") {
+                        $('#newSize').addClass('is-invalid');
+                        $('#newSize').siblings('.text-danger').text(data.error);
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                },
+                error: function (error) {
+                    console.error("Error al añadir existencias:", error);
+                }
+            });
+        }
+
+        function addRow() {
+            var newRow = `
+                    <tr>
+                        <td>
+                            <input type="text" class="form-control" name="size" required oninput="validateSize(this)">
+                            <div class="invalid-feedback">Esta talla ya existe en otra fila.</div>
+                        </td>
+                        <td><input type="number" class="form-control" name="quantity" required min="1" value="1"></td>
+                        <td><input type="number" class="form-control" name="price" required min="1" step="1" value="1"></td>
+                        <td>
+                            <button type="button" class="btn btn-success" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-danger" onclick="removeRow(this)"><i class="fas fa-minus"></i></button>
+                        </td>
+                    </tr>
+                `;
+            $('#sizesTable tbody').append(newRow);
+        }
+
+       function validateSize(input, sizeValue, productId) {
+           if ($(this).hasClass('is-invalid'))
+               return;
+
+           var isDuplicate = false;
+
+            $('#sizesTable tbody tr').each(function () {
+                var currentSize = $(this).find('input[name="size"]').val();
+                if (currentSize === sizeValue && $(input).closest('tr')[0] !== $(this)[0]) {
+                    isDuplicate = true;
+                    return false;
+                }
+            });
+
+            $(input).removeClass('is-invalid');
+            $(input).siblings('.invalid-feedback').remove();
+
+            if (isDuplicate) {
+                $(input).addClass('is-invalid');
+                $(input).after('<div class="invalid-feedback">La talla ya existe en la tabla.</div>');
+            } else if (sizeValue.length > 0 && productId.length > 0) {
+                $.ajax({
+                    url: '@Url.Action("ValidateSize", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: { size: sizeValue, productId: productId },
+                    success: function (response) {
+                        if (response.isValid) {
+                            $(input).removeClass('is-invalid');
+                            $(input).siblings('.invalid-feedback').remove();
+                        } else {
+                            $(input).addClass('is-invalid');
+                            $(input).after('<div class="invalid-feedback">La talla es inválida.</div>');
+                        }
+                    },
+                    error: function () {
+                        console.error("Error al validar la talla.");
+                    }
+                });
+            }
+        }
+
+        function removeRow(button) {
+            $(button).closest('tr').remove();
+            checkForm();
+        }
+
+        function checkForm() {
+            var productId = $('#productId').val();
+            var rows = $('#sizesTable tbody tr').length;
+            var isValid = productId && rows > 0;
+            $('#submitButton').prop('disabled', !isValid);
+            $('#clearButton').prop('disabled', !productId && rows === 1);
+        }
+
+        function clearForm() {
+            $('#productId').val('').prop('disabled', false);
+            $('#productImage').hide();
+            $('#sizesTable tbody').html(`
+                    <tr>
+                        <td><input type="text" class="form-control" name="size" required disabled></td>
+                        <td><input type="number" class="form-control" name="quantity" required min="1" value="1"></td>
+                        <td><input type="number" class="form-control" name="price" required min="1" step="1" value="1"></td>
+                        <td>
+                            <button type="button" class="btn btn-success" onclick="addRow()"><i class="fas fa-plus"></i></button>
+                        </td>
+                    </tr>
+                `);
+            $('#createNewTitle').text(``);
+            checkForm();
+        }
+
+        function selectProduct(id, image, name) {
+            $.ajax({
+                url: '@Url.Action("IsProductInInventory", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { productId: id },
+                success: function (response) {
+                    if (response.exists) {
+                        $('#productId').addClass('is-invalid');
+                        $('#productId').siblings('.text-danger').remove();
+                        $('#productId').after('<div class="invalid-feedback">El producto seleccionado ya existe en el inventario.</div>');
+                        $('#productDropdown').hide();
+                    } else {
+                        $('#productId').val(id).prop('disabled', true);
+                        $('#productImage').attr('src', image).show();
+                        $('#productDropdown').hide();
+                        $('#createNewTitle').text(`${id} / ${name}`);
+                        $('#productId').removeClass('is-invalid');
+                        $('#productId').siblings('.invalid-feedback').remove();
+                        $('#sizesTable input[name="size"]').prop("disabled", false);
+                        checkForm();
+                    }
+                },
+                error: function () {
+                    console.error("Error al verificar la duplicidad del producto.");
+                }
+            });
+        }
+
+        function submitNewItemForm(event) {
+            event.preventDefault();
+
+            if ($('#newProductForm .is-invalid').length > 0)
+                return;
+
+            var productId = $('#productId').val();
+            var sizes = [];
+
+            $('#sizesTable tbody tr').each(function () {
+                var size = $(this).find('input[name="size"]').val();
+                var quantity = $(this).find('input[name="quantity"]').val();
+                var price = $(this).find('input[name="price"]').val();
+
+                if (size && quantity && price) {
+                    sizes.push({
+                        Size: size,
+                        Stock: parseInt(quantity),
+                        Price: parseInt(price)
+                    });
+                }
+            });
+
+            var formData = {
+                productId: productId,
+                sizes: sizes
+            };
+
+            $.ajax({
+                url: '@Url.Action("AddInventoryItem", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: JSON.stringify(formData),
+                contentType: 'application/json; charset=utf-8',
+                success: function (data) {
+                    if (data.success) {
+                        Swal.close();
+                        popups.showSuccessTimer("Producto añadido exitosamente.", "Actualizando inventario...", function () {
+                            location.reload();
+                        });
+                    } else {
+                        popups.showErrorTimer(data.error);
+                    }
+                },
+                error: function (error) {
+                    console.error("Error al añadir el producto:", error);
+                }
+            });
+        }
+
+        function checkForm() {
+            var productId = $('#productId').val();
+            var aux = $("#createNewTitle").text();
+            var rows = $('#sizesTable tbody tr').length;
+            var hasError = $('#sizesTable tbody input.is-invalid').length > 0;
+            var isValid = productId && rows > 0 && !hasError && aux;
+            $('#submitButton').prop('disabled', !isValid);
+            $('#clearButton').prop('disabled', !productId && rows === 1);
+        }
+
     </script>
 }

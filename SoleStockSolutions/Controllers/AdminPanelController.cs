@@ -9,6 +9,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.UI.WebControls;
 
 namespace SoleStockSolutions.Controllers
 {
@@ -155,11 +156,12 @@ namespace SoleStockSolutions.Controllers
         {
             using (var db = new TFCEntities())
             {
+                var searchTerms = searchTerm.ToLower().Split(' ');
                 var products = db.Productos
-                .Where(p => p.nombre.Contains(searchTerm) || p.id_producto.Contains(searchTerm) || p.Modelos.nombre_modelo.Contains(searchTerm) || p.Marcas.nombre_marca.Contains(searchTerm))
-                .Select(p => new { p.id_producto, p.nombre, p.imagen })
-                .Take(7)
-                .ToList();
+                    .Where(p => searchTerms.All(term => p.nombre.ToLower().Contains(term) || p.id_producto.ToLower().Contains(term) || p.Modelos.nombre_modelo.ToLower().Contains(term) || p.Marcas.nombre_marca.ToLower().Contains(term)))
+                    .Select(p => new { p.id_producto, p.nombre, p.imagen })
+                    .Take(7)
+                    .ToList();
 
                 return Json(products, JsonRequestBehavior.AllowGet);
             }
@@ -746,10 +748,11 @@ namespace SoleStockSolutions.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var existingColor = db.Colores.Find(color.hex);
+                    var existingColor = db.Colores.FirstOrDefault(c => c.nombre_color == color.nombre_color);
                     if (existingColor != null)
                     {
-                        existingColor.nombre_color = color.nombre_color;
+                        db.Colores.Remove(existingColor);
+                        db.Colores.Add(color);
                         db.SaveChanges();
                         return Json(new { success = true }, JsonRequestBehavior.AllowGet);
                     }
@@ -792,6 +795,7 @@ namespace SoleStockSolutions.Controllers
             {
                 var inventoryList = db.Inventario.Include(i => i.Productos).Include(i => i.Tallas_Universales).Include(i => i.Tallas_Marcas).ToList();
                 var groupedInventory = inventoryList
+                    .Where(i => i.Productos.id_marca != null)
                     .GroupBy(i => i.id_producto)
                     .Select(g => new InventoryDatatable
                     {
@@ -811,23 +815,183 @@ namespace SoleStockSolutions.Controllers
             }
         }
 
-        //[HttpGet]
-        //public JsonResult GetInventoryItem(string sku)
-        //{
-        //    using (var db = new TFCEntities())
-        //    {
-                
-        //    }
-        //}
+        [HttpGet]
+        public ActionResult GetInventoryItemDetails(string sku)
+        {
+            using (var db = new TFCEntities())
+            {
+                var product = db.Productos.FirstOrDefault(p => p.id_producto == sku);
+                if (product == null)
+                    return HttpNotFound();
 
-        //[HttpPost]
-        //public ActionResult DeleteInventory(string sku)
-        //{
-        //    using (var db = new TFCEntities())
-        //    {
-                
-        //    }
-        //}
+                var inventoryDetails = new
+                {
+                    SKU = product.id_producto,
+                    ProductName = product.nombre,
+                    Image = product.imagen,
+                    Details = db.Inventario
+                        .Where(d => d.id_producto == sku)
+                        .Select(d => new
+                        {
+                            Size = d.talla_eu ?? d.talla_eu_marca,
+                            Stock = d.cantidad,
+                            Price = d.precio,
+                            SalesNo = d.veces_vendido,
+                            LastModified = d.fecha_actualizacion
+                        })
+                        .ToList()
+                };
+
+                return Json(inventoryDetails, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public ActionResult UpdateInventoryItem(string productId, string size, int stock, int price)
+        {
+            using (var db = new TFCEntities())
+            {
+                var line = db.Inventario.FirstOrDefault(i => i.id_producto == productId && (i.talla_eu == size || i.talla_eu_marca == size));
+                if (line != null)
+                {
+                    line.cantidad = stock;
+                    line.precio = price;
+                    line.fecha_actualizacion = DateTime.Now;
+                    db.SaveChanges();
+                    return Json(new { success = true });
+                }
+                return Json(new { success = false, message = "Error al actualizar la línea." });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult AddStock(string productId, string size, int stock, int price)
+        {
+            try
+            {
+                using (var db = new TFCEntities())
+                {
+                    var existingItem = db.Inventario.FirstOrDefault(i => i.id_producto == productId && (i.talla_eu == size || i.talla_eu_marca == size));
+                    if (existingItem != null)
+                    {
+                        existingItem.cantidad += stock;
+                        existingItem.fecha_actualizacion = DateTime.Now;
+                        db.SaveChanges();
+                        return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                    }
+
+                    var validSize = db.Tallas_Universales.Any(t => t.talla_eu == size) || db.Tallas_Marcas.Any(t => t.talla_eu == size);
+                    if (!validSize)
+                        return Json(new { success = false, error = "Talla no válida." }, JsonRequestBehavior.AllowGet);
+
+                    var product = db.Productos.FirstOrDefault(p => p.id_producto == productId);
+                    var newItem = new Inventario
+                    {
+                        id_producto = productId,
+                        talla_eu = product.id_marca.HasValue ? null : size,
+                        talla_eu_marca = product.id_marca.HasValue ? size : null,
+                        cantidad = stock,
+                        precio = price,
+                        fecha_actualizacion = DateTime.Now
+                    };
+                    db.Inventario.Add(newItem);
+                    db.SaveChanges();
+
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteInventoryItemSize(string productId, string size)
+        {
+            try
+            {
+                using (var db = new TFCEntities())
+                {
+                    var line = db.Inventario.FirstOrDefault(p => p.id_producto == productId && (p.talla_eu == size || p.talla_eu_marca == size));
+
+                    db.Inventario.Remove(line);
+                    db.SaveChanges();
+
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult AddInventoryItem(string productId, List<SizeStockPrice> sizes)
+        {
+            try
+            {
+                using (var db = new TFCEntities())
+                {
+                    var existingProduct = db.Productos.FirstOrDefault(p => p.id_producto == productId);
+
+                    foreach (var size in sizes)
+                    {
+                        var tallaMarca = db.Tallas_Marcas.FirstOrDefault(tm => tm.id_marca == existingProduct.id_marca && tm.talla_eu == size.Size);
+
+                        var inventario = new Inventario
+                        {
+                            id_producto = productId,
+                            id_marca = existingProduct.id_marca,
+                            cantidad = size.Stock,
+                            precio = size.Price,
+                            fecha_actualizacion = DateTime.Now,
+                            talla_eu = tallaMarca == null ? size.Size : null,
+                            talla_eu_marca = tallaMarca != null ? size.Size : null
+                        };
+
+                        db.Inventario.Add(inventario);
+                    }
+
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult IsProductInInventory(string productId)
+        {
+            using (var db = new TFCEntities())
+            {
+                var exists = db.Inventario.Any(item => item.id_producto == productId);
+                return Json(new { exists }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult ValidateSize(string size, string productId)
+        {
+            using (var db = new TFCEntities())
+            {
+                var product = db.Productos.FirstOrDefault(p => p.id_producto == productId);
+                var productUsesBrandSizes = db.Tallas_Marcas.Any(tm => tm.id_marca == product.id_marca);
+                bool isValid = false;
+
+                if (productUsesBrandSizes)
+                    isValid = db.Tallas_Marcas.Any(tm => tm.id_marca == product.id_marca && tm.talla_eu == size);
+
+                if (!isValid)
+                    isValid = db.Tallas_Universales.Any(tu => tu.talla_eu == size);
+
+                return Json(new { isValid }, JsonRequestBehavior.AllowGet);
+            }
+        }
 
     }
 }

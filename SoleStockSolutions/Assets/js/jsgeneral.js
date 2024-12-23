@@ -14,7 +14,7 @@
         });
     }
 
-    showSuccessTimer(title, msg) {
+    showSuccessTimer(title, msg, callback = null) {
         Swal.fire({
             icon: "success",
             scrollbarPadding: false,
@@ -26,6 +26,9 @@
             customClass: {
                 confirmButton: 'custom-confirm-button'
             }
+        }).then(() => {
+            if (callback)
+                callback();
         });
     }
 
@@ -95,7 +98,7 @@
         });
     }
 
-    showConfirmDelete(title, msg, url, data) {
+    showConfirmDelete(title, msg, url, data, onSuccessScript = null) {
         Swal.fire({
             title: title,
             text: msg,
@@ -118,7 +121,10 @@
                                 text: "El registro ha sido eliminado correctamente.",
                                 icon: "success"
                             }).then(() => {
-                                location.reload();
+                                if (onSuccessScript)
+                                    eval(onSuccessScript);
+                                else
+                                    location.reload();
                             });
                         } else {
                             Swal.fire({
@@ -137,6 +143,19 @@
                     }
                 });
             }
+        });
+    }
+
+    showHTMLPopup(title, html, showButtons = true) {
+        Swal.fire({
+            title: title,
+            html: html,
+            showCloseButton: true,
+            showCancelButton: showButtons,
+            showConfirmButton: showButtons,
+            focusConfirm: false,
+            confirmButtonText: "Guardar",
+            cancelButtonText: "Cancelar"
         });
     }
 }

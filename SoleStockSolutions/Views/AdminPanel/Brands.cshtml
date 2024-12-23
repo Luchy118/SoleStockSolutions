@@ -12,9 +12,6 @@
         <li class="nav-item">
             <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
-        </li>
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -49,7 +46,7 @@
                                         <td>@marca.nombre_marca</td>
                                         <td><img src="@marca.logo_marca" alt="Logo Marca" width="75"></td>
                                         <td>
-                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadBrandData(@marca.id_marca, true); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadBrandData(@marca.id_marca); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
                                             <a class="btn btn-sm btn-danger" onclick='var data = { id: @marca.id_marca }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta marca?", "/adminpanel/deletebrand", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
@@ -66,7 +63,6 @@
                     <div class="form-group">
                         <label for="createNombreMarca">Nombre Marca</label>
                         @Html.TextBoxFor(m => m.nombre_marca, new { @class = "form-control", id = "createNombreMarca", required = "required", maxlength = "50", onblur = "validateUniqueBrandName(this)" })
-                        <span class="text-danger"></span>
                         @Html.ValidationMessageFor(m => m.nombre_marca, "", new { @class = "text-danger" })
                     </div>
 
@@ -81,14 +77,9 @@
                 </form>
             </div>
         </div>
-        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel">
             <div class="card-body">
                 <form id="updateBrandForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="searchMarca">Buscar Marca</label>
-                        <input type="text" class="form-control" id="searchMarca" placeholder="Buscar marca..." />
-                        <div id="searchMarcaResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
-                    </div>
                     <div class="form-group">
                         <label for="updateIdMarca">ID Marca</label>
                         @Html.TextBoxFor(m => m.id_marca, new { @class = "form-control", id = "updateIdMarca", @readonly = "readonly", disabled = "disabled" })
@@ -96,7 +87,6 @@
                     <div class="form-group">
                         <label for="updateNombreMarca">Nombre Marca</label>
                         @Html.TextBoxFor(m => m.nombre_marca, new { @class = "form-control", id = "updateNombreMarca", required = "required", maxlength = "50", onblur = "validateUniqueBrandName(this)", disabled = "disabled" })
-                        <span class="text-danger"></span>
                         @Html.ValidationMessageFor(m => m.nombre_marca, "", new { @class = "text-danger" })
                     </div>
                     <div class="form-group">
@@ -105,8 +95,7 @@
                         <img id="updateLogoPreview" style="display:none;" src="" alt="Logo Marca" width="75" class="mt-2" />
                     </div>
                     <button type="submit" class="btn btn-primary" disabled="disabled">Modificar Marca</button>
-                    <button type="button" class="btn btn-warning" onclick="clearUpdateForm()" disabled="disabled">Limpiar Campos</button>
-                    <button type="button" id="cancelUpdateBrand" class="btn btn-secondary">Cancelar</button>
+                    <button type="button" id="cancelUpdateBrand" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -174,60 +163,9 @@
                 });
             });
 
-            $('#searchMarca').on('input', function () {
-                var searchTerm = $(this).val();
-                if (searchTerm.length >= 2) {
-                    $.ajax({
-                        url: '@Url.Action("SearchMarcas", "AdminPanel").ToLower()',
-                        type: 'POST',
-                        data: { searchTerm: searchTerm },
-                        success: function (data) {
-                            var results = $('#searchMarcaResults');
-                            results.empty();
-                            if (data.length > 0) {
-                                data.forEach(function (marca) {
-                                    var logoHtml = marca.logo_marca ? '<img src="' + marca.logo_marca + '" alt="Logo Marca" width="30" class="mr-2">' : '';
-                                    results.append('<a href="#" class="list-group-item list-group-item-action" data-id="' + marca.id_marca + '">' + logoHtml + marca.nombre_marca + '</a>');
-                                });
-                            } else {
-                                results.append('<p class="list-group-item">No se encontraron resultados</p>');
-                            }
-                        }
-                    });
-                } else {
-                    $('#searchMarcaResults').empty();
-                }
-            });
-
-            $('#searchMarcaResults').on('click', '.list-group-item', function (e) {
-                e.preventDefault();
-                var idMarca = $(this).data('id');
-                var nombreMarca = $(this).text();
-                $('#searchMarca').val(nombreMarca);
-                $('#searchMarcaResults').empty();
-
-                loadBrandData(idMarca);
-                toggleUpdateFormButtons();
-                enableUpdateForm();
-            });
-
-            $(document).on('click', function (e) {
-                if (!$(e.target).closest('#searchMarca, #searchMarcaResults').length) {
-                    $('#searchMarcaResults').empty();
-                }
-            });
-
-            $('#cancelUpdateBrand').click(function () {
-                clearUpdateForm();
-                $('#updateBrandForm input:not(#searchMarca), #updateBrandForm button[type="submit"]').prop('disabled', true);
-                $("#searchMarca").prop("disabled", false);
-                $('#read-tab').tab('show');
-            });
-
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 if (e.target.id !== 'update-tab') {
-                    clearUpdateForm();
-                    $('#updateBrandForm input:not(#searchMarca), #updateBrandForm button[type="submit"]').prop('disabled', true);
+                    $('#updateBrandForm input, #updateBrandForm button[type="submit"]').prop('disabled', true);
                 }
                 if (e.target.id !== 'create-tab') {
                     clearCreateForm();
@@ -239,18 +177,16 @@
             });
 
             $('#updateNombreMarca').data('initialValue', $('#updateNombreMarca').val().toLowerCase());
-            $('#updateBrandForm input:not(#searchMarca), #updateBrandForm button[type="submit"]').prop('disabled', true);
+            $('#updateBrandForm input, #updateBrandForm button[type="submit"]').prop('disabled', true);
         });
 
-        function loadBrandData(id, editRef) {
+        function loadBrandData(id) {
             $.ajax({
                 url: '@Url.Action("GetBrand", "AdminPanel").ToLower()',
                 type: 'POST',
                 data: { id: id },
                 success: function (data) {
                     enableUpdateForm();
-                    if (editRef)
-                        $("#searchMarca").prop("disabled", true);
                     $('#updateIdMarca').val(data.id_marca);
                     $('#updateNombreMarca').val(data.nombre_marca).data('initialValue', data.nombre_marca.toLowerCase());
                     if (data.logo_marca)
@@ -274,18 +210,18 @@
                     success: function (data) {
                         if (data) {
                             $(input).addClass('is-invalid');
-                            $(input).next('.text-danger').text('El nombre de la marca ya existe.');
+                            $(input).siblings('.text-danger').text('El nombre de la marca ya existe.');
                             $(input).data('isUnique', false);
                         } else {
                             $(input).removeClass('is-invalid');
-                            $(input).next('.text-danger').text('');
+                            $(input).siblings('.text-danger').text('');
                             $(input).data('isUnique', true);
                         }
                     }
                 });
             } else {
                 $(input).removeClass('is-invalid');
-                $(input).next('.text-danger').text('');
+                $(input).siblings('.text-danger').text('');
                 $(input).data('isUnique', true);
             }
         }
@@ -308,17 +244,8 @@
             $('#createBrandForm')[0].reset();
             $('#createLogoPreview').attr('src', '').hide();
             $('#createNombreMarca').removeClass('is-invalid');
-            $('#createNombreMarca').next('.text-danger').text('');
+            $('#createNombreMarca').siblings('.text-danger').text('');
             toggleCreateFormButtons();
-        }
-
-        function clearUpdateForm() {
-            $('#updateBrandForm')[0].reset();
-            $('#updateLogoPreview').attr('src', '').hide();
-            $('#updateNombreMarca').removeClass('is-invalid');
-            $('#updateNombreMarca').next('.text-danger').text('');
-            $('#updateBrandForm input, #updateBrandForm button[type="submit"], #updateBrandForm button.btn-warning').prop('disabled', true);
-            $("#searchMarca").prop("disabled", false);
         }
 
         function cancelCreateForm() {

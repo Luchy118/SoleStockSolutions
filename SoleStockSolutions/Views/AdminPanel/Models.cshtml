@@ -12,9 +12,6 @@
         <li class="nav-item">
             <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
-        </li>
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -49,7 +46,7 @@
                                         <td>@modelo.Nombre_Modelo</td>
                                         <td>@modelo.Nombre_Marca</td>
                                         <td>
-                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadModelData(@modelo.Id_Modelo, true); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadModelData(@modelo.Id_Modelo); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
                                             <a class="btn btn-sm btn-danger" onclick='var data = { id: "@modelo.Id_Modelo" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este modelo?", "/adminpanel/deletemodel", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
@@ -84,14 +81,9 @@
                 </form>
             </div>
         </div>
-        <div class="tab-pane fade card shadow" id="update" role="tabpanel" aria-labelledby="update-tab">
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel">
             <div class="card-body">
                 <form id="updateModelForm" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="searchModelo">Buscar Modelo</label>
-                        <input type="text" class="form-control" id="searchModelo" placeholder="Buscar modelo..." />
-                        <div id="searchModeloResults" class="list-group" style="position: absolute; z-index: 1000;"></div>
-                    </div>
                     <div class="form-group">
                         <label for="updateIdModelo">ID Modelo</label>
                         <input type="text" class="form-control" id="updateIdModelo" name="id_modelo" readonly disabled />
@@ -112,8 +104,7 @@
                         <input type="text" class="form-control" id="updateIdMarca" name="id_marca" readonly disabled />
                     </div>
                     <button type="submit" class="btn btn-primary" disabled>Modificar Modelo</button>
-                    <button type="button" class="btn btn-warning" id="clearUpdateForm" disabled>Limpiar Campos</button>
-                    <button type="button" id="cancelUpdateModel" class="btn btn-secondary">Cancelar</button>
+                    <button type="button" id="cancelUpdateModel" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
                 </form>
             </div>
         </div>
@@ -236,7 +227,7 @@
                 $('#searchMarcaCreate').next('.text-danger').text('');
             });
 
-            $('#searchModelo').on('input', function () {
+            @*$('#searchModelo').on('input', function () {
                 var searchTerm = $(this).val();
                 if (searchTerm.length >= 2) {
                     $.ajax({
@@ -269,7 +260,7 @@
 
                 loadModelData(idModelo);
                 enableUpdateForm();
-            });
+            });*@
 
             $('#searchMarcaUpdate').on('input', function () {
                 $('#updateIdMarca').val('');
@@ -331,9 +322,6 @@
                 if (!$(e.target).closest('#searchMarcaUpdate, #searchMarcaUpdateResults').length) {
                     $('#searchMarcaUpdateResults').empty();
                 }
-                if (!$(e.target).closest('#searchModelo, #searchModeloResults').length) {
-                    $('#searchModeloResults').empty();
-                }
             });
 
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -341,7 +329,7 @@
                     $('#updateModelForm')[0].reset();
                     $('#updateNombreModelo').removeClass('is-invalid');
                     $('#updateNombreModelo').next('.text-danger').text('');
-                    $('#updateModelForm input:not(#searchModelo), #updateModelForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                    $('#updateModelForm input, #updateModelForm button[type="submit"]').prop('disabled', true);
                 }
                 if (e.target.id !== 'create-tab') {
                     $('#createModelForm')[0].reset();
@@ -373,16 +361,11 @@
                 checkUpdateForm();
             });
 
-            $('#clearUpdateForm').click(function () {
-                clearUpdateForm();
-            });
-
             $('#cancelUpdateModel').click(function () {
                 $('#updateModelForm')[0].reset();
                 $('#updateNombreModelo').removeClass('is-invalid');
                 $('#updateNombreModelo').next('.text-danger').text('');
-                $("#searchModelo").prop("disabled", false);
-                $('#updateModelForm input:not(#searchModelo), #updateModelForm button[type="submit"], #clearUpdateForm').prop('disabled', true);
+                $('#updateModelForm input, #updateModelForm button[type="submit"]').prop('disabled', true);
                 $('#read-tab').tab('show');
             });
         });
@@ -458,29 +441,15 @@
             var isFormChanged = $('#updateModelForm input, #updateModelForm select').filter(function () {
                 return $(this).val().trim() !== '';
             }).length > 0;
-
-            $('#clearUpdateForm').prop('disabled', !isFormChanged);
         }
 
-        function clearUpdateForm() {
-            $('#updateModelForm')[0].reset();
-            $('#updateNombreModelo').removeClass('is-invalid');
-            $('#updateNombreModelo').next('.text-danger').text('');
-            $('#clearUpdateForm').prop('disabled', true);
-            $('#updateModelForm').find('input:not(#searchModelo)').prop('disabled', true);
-            $('#searchModelo').prop('disabled', false);
-            $('#updateModelForm button[type="submit"]').prop('disabled', true);
-        }
-
-        function loadModelData(idModelo, editRef) {
+        function loadModelData(idModelo) {
             $.ajax({
                 url: '@Url.Action("GetModelData", "AdminPanel").ToLower()',
                 type: 'POST',
                 data: { id: idModelo },
                 success: function (data) {
                     enableUpdateForm();
-                    if (editRef)
-                        $("#searchModelo").prop("disabled", true);
                     $('#updateIdModelo').val(data.Id_Modelo);
                     $('#updateNombreModelo').val(data.Nombre_Modelo).data('initialValue', data.Nombre_Modelo.toLowerCase()).blur();
                     $('#updateIdMarca').val(data.Id_Marca);

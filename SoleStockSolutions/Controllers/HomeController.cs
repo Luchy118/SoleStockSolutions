@@ -10,6 +10,11 @@ namespace SoleStockSolutions.Controllers
 {
     public class HomeController : Controller
     {
+        /// <summary>
+        /// Acción que maneja la solicitud para la página de inicio.
+        /// Carga los modelos relevantes y establece la acción actual en ViewBag.
+        /// </summary>
+        /// <returns>Vista de la página de inicio.</returns>
         [LoadModelosRelevantes]
         public ActionResult Index()
         {

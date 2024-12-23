@@ -12,9 +12,6 @@
         <li class="nav-item">
             <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
         </li>
-        <li class="nav-item">
-            <a class="nav-link" id="update-tab" data-toggle="tab" href="#update" role="tab" aria-controls="update" aria-selected="false">Modificar existente</a>
-        </li>
     </ul>
     <div class="tab-content" id="myTabContent">
         <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
@@ -64,7 +61,7 @@
                                         <td>@(producto.FechaUltimoUsoInterno?.ToString("yyyy/MM/dd"))</td>
                                         <td>@producto.VecesVisto</td>
                                         <td>
-                                            <a href="#update" class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadProductData("@producto.SKU"); $("#update-tab").tab("show");'><i class="fas fa-edit"></i></a>
+                                            <a href="#update" class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadProductData("@producto.SKU"); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
                                             <a class="btn btn-sm btn-danger" onclick='var data = { id: "@producto.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteproduct", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
@@ -125,7 +122,7 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="manualImagen">Imagen</label>
+                                    <label for="manualImagen">Imaggen</label>
                                     <input type="file" class="form-control-file" id="manualImagen" name="imagen" accept="image/*" onchange="previewImage(this, 'manualImagePreview')">
                                 </div>
                                 <div class="d-flex align-items-center">
@@ -189,16 +186,11 @@
                 </div>
             </div>
         </div>
-        <div class="tab-pane fade mt-4" id="update" role="tabpanel" aria-labelledby="update-tab">
-            <div class="card-body pt-0">
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel">
+            <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
                         <form id="updateProductForm" enctype="multipart/form-data">
-                            <div class="form-group position-relative">
-                                <label for="updateSearch">Buscar Producto</label>
-                                <input type="text" class="form-control" id="updateSearch" placeholder="Buscar producto a modificar...">
-                                <div id="updateSearchResults" class="dropdown-menu" style="display: none; width: 100%; position: absolute; z-index: 1000;"></div>
-                            </div>
                             <div class="form-group">
                                 <label for="updateSku">SKU</label>
                                 @Html.TextBoxFor(m => m.id_producto, new { @class = "form-control", id = "updateSku", required = "required", maxlength = "50", @disabled = "disabled" })
@@ -228,8 +220,7 @@
                                 @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "updateFechaLanzamiento", type = "date", @disabled = "disabled" })
                             </div>
                             <button type="button" class="btn btn-primary" onclick="submitUpdateForm()" disabled>Guardar</button>
-                            <button type="reset" class="btn btn-warning" onclick="resetUpdateForm('updateProductForm')" id="updateLimpiar" disabled>Limpiar Campos</button>
-                            <button type="reset" class="btn btn-secondary" onclick="clearFormErrors('updateProductForm'); clearPreview('updateImagePreview', 'updateImagen'); disableUpdateFields(); $('#read-tab').tab('show');" id="updateCancelar">Cancelar</button>
+                            <button type="reset" class="btn btn-secondary" onclick="location.reload()" id="updateCancelar">Cancelar</button>
                         </form>
                     </div>
                     <div class="col-md-4">
@@ -464,37 +455,6 @@
                 }
             });
 
-            $('#updateSearch').on('input', function () {
-                clearTimeout(this.delay);
-                this.delay = setTimeout(function () {
-                    var query = $(this).val();
-                    if (query.length >= 3) {
-                        $.ajax({
-                            url: '@Url.Action("SearchProducts", "AdminPanel").ToLower()',
-                            type: 'POST',
-                            data: { searchTerm: query },
-                            success: function (data) {
-                                var results = $('#updateSearchResults');
-                                results.empty().show();
-                                if (data.length > 0) {
-                                    data.slice(0, 7).forEach(function (item) {
-                                        results.append('<a class="dropdown-item" href="#" onclick="loadProductData(\'' + item.id_producto + '\')"><img src="' + item.imagen + '" alt="Imagen Producto" width="50" class="mr-2">' + item.nombre + '</a>');
-                                    });
-                                } else {
-                                    var noResultsItem = document.createElement('div');
-                                    noResultsItem.classList.add('dropdown-item', 'text-muted');
-                                    noResultsItem.style.pointerEvents = 'none';
-                                    noResultsItem.textContent = 'Sin resultados, afine la búsqueda.';
-                                    results.append(noResultsItem);
-                                }
-                            }
-                        });
-                    } else {
-                        $('#updateSearchResults').hide();
-                    }
-                }.bind(this), 500);
-            });
-
             $('#intelligentSearch').on('blur', function () {
                 setTimeout(function () {
                     $('#searchResults').hide();
@@ -502,18 +462,10 @@
                 }, 200);
             });
 
-            $('#updateSearch').on('blur', function () {
-                setTimeout(function () {
-                    $('#updateSearchResults').hide();
-                    $('#updateSearch').val('');
-                }, 200);
-            });
-
             $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
                 var target = $(e.target).attr("href");
                 if (target !== '#update') {
                     $('#updateProductForm')[0].reset();
-                    disableUpdateFields();
                     clearPreview('updateImagePreview', 'updateImagen');
                 }
                 if (target !== '#create') {
@@ -760,7 +712,6 @@
                         else
                             $('#updateImagePreview').hide();
                         $('#updateMarca').trigger('change', [data.id_modelo]);
-                        $('#updateSearchResults').hide();
                         checkForm('updateProductForm');
                     } else
                         popups.showErrorTimer("No se pudo cargar la información del producto.");
@@ -769,17 +720,6 @@
                     popups.showErrorTimer("Error al obtener los datos del producto.");
                 }
             });
-        }
-
-        function disableUpdateFields() {
-            $('#updateMarca').prop('disabled', true);
-            $('#updateModelo').prop('disabled', true);
-            $('#updateNombre').prop('disabled', true);
-            $('#updateDescripcion').prop('disabled', true);
-            $('#updateFechaLanzamiento').prop('disabled', true);
-            $('#updateImagen').prop('disabled', true);
-            $('#updateProductForm button[type="button"]:not(#updateCancelar)').prop('disabled', true);
-            $('#updateImagePreview').hide();
         }
 
         async function searchProducts() {
@@ -859,13 +799,6 @@
             document.getElementById('intelligentImagenUrl').value = hit.image;
             document.getElementById('searchResults').style.display = 'none';
             checkForm('intelligentProductForm');
-        }
-
-        function resetUpdateForm() {
-            document.getElementById('updateProductForm').reset();
-            clearFormErrors('updateProductForm');
-            clearPreview('updateImagePreview', 'updateImagen');
-            disableUpdateFields();
         }
 
         function checkForm(formId) {
