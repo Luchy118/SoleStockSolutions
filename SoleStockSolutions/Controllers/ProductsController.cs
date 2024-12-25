@@ -127,6 +127,9 @@ namespace SoleStockSolutions.Controllers
 
         public ActionResult ProductDetails(string productName)
         {
+            if (productName == "index")
+                return null;
+
             using (var db = new TFCEntities())
             {
                 var producto = db.Productos.FirstOrDefault(p => p.nombre.Replace(" ", "-").Replace("(", "").Replace(")", "") == productName);

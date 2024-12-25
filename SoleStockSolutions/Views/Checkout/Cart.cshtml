@@ -1,19 +1,25 @@
-﻿@{
+﻿@model List<SoleStockSolutions.Models.CartItem>
+@{
     ViewBag.Title = "Tu carrito";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    decimal precioTotal = Model.Sum(item => item.Price * item.Quantity);
+    decimal impuestos = precioTotal * 0.21m;
+    decimal subtotal = precioTotal - impuestos;
 }
 
 <!-- Start All Title Box -->
-<div class="all-title-box">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <h2>TU CARRITO</h2>
-                <ul class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
-                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Products")">PRODUCTOS</a></li>
-                    <li class="breadcrumb-item active">TU CARRITO</li>
-                </ul>
+<div class="all-title-box rm-select-styles">
+    <div class="aux-title-box">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>TU CARRITO</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Products")">PRODUCTOS</a></li>
+                        <li class="breadcrumb-item active">TU CARRITO</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -24,152 +30,166 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
-                <div class="table-main table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Images</th>
-                                <th>Product Name</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-01.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 80.0</p>
-                                </td>
-                                <td class="quantity-box"><input type="number" size="4" value="1" min="0" step="1" class="c-input-text qty text"></td>
-                                <td class="total-pr">
-                                    <p>$ 80.0</p>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-02.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 60.0</p>
-                                </td>
-                                <td class="quantity-box"><input type="number" size="4" value="1" min="0" step="1" class="c-input-text qty text"></td>
-                                <td class="total-pr">
-                                    <p>$ 80.0</p>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-03.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 30.0</p>
-                                </td>
-                                <td class="quantity-box"><input type="number" size="4" value="1" min="0" step="1" class="c-input-text qty text"></td>
-                                <td class="total-pr">
-                                    <p>$ 80.0</p>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="table-main table-responsive" id="cartTableContainer">
+                    <form id="cartForm" method="post" action="@Url.Action("UpdateCart", "Checkout")">
+                        <table class="table" id="cartTable">
+                            <thead>
+                                <tr>
+                                    <th>Imagen</th>
+                                    <th>Nombre</th>
+                                    <th>Talla</th>
+                                    <th>Cantidad</th>
+                                    <th>Precio Unitario</th>
+                                    <th>Total</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @if (!Model.Any())
+                                {
+                                    <tr>
+                                        <td colspan="6" class="text-center">No hay ningún artículo en el carrito.</td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td class="thumbnail-img">
+                                                <a href="@Url.Action("ProductDetails", "Products", new { productName = item.ProductName.Replace(" ", "-").Replace("(", "").Replace(")", "") })">
+                                                    <img class="img-fluid" src="@item.ImageUrl" alt="@item.ProductName" />
+                                                </a>
+                                            </td>
+                                            <td class="name-pr">
+                                                <a href="@Url.Action("ProductDetails", "Products", new { productName = item.ProductName.Replace(" ", "-").Replace("(", "").Replace(")", "") })">
+                                                    @item.ProductName
+                                                </a>
+                                            </td>
+                                            <td class="size-pr">
+                                                <p>@item.Size</p>
+                                            </td>
+                                            <td class="quantity-box">
+                                                <input type="number" name="quantities" size="4" value="@item.Quantity" min="@(Model.Count == 1 ? 1 : 0)" max="@item.MaxStock" step="1" class="c-input-text qty text" data-price="@item.Price">
+                                            </td>
+                                            <td class="price-pr">
+                                                <p>@item.Price.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)€</p>
+                                            </td>
+                                            <td class="total-pr">
+                                                @{
+                                                    var total = (item.Price * item.Quantity).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+                                                }
+                                                <p class="item-total">@total€</p>
+                                            </td>
+                                            <td class="remove-pr">
+                                                <a href="javascript:void(0)" class="remove-item" data-id="@item.ProductId" data-size="@item.Size">
+                                                    <i class="fas fa-times"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                }
+                            </tbody>
+                        </table>
+                        @if (Model.Any())
+                        {
+                            <div class="row my-5">
+                                <div class="col-lg-12 col-sm-12">
+                                    <div class="update-box">
+                                        <input value="Actualizar Carrito" type="submit">
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </form>
                 </div>
             </div>
         </div>
 
-        <div class="row my-5">
-            <div class="col-lg-6 col-sm-6">
-                <div class="coupon-box">
-                    <div class="input-group input-group-sm">
-                        <input class="form-control" placeholder="Enter your coupon code" aria-label="Coupon code" type="text">
-                        <div class="input-group-append">
-                            <button class="btn btn-theme" type="button">Apply Coupon</button>
+        @if (Model.Any())
+        {
+            <div class="row my-5">
+                <div class="col-lg-8 col-sm-12"></div>
+                <div class="col-lg-4 col-sm-12">
+                    <div class="order-box">
+                        <h3>Resumen del carrito</h3>
+                        <div class="d-flex">
+                            <h4>Subtotal</h4>
+                            <div class="ml-auto font-weight-bold" id="subtotal"> @subtotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)€ </div>
                         </div>
+                        <div class="d-flex">
+                            <h4>Impuestos (21%)</h4>
+                            <div class="ml-auto font-weight-bold" id="impuestos"> @impuestos.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)€ </div>
+                        </div>
+                        <hr class="my-1">
+                        <div class="d-flex gr-total">
+                            <h5>Total</h5>
+                            <div class="ml-auto h5" id="total"> @precioTotal.ToString("F2", System.Globalization.CultureInfo.InvariantCulture)€ </div>
+                        </div>
+                        <hr>
                     </div>
                 </div>
+                <div class="col-12 d-flex shopping-box"><a href="@Url.Action("Index", "Checkout")" class="ml-auto btn hvr-hover">IR AL PAGO</a> </div>
             </div>
-            <div class="col-lg-6 col-sm-6">
-                <div class="update-box">
-                    <input value="Update Cart" type="submit">
-                </div>
-            </div>
-        </div>
-
-        <div class="row my-5">
-            <div class="col-lg-8 col-sm-12"></div>
-            <div class="col-lg-4 col-sm-12">
-                <div class="order-box">
-                    <h3>Order summary</h3>
-                    <div class="d-flex">
-                        <h4>Sub Total</h4>
-                        <div class="ml-auto font-weight-bold"> $ 130 </div>
-                    </div>
-                    <div class="d-flex">
-                        <h4>Discount</h4>
-                        <div class="ml-auto font-weight-bold"> $ 40 </div>
-                    </div>
-                    <hr class="my-1">
-                    <div class="d-flex">
-                        <h4>Coupon Discount</h4>
-                        <div class="ml-auto font-weight-bold"> $ 10 </div>
-                    </div>
-                    <div class="d-flex">
-                        <h4>Tax</h4>
-                        <div class="ml-auto font-weight-bold"> $ 2 </div>
-                    </div>
-                    <div class="d-flex">
-                        <h4>Shipping Cost</h4>
-                        <div class="ml-auto font-weight-bold"> Free </div>
-                    </div>
-                    <hr>
-                    <div class="d-flex gr-total">
-                        <h5>Grand Total</h5>
-                        <div class="ml-auto h5"> $ 388 </div>
-                    </div>
-                    <hr>
-                </div>
-            </div>
-            <div class="col-12 d-flex shopping-box"><a href="@Url.Action("Index", "Checkout")" class="ml-auto btn hvr-hover">Checkout</a> </div>
-        </div>
-
+        }
     </div>
 </div>
 <!-- End Cart -->
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.quantity-box input').forEach(input => {
+            input.addEventListener('change', function () {
+                const price = parseFloat(this.dataset.price);
+                const quantity = parseInt(this.value);
+                const itemTotal = price * quantity;
+                this.closest('tr').querySelector('.item-total').textContent = itemTotal.toFixed(2) + '€';
+
+                let total = 0;
+                document.querySelectorAll('.item-total').forEach(totalElement => {
+                    total += parseFloat(totalElement.textContent);
+                });
+
+                const impuestos = total * 0.21;
+                const subtotal = total - impuestos;
+
+                document.getElementById('subtotal').textContent = subtotal.toFixed(2) + '€';
+                document.getElementById('impuestos').textContent = impuestos.toFixed(2) + '€';
+                document.getElementById('total').textContent = total.toFixed(2) + '€';
+            });
+        });
+
+        document.querySelectorAll('.remove-item').forEach(link => {
+            link.addEventListener('click', function () {
+                const itemId = this.dataset.id;
+                const size = this.dataset.size;
+                fetch('@Url.Action("RemoveFromCart", "Checkout").ToLower()', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': '@Html.AntiForgeryToken()'
+                    },
+                    body: JSON.stringify({ productId: itemId, size: size, cartPage: true })
+                }).then(response => response.json()).then(data => {
+                    location.reload();
+                });
+            });
+        });
+
+        document.getElementById('cartForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const quantities = Array.from(document.querySelectorAll('.quantity-box input')).map(input => input.value);
+            fetch('@Url.Action("UpdateCart", "Checkout").ToLower()', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': '@Html.AntiForgeryToken()'
+                },
+                body: JSON.stringify({ quantities })
+            }).then(response => response.json()).then(data => {
+                if (data.success)
+                    location.reload();
+            });
+        });
+    </script>
+}

@@ -21,7 +21,8 @@
         "/account/wishlist",
         "/account/login",
         "/account/signup",
-        "/account/index"
+        "/account/index",
+        "/checkout/cart"
     ];
 
     let currentPath = window.location.pathname;

@@ -199,7 +199,7 @@
                         <li class="side-menu">
                             <a href="">
                                 <i class="fa fa-shopping-cart" style="@(ViewBag.CurrentAction == "Cart" ? "color: #b68a7b" : "")"></i>
-                                <span class="badge" style="@(ViewBag.CurrentAction == "Cart" ? "color: #b68a7b" : "")">3</span>
+                                <span id="cart-count" class="badge" style="@(ViewBag.CurrentAction == "Cart" ? "color: #b68a7b" : "")">@((Session["Cart"] as SoleStockSolutions.Models.Cart)?.Items.Count ?? 0)</span>
                             </a>
                         </li>
                     </ul>
@@ -208,19 +208,14 @@
             </div>
             <!-- Start Side Menu -->
             <div class="side">
-                <a href="javascript:void(0);" class="close-side"><i class="fa fa-times"></i></a>
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h2 class="p-0" style="color: white;">CARRITO</h2>
+                    <a href="javascript:void(0);" class="close-side"><i class="fa fa-times"></i></a>
+                </div>
                 <li class="cart-box">
-                    <ul class="cart-list">
-                        <li>
-                            <a href="#" class="photo"><img src="~/Assets/images/img-pro-01.jpg" class="cart-thumb" alt="" /></a>
-                            <h6><a href="#">Delica omtantur </a></h6>
-                            <p>1x - <span class="price">$80.00</span></p>
-                        </li>
-                        <li class="total">
-                            <a href="@Url.Action("Cart", "Checkout")" class="btn btn-default hvr-hover btn-cart">VER CARRITO</a>
-                            <span class="float-right"><strong>Total</strong>: $180.00</span>
-                        </li>
-                    </ul>
+                    <div id="cart-content">
+                        @Html.Partial("~/Views/Checkout/_CartPartial.cshtml", Session["Cart"] as SoleStockSolutions.Models.Cart ?? new SoleStockSolutions.Models.Cart())
+                    </div>
                 </li>
             </div>
             <!-- End Side Menu -->
@@ -320,12 +315,61 @@
         function redirectToProducts(modeloId) {
             $.ajax({
                 type: "GET",
-                url: '@Url.Action("Index", "Products")',
+                url: '@Url.Action("Index", "Products").ToLower()',
                 data: { modeloId: modeloId },
                 success: function (response) {
                     window.location.href = "/products/index";
                 }
             });
+        }
+
+        function addToCart(productId, size, quantity) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddToCart", "Checkout").ToLower()',
+                data: { productId: productId, size: size, quantity: quantity },
+                success: function (response) {
+                    if (response.success === false) {
+                        popups.showErrorTimer(response.message);
+                    } else {
+                        $("#cart-content").html(response);
+                        updateCartCount();
+                        popups.showSuccessTimer("Carrito Actualizado", "El producto se ha añadido correctamente al carrito.");
+                    }
+                    setTimeout(function () {
+                        $(".side").addClass("on");
+                    }, 1500);
+                }
+            });
+        }
+
+        function updateQuantity(productId, size, change) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("UpdateQuantity", "Checkout").ToLower()',
+                data: { productId: productId, size: size, change: change },
+                success: function (response) {
+                    $("#cart-content").html(response);
+                    updateCartCount();
+                }
+            });
+        }
+
+        function removeFromCart(productId, size) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("RemoveFromCart", "Checkout").ToLower()',
+                data: { productId: productId, size: size },
+                success: function (response) {
+                    $("#cart-content").html(response);
+                    updateCartCount();
+                }
+            });
+        }
+
+        function updateCartCount() {
+            var cartCount = $("#cart-content .cart-list li").length - 1;
+            $("#cart-count").text(cartCount);
         }
     </script>
 

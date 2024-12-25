@@ -1,0 +1,47 @@
+﻿@model SoleStockSolutions.Models.Cart
+
+<ul class="cart-list">
+    @if (!Model.Items.Any())
+    {
+        <li class="total">
+            <p class="mb-3">No hay productos en tu carrito.</p>
+            <a href="@Url.Action("Index", "Products").ToLower()" class="btn btn-default hvr-hover btn-cart d-block mx-auto">Ir al Catálogo</a>
+        </li>
+    }
+    else
+    {
+        foreach (var item in Model.Items)
+        {
+            <li style="display: flex; align-items: center;">
+                <a href="@item.ImageUrl" class="photo" style="flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+                    <img src="@item.ImageUrl" class="cart-thumb img-fluid" alt="@item.ProductName" style="width: 80px; height: 60px" />
+                </a>
+                <div style="flex: 2; display: flex; flex-direction: column; justify-content: center;">
+                    <h6 class="pb-1"><a href="javascript:void(0)">@item.ProductName</a></h6>
+                    <div style="display: flex; flex-direction: column;">
+                        <p>Precio: <span class="price">@item.Price€</span></p>
+                        <p>Talla: @item.Size</p>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between">
+                        <div style="border: 1px solid #ddd; padding: 5px; display: flex; align-items: center;">
+                            <button onclick="updateQuantity('@item.ProductId', '@item.Size', -1)" style="background: none; border: none; cursor: @(item.Quantity == 1 ? "not-allowed" : "pointer");" @(item.Quantity == 1 ? "disabled" : "")>-</button>
+                            <span style="margin: 0 10px;">@item.Quantity</span>
+                            <button onclick="updateQuantity('@item.ProductId', '@item.Size', 1)" style="background: none; border: none; cursor: @(item.Quantity == item.MaxStock ? "not-allowed" : "pointer");" @(item.Quantity == item.MaxStock ? "disabled" : "")>+</button>
+                        </div>
+                        @if (item.Quantity > 1)
+                        {
+                            <span>@(item.Quantity * item.Price)€</span>
+                        }
+                        <button onclick="removeFromCart('@item.ProductId', '@item.Size')" style="background: none; border: none; cursor: pointer;">
+                            <i class="fa fa-trash" style="color: #666666;"></i>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        }
+        <li class="total">
+            <a href="@Url.Action("Cart", "Checkout").ToLower()" class="btn btn-default hvr-hover btn-cart">VER CARRITO</a>
+            <span class="float-right"><strong>Total</strong>: @Model.Total€</span>
+        </li>
+    }
+</ul>

@@ -1,6 +1,7 @@
 ﻿@model SoleStockSolutions.Models.Productos
 @{
-    ViewBag.Title = "Detalles del producto";
+    var title = Model.nombre;
+    ViewBag.Title = title + " - Detalles";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -83,15 +84,15 @@
                         <li>
                             <div class="form-group quantity-box">
                                 <label class="control-label">Cantidad</label>
-                                <input id="quantity-input" class="form-control" value="0" min="0" type="number">
+                                <input id="quantity-input" class="form-control" value="1" min="1" type="number">
                             </div>
                         </li>
                     </ul>
 
                     <div class="price-box-bar">
                         <div class="cart-and-bay-btn">
-                            <a class="btn hvr-hover" data-fancybox-close="" href="#">Comprar ahora</a>
-                            <a class="btn hvr-hover" data-fancybox-close="" href="#">Añadir al carrito</a>
+                            <a class="btn hvr-hover" href="javascript:void(0)">Comprar ahora</a>
+                            <a class="btn hvr-hover" href="javascript:void(0)" onclick="addToCart('@Model.id_producto', $('#size-select').val(), $('#quantity-input').val())">Añadir al carrito</a>
                         </div>
                     </div>
 
@@ -130,7 +131,6 @@
                                         <ul>
                                             <li><a href="#" title="Añadir a favoritos"><i class="far fa-heart"></i></a></li>
                                         </ul>
-                                        <a class="cart" href="#">Añadir al carrito</a>
                                     </div>
                                 </div>
                                 <div class="why-text">

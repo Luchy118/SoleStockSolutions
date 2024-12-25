@@ -115,6 +115,14 @@
     .container {
         max-width: 1440px;
     }
+
+    .update-box input[type="submit"] {
+        float: right !important;
+    }
+
+    #cartTableContainer {
+        overflow: unset;
+    }
 }
 
 /* mobile or only mobile */

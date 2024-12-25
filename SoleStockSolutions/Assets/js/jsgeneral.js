@@ -1,5 +1,5 @@
 ﻿class Popups {
-    showErrorTimer(msg) {
+    showErrorTimer(msg, callback = null) {
         Swal.fire({
             icon: "error",
             scrollbarPadding: false,
@@ -11,6 +11,9 @@
             customClass: {
                 confirmButton: 'custom-confirm-button'
             }
+        }).then(() => {
+            if (callback)
+                callback();
         });
     }
 

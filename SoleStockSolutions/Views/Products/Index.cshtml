@@ -90,7 +90,7 @@
 
             function searchProducts(query) {
                 $.ajax({
-                    url: '@Url.Action("SearchProducts")',
+                    url: '@Url.Action("SearchProducts").ToLower()',
                     traditional: true,
                     type: 'GET',
                     data: {
@@ -109,7 +109,7 @@
             function sortProducts(sortOrder) {
                 var searchQuery = $('#search-query').val();
                 $.ajax({
-                    url: '@Url.Action("SortProducts")',
+                    url: '@Url.Action("SortProducts").ToLower()',
                     traditional: true,
                     type: 'GET',
                     data: {
@@ -219,7 +219,7 @@
                 }
 
                 $.ajax({
-                    url: '@Url.Action("FilterProducts")',
+                    url: '@Url.Action("FilterProducts").ToLower()',
                     traditional: true,
                     data: {
                         minPrice: minPrice !== initialMinPrice ?? minPrice,
@@ -237,7 +237,7 @@
                 });
 
                 $.ajax({
-                    url: '@Url.Action("GetBrandFilter")',
+                    url: '@Url.Action("GetBrandFilter").ToLower()',
                     traditional: true,
                     data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
                     success: function(data) {
@@ -246,7 +246,7 @@
                 });
 
                 $.ajax({
-                    url: '@Url.Action("GetModelFilter")',
+                    url: '@Url.Action("GetModelFilter").ToLower()',
                     traditional: true,
                     data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
                     success: function(data) {
@@ -255,7 +255,7 @@
                 });
 
                 $.ajax({
-                    url: '@Url.Action("GetSizeFilter")',
+                    url: '@Url.Action("GetSizeFilter").ToLower()',
                     traditional: true,
                     data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
                     success: function(data) {
@@ -264,7 +264,7 @@
                 });
 
                 $.ajax({
-                    url: '@Url.Action("GetPriceRange")',
+                    url: '@Url.Action("GetPriceRange").ToLower()',
                     traditional: true,
                     data: {
                         selectedBrands: selectedBrands,
