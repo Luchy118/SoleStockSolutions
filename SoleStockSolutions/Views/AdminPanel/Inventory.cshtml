@@ -62,7 +62,7 @@
                                         <td>@item.LastModified</td>
                                         <td>
                                             <a class="btn btn-sm btn-info" data-toggle="tab" onclick='loadInventoryItemDetails("@item.SKU"); $("#read").removeClass("active"); $("#details").addClass("show active");'><i class="fas fa-eye"></i></a>
-                                            <a class="btn btn-sm btn-danger" onclick='var data = { sku: "@item.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteinventory", data )'><i class="fas fa-trash"></i></a>
+                                            <a class="btn btn-sm btn-danger" onclick='var data = { productId: "@item.SKU" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto?", "/adminpanel/deleteinventoryitem", data )'><i class="fas fa-trash"></i></a>
                                         </td>
                                     </tr>
                                 }
@@ -126,7 +126,19 @@
                         </div>
                     </div>
                     <div class="tab-pane fade" id="excel" role="tabpanel" aria-labelledby="excel-tab">
-                        <!-- Contenido de Importación Excel -->
+                        <div class="row">
+                            <div class="col-md-8">
+                                <form id="excelImportForm" enctype="multipart/form-data">
+                                    <div class="form-group">
+                                        <label for="excelFile">Subir archivo Excel</label>
+                                        <input type="file" class="form-control-file" id="excelFile" accept=".xlsx, .xls">
+                                    </div>
+                                    <button type="submit" class="btn btn-primary" id="importButton" disabled>Importar</button>
+                                    <button type="button" class="btn btn-warning" id="clearExcelButton" disabled>Limpiar</button>
+                                    <button type="button" class="btn btn-secondary" onclick="$('#read-tab').click()">Cancelar</button>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -240,6 +252,73 @@
                     $('#productDropdown').hide();
                 }
             });
+
+            $('#excelFile').on('change', function () {
+                if ($(this).val()) {
+                    $('#importButton').prop('disabled', false);
+                    $('#clearExcelButton').prop('disabled', false);
+                } else {
+                    $('#importButton').prop('disabled', true);
+                    $('#clearExcelButton').prop('disabled', true);
+                }
+            });
+
+             $('#clearExcelButton').on('click', function () {
+                 $('#excelFile').val('');
+                 $('#importButton').prop('disabled', true);
+                 $('#clearExcelButton').prop('disabled', true);
+             });
+
+             $('#excelImportForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var fileInput = $('#excelFile')[0];
+                var formData = new FormData();
+                formData.append('excelFile', fileInput.files[0]);
+
+                 Swal.fire({
+                     title: 'Importando...',
+                     html: 'Por favor, espere mientras se procesa el archivo.',
+                     allowOutsideClick: false,
+                     didOpen: () => {
+                         Swal.showLoading();
+                     }
+                 });
+
+                $.ajax({
+                    url: '@Url.Action("ImportExcel", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function (response) {
+                        if (response.success) {
+                            if (response.invalidEntries && response.invalidEntries.length > 0) {
+                                var invalidEntriesHtml = '<div style="max-height: 300px; overflow-y: auto;">';
+                                response.invalidEntries.forEach(function (entry, index) {
+                                    invalidEntriesHtml += '<div class="mb-2">' + entry + '</div>';
+                                    if (index < response.invalidEntries.length - 1)
+                                        invalidEntriesHtml += '<hr>';
+                                });
+                                invalidEntriesHtml += '</div>';
+                                popups.showWarning("Importación realizada con errores", invalidEntriesHtml, function () {
+                                    location.reload();
+                                });
+                            } else {
+                                popups.showSuccessTimer("Importación completada.", "Los datos se han importado correctamente.", function () {
+                                    location.reload();
+                                });
+                            }
+                        } else {
+                            popups.showErrorTimer(response.message);
+                        }
+                    },
+                    error: function () {
+                        console.error('Error al importar el archivo');
+                        popups.showErrorTimer("Error al importar el archivo.");
+                    }
+                });
+            });
         });
 
         function loadInventoryItemDetails(sku) {
@@ -299,7 +378,7 @@
                         </div>
                         <div class="form-group text-left">
                             <label for="price">Precio</label>
-                            <input type="number" class="form-control" id="price" value="${price}" required>
+                            <input type="number" class="form-control" id="price" value="${price}" required min="1">
                         </div>
                         <button type="submit" class="btn btn-primary">Guardar</button>
                         <button type="button" class="btn btn-secondary" onclick="Swal.close()">Cancelar</button>

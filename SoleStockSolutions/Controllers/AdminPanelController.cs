@@ -1,12 +1,18 @@
-﻿using SoleStockSolutions.Filters;
+﻿using Newtonsoft.Json.Linq;
+using OfficeOpenXml;
+using RestSharp;
+using SoleStockSolutions.Filters;
 using SoleStockSolutions.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.UI.WebControls;
@@ -907,6 +913,29 @@ namespace SoleStockSolutions.Controllers
         }
 
         [HttpPost]
+        public JsonResult DeleteInventoryItem(string productId)
+        {
+            try
+            {
+                using (var db = new TFCEntities())
+                {
+                    var lines = db.Inventario.Where(p => p.id_producto == productId).ToList();
+
+                    foreach(var line in lines)
+                        db.Inventario.Remove(line);
+
+                    db.SaveChanges();
+
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
         public JsonResult DeleteInventoryItemSize(string productId, string size)
         {
             try
@@ -993,5 +1022,230 @@ namespace SoleStockSolutions.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<ActionResult> ImportExcel(HttpPostedFileBase excelFile)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (excelFile == null || excelFile.ContentLength == 0)
+                    return Json(new { success = false, message = "No se ha seleccionado ningún archivo." }, JsonRequestBehavior.AllowGet);
+
+                var invalidEntries = new List<string>();
+                var inventoryUpdates = new Dictionary<string, (int stock, int price)>();
+
+                using (var package = new ExcelPackage(excelFile.InputStream))
+                {
+                    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                    var worksheet = package.Workbook.Worksheets.FirstOrDefault();
+                    if (worksheet == null)
+                        return Json(new { success = false, message = "El archivo no contiene ninguna hoja." }, JsonRequestBehavior.AllowGet);
+
+                    for (int row = 2; row <= worksheet.Dimension.End.Row; row++)
+                    {
+                        var sku = worksheet.Cells[row, 1].Text.Trim();
+                        var size = worksheet.Cells[row, 2].Text.Trim();
+                        var stockText = worksheet.Cells[row, 3].Text.Trim();
+                        var priceText = worksheet.Cells[row, 4].Text.Trim();
+
+                        if (string.IsNullOrEmpty(sku) || string.IsNullOrEmpty(size) || string.IsNullOrEmpty(stockText) || string.IsNullOrEmpty(priceText))
+                        {
+                            if (!string.IsNullOrEmpty(sku) || !string.IsNullOrEmpty(size) || !string.IsNullOrEmpty(stockText) || !string.IsNullOrEmpty(priceText))
+                                invalidEntries.Add($"Fila {row}, Una o más columnas están vacías.");
+                            continue;
+                        }
+
+                        if (!int.TryParse(stockText, out int stock))
+                        {
+                            invalidEntries.Add($"Fila {row}, Stock no válido para SKU: {sku}, Talla: {size}.");
+                            continue;
+                        }
+
+                        if (!int.TryParse(priceText, out int price))
+                        {
+                            invalidEntries.Add($"Fila {row}, Precio no válido para SKU: {sku}, Talla: {size}.");
+                            continue;
+                        }
+
+                        var key = $"{sku}/{size}";
+                        if (inventoryUpdates.ContainsKey(key))
+                            inventoryUpdates[key] = (inventoryUpdates[key].stock + stock, price);
+                        else
+                            inventoryUpdates[key] = (stock, price);
+
+                        var product = db.Productos.FirstOrDefault(p => p.id_producto == sku);
+                        if (product == null)
+                        {
+                            JObject searchResult = await SearchProduct(sku);
+                            if (searchResult == null)
+                            {
+                                invalidEntries.Add($"Fila {row}, SKU no encontrado: {sku}.");
+                                continue;
+                            }
+                            searchResult = (JObject)searchResult["hits"].First;
+                            var marca = searchResult["brand"].ToString().ToLower();
+                            var idMarca = db.Marcas.FirstOrDefault(m => m.nombre_marca.ToLower() == marca).id_marca;
+
+                            product = new Productos
+                            {
+                                id_producto = sku,
+                                nombre = searchResult["title"].ToString(),
+                                id_marca = idMarca,
+                                id_modelo = AsignarIdModelo(searchResult["title"].ToString(), idMarca),
+                                imagen = searchResult["image"].ToString(),
+                                fecha_lanzamiento = Convert.ToDateTime(searchResult["releaseDate"]),
+                                fecha_ultimo_uso_interno = DateTime.Now,
+                                precio_medio_mercado = await ObtenerPrecioMedioMercado(Convert.ToDecimal(searchResult["avg_price"]))
+                            };
+                            db.Productos.Add(product);
+                            db.SaveChanges();
+                        }
+
+                        var universalSize = db.Tallas_Universales.FirstOrDefault(t => t.talla_eu == size);
+                        var brandSize = db.Tallas_Marcas.FirstOrDefault(t => t.talla_eu == size && t.id_marca == product.id_marca);
+                        if (universalSize == null && brandSize == null)
+                        {
+                            invalidEntries.Add($"Fila {row}, Talla no válida: {size}.");
+                            continue;
+                        }
+                    }
+                }
+
+                foreach (var entry in inventoryUpdates)
+                {
+                    var parts = entry.Key.Split('/');
+                    var sku = parts[0];
+                    var size = parts[1];
+                    var stock = entry.Value.stock;
+                    var price = entry.Value.price;
+
+                    var existingInventory = db.Inventario.FirstOrDefault(i => i.id_producto == sku && i.talla_eu == size);
+                    if (existingInventory != null)
+                    {
+                        existingInventory.cantidad += stock;
+                        existingInventory.precio = price;
+                        invalidEntries.Add($"SKU duplicado en la base de datos: {sku}, Talla: {size}. Existencias sumadas y precio actualizado.");
+                    }
+                    else
+                    {
+                        var producto = db.Productos.FirstOrDefault(p => p.id_producto == sku);
+                        var newInventory = new Inventario
+                        {
+                            id_producto = sku,
+                            id_marca = producto.id_marca,
+                            talla_eu = size,
+                            cantidad = stock,
+                            precio = price,
+                            fecha_actualizacion = DateTime.Now
+                        };
+                        db.Inventario.Add(newInventory);
+                    }
+                }
+
+                db.SaveChanges();
+
+                return Json(new
+                {
+                    success = true,
+                    invalidEntries
+                }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        private int? AsignarIdModelo(string nombreProducto, int idMarca)
+        {
+            using (var context = new TFCEntities())
+            {
+                var modelos = context.Modelos.Where(m => m.id_marca == idMarca).ToList();
+
+                foreach (var modelo in modelos)
+                {
+                    var palabrasModelo = modelo.nombre_modelo.Split(' ');
+
+                    bool todasPalabrasPresentes = palabrasModelo.All(palabra =>
+                        nombreProducto.IndexOf(palabra, StringComparison.OrdinalIgnoreCase) >= 0);
+
+                    if (todasPalabrasPresentes)
+                        return modelo.id_modelo;
+                }
+            }
+
+            return null;
+        }
+
+        private async Task<JObject> SearchProduct(string sku)
+        {
+            using (var client = new HttpClient())
+            {
+                var apiUrl = $"https://stockx-api.p.rapidapi.com/search?query={sku}"; 
+                var searchRequest = new HttpRequestMessage
+                {
+                    Method = HttpMethod.Get,
+                    RequestUri = new Uri(apiUrl),
+                    Headers =
+                    {
+                        { "x-rapidapi-key", "a65cdaab74msh2a979964bac5ca6p1609e9jsna66da403c24f" },
+                        { "x-rapidapi-host", "stockx-api.p.rapidapi.com" },
+                    },
+                };
+
+                var response = await client.SendAsync(searchRequest);
+                response.EnsureSuccessStatusCode();
+                var body = await response.Content.ReadAsStringAsync();
+                var jsonData = JObject.Parse(body);
+
+                return jsonData;
+            }
+        }
+
+        private static async Task<int> ObtenerPrecioMedioMercado(decimal precio)
+        {
+            try
+            {
+                return await ConvertCurrency(precio, "USD", "EUR");
+            }
+            catch (Exception)
+            {
+                return await ConvertCurrency2(precio, "USD", "EUR");
+            }
+        }
+
+        private static async Task<int> ConvertCurrency(decimal amount, string fromCurrency, string toCurrency)
+        {
+            var client = new RestClient("https://openexchangerates.org/api/");
+            var request = new RestRequest("latest.json", Method.Get);
+            request.AddParameter("app_id", "2bf904fcc3ca41d78557adc8325f2320");
+            var response = await client.ExecuteAsync(request);
+
+            if (response.IsSuccessful)
+            {
+                var jsonData = JObject.Parse(response.Content);
+                var rates = jsonData["rates"];
+                var fromRate = rates[fromCurrency].Value<decimal>();
+                var toRate = rates[toCurrency].Value<decimal>();
+                var conversionRate = toRate / fromRate;
+                return (int)(amount * conversionRate);
+            }
+            else
+                throw new Exception("Error al obtener las tasas de cambio.");
+        }
+
+        private static async Task<int> ConvertCurrency2(decimal amount, string fromCurrency, string toCurrency)
+        {
+            var client = new RestClient("https://v6.exchangerate-api.com/v6/74b2ae015e9fd5a65d8ba28d/latest/");
+            var request = new RestRequest($"{fromCurrency}", Method.Get);
+            var response = await client.ExecuteAsync(request);
+
+            if (response.IsSuccessful)
+            {
+                var jsonData = JObject.Parse(response.Content);
+                var rates = jsonData["conversion_rates"];
+                var toRate = rates[toCurrency].Value<decimal>();
+                return (int)(amount * toRate);
+            }
+            else
+            {
+                throw new Exception("Error al obtener las tasas de cambio.");
+            }
+        }
     }
 }

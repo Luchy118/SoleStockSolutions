@@ -62,4 +62,31 @@ namespace SoleStockSolutions.Models
         public int Stock { get; set; }
         public int Price { get; set; }
     }
+
+    public class SearchResult
+    {
+        public string id_producto { get; set; }
+        public string nombre { get; set; }
+        public string descripcion { get; set; }
+        public int id_marca { get; set; }
+        public int id_modelo { get; set; }
+        public string imagen { get; set; }
+        public DateTime fecha_lanzamiento { get; set; }
+        public int precio_medio_mercado { get; set; }
+    }
+
+    public class CartItem
+    {
+        public string ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string ImageUrl { get; set; }
+        public int Quantity { get; set; }
+        public decimal Price { get; set; }
+    }
+
+    public class Cart
+    {
+        public List<CartItem> Items { get; set; } = new List<CartItem>();
+        public decimal Total => Items.Sum(item => item.Price * item.Quantity);
+    }
 }

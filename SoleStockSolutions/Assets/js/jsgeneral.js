@@ -32,6 +32,23 @@
         });
     }
 
+    showWarning(title, msg, callback = null) {
+        Swal.fire({
+            icon: "warning",
+            scrollbarPadding: false,
+            title: title,
+            html: msg,
+            position: "center",
+            timerProgressBar: true,
+            customClass: {
+                confirmButton: 'custom-confirm-button'
+            }
+        }).then(() => {
+            if (callback)
+                callback();
+        });
+    }
+
     showConfirmLogOut() {
         Swal.fire({
             title: "Estás a punto de cerrar sesión",
