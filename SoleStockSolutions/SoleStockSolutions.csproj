@@ -226,14 +226,12 @@
     <Compile Include="Models\Categorías_Estados.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\CustomIdentity.cs" />
-    <Compile Include="Models\CustomPrincipal.cs" />
-    <Compile Include="Models\CustomAuthorizeAttribute.cs" />
-    <Compile Include="Models\General.cs" />
-    <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\Colores.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\CustomIdentity.cs" />
+    <Compile Include="Models\CustomPrincipal.cs" />
+    <Compile Include="Models\CustomAuthorizeAttribute.cs" />
     <Compile Include="Models\Detalles_Pedidos.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -243,6 +241,8 @@
     <Compile Include="Models\Estados.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\General.cs" />
+    <Compile Include="Models\Filtros.cs" />
     <Compile Include="Models\Inventario.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -2041,8 +2041,11 @@
     <Content Include="Assets\js\bootstrap-select.js" />
     <Content Include="Assets\js\bootstrap.min.js" />
     <Content Include="Assets\js\contact-form-script.js" />
+    <Content Include="Assets\js\crs.js" />
+    <Content Include="Assets\js\crs.min.js" />
     <Content Include="Assets\js\custom.js" />
     <Content Include="Assets\js\form-validator.min.js" />
+    <Content Include="Assets\js\i18n-zipcodes.js" />
     <Content Include="Assets\js\images-loded.min.js" />
     <Content Include="Assets\js\inewsticker.js" />
     <Content Include="Assets\js\isotope.min.js" />
@@ -2336,6 +2339,7 @@
     <Content Include="Views\AdminPanel\Colors.cshtml" />
     <Content Include="Views\AdminPanel\Inventory.cshtml" />
     <Content Include="Views\Checkout\_CartPartial.cshtml" />
+    <Content Include="Views\Account\Addresses.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

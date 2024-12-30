@@ -27,7 +27,6 @@ namespace SoleStockSolutions.Models
     
         public virtual DbSet<Categorías_Estados> Categorías_Estados { get; set; }
         public virtual DbSet<Detalles_Pedidos> Detalles_Pedidos { get; set; }
-        public virtual DbSet<Direcciones> Direcciones { get; set; }
         public virtual DbSet<Estados> Estados { get; set; }
         public virtual DbSet<Inventario> Inventario { get; set; }
         public virtual DbSet<Marcas> Marcas { get; set; }
@@ -40,5 +39,6 @@ namespace SoleStockSolutions.Models
         public virtual DbSet<Wishlist> Wishlist { get; set; }
         public virtual DbSet<Colores> Colores { get; set; }
         public virtual DbSet<Productos_Colores> Productos_Colores { get; set; }
+        public virtual DbSet<Direcciones> Direcciones { get; set; }
     }
 }

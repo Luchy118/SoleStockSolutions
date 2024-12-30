@@ -38,12 +38,16 @@
           </Key>
           <Property Name="id_direccion" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="id_usuario" Type="int" Nullable="false" />
+          <Property Name="nombre" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="direccion" Type="varchar" MaxLength="200" Nullable="false" />
+          <Property Name="direccion2" Type="varchar" MaxLength="200" />
           <Property Name="ciudad" Type="varchar" MaxLength="100" Nullable="false" />
           <Property Name="codigo_postal" Type="varchar" MaxLength="20" Nullable="false" />
           <Property Name="pais" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="telefono" Type="varchar" MaxLength="15" />
-          <Property Name="tipo_direccion" Type="nvarchar" MaxLength="20" Nullable="false" />
+          <Property Name="tipo_direccion" Type="tinyint" Nullable="false" />
+          <Property Name="predeterminada" Type="bit" Nullable="false" />
+          <Property Name="provincia" Type="varchar" MaxLength="50" Nullable="false" />
         </EntityType>
         <EntityType Name="Estados">
           <Key>
@@ -431,7 +435,6 @@
         <EntityContainer Name="TFCEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Categorías_Estados" EntityType="TFCModel.Categorías_Estados" />
           <EntitySet Name="Detalles_Pedidos" EntityType="TFCModel.Detalles_Pedidos" />
-          <EntitySet Name="Direcciones" EntityType="TFCModel.Direcciones" />
           <EntitySet Name="Estados" EntityType="TFCModel.Estados" />
           <EntitySet Name="Inventario" EntityType="TFCModel.Inventario" />
           <EntitySet Name="Marcas" EntityType="TFCModel.Marcas" />
@@ -453,14 +456,6 @@
           <AssociationSet Name="fk_pedido" Association="TFCModel.fk_pedido">
             <End Role="Pedidos" EntitySet="Pedidos" />
             <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
-          </AssociationSet>
-          <AssociationSet Name="fk_direccion" Association="TFCModel.fk_direccion">
-            <End Role="Direcciones" EntitySet="Direcciones" />
-            <End Role="Pedidos" EntitySet="Pedidos" />
-          </AssociationSet>
-          <AssociationSet Name="fk_usuario_direccion" Association="TFCModel.fk_usuario_direccion">
-            <End Role="Usuarios" EntitySet="Usuarios" />
-            <End Role="Direcciones" EntitySet="Direcciones" />
           </AssociationSet>
           <AssociationSet Name="fk_estado" Association="TFCModel.fk_estado">
             <End Role="Estados" EntitySet="Estados" />
@@ -516,6 +511,15 @@
             <End Role="Colores" EntitySet="Colores" />
             <End Role="Productos_Colores" EntitySet="Productos_Colores" />
           </AssociationSet>
+          <EntitySet Name="Direcciones" EntityType="TFCModel.Direcciones" />
+          <AssociationSet Name="fk_direccion" Association="TFCModel.fk_direccion">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario_direccion" Association="TFCModel.fk_usuario_direccion">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Direcciones" EntitySet="Direcciones" />
+          </AssociationSet>
         </EntityContainer>
         <EntityType Name="Categorías_Estados">
           <Key>
@@ -539,21 +543,6 @@
           <Property Name="estado_linea" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Estados" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Detalles_Pedidos" ToRole="Estados" />
           <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Detalles_Pedidos" ToRole="Pedidos" />
-        </EntityType>
-        <EntityType Name="Direcciones">
-          <Key>
-            <PropertyRef Name="id_direccion" />
-          </Key>
-          <Property Name="id_direccion" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_usuario" Type="Int32" Nullable="false" />
-          <Property Name="direccion" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="ciudad" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
-          <Property Name="codigo_postal" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="pais" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="telefono" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
-          <Property Name="tipo_direccion" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="true" />
-          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_direccion" FromRole="Direcciones" ToRole="Pedidos" />
-          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario_direccion" FromRole="Direcciones" ToRole="Usuarios" />
         </EntityType>
         <EntityType Name="Estados">
           <Key>
@@ -618,9 +607,9 @@
           <Property Name="id_estado" Type="Int32" Nullable="false" />
           <Property Name="id_direccion" Type="Int32" />
           <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Pedidos" ToRole="Detalles_Pedidos" />
-          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_direccion" FromRole="Pedidos" ToRole="Direcciones" />
           <NavigationProperty Name="Estados" Relationship="TFCModel.fk_estado" FromRole="Pedidos" ToRole="Estados" />
           <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario" FromRole="Pedidos" ToRole="Usuarios" />
+          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_direccion" FromRole="Pedidos" ToRole="Direcciones" />
         </EntityType>
         <EntityType Name="Productos">
           <Key>
@@ -676,9 +665,9 @@
           <Property Name="administrador" Type="Boolean" Nullable="false" />
           <Property Name="super_administrador" Type="Boolean" Nullable="false" />
           <Property Name="fecha_registro" Type="DateTime" Nullable="false" Precision="0" />
-          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_usuario_direccion" FromRole="Usuarios" ToRole="Direcciones" />
           <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_usuario" FromRole="Usuarios" ToRole="Pedidos" />
           <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_usuario_wishlist" FromRole="Usuarios" ToRole="Wishlist" />
+          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_usuario_direccion" FromRole="Usuarios" ToRole="Direcciones" />
         </EntityType>
         <EntityType Name="Wishlist">
           <Key>
@@ -724,30 +713,6 @@
             </Principal>
             <Dependent Role="Detalles_Pedidos">
               <PropertyRef Name="id_pedido" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_direccion">
-          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
-          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Direcciones">
-              <PropertyRef Name="id_direccion" />
-            </Principal>
-            <Dependent Role="Pedidos">
-              <PropertyRef Name="id_direccion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_usuario_direccion">
-          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
-          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Usuarios">
-              <PropertyRef Name="id_usuario" />
-            </Principal>
-            <Dependent Role="Direcciones">
-              <PropertyRef Name="id_usuario" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -933,6 +898,49 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <EntityType Name="Direcciones">
+          <Key>
+            <PropertyRef Name="id_direccion" />
+          </Key>
+          <Property Name="id_direccion" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_usuario" Type="Int32" Nullable="false" />
+          <Property Name="nombre" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="direccion" Type="String" Nullable="false" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="direccion2" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="ciudad" Type="String" Nullable="false" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="codigo_postal" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="pais" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="telefono" Type="String" MaxLength="15" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_direccion" Type="Byte" Nullable="false" />
+          <Property Name="predeterminada" Type="Boolean" Nullable="false" />
+          <Property Name="provincia" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_direccion" FromRole="Direcciones" ToRole="Pedidos" />
+          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario_direccion" FromRole="Direcciones" ToRole="Usuarios" />
+        </EntityType>
+        <Association Name="fk_direccion">
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
+              <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario_direccion">
+          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Direcciones">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
@@ -958,20 +966,6 @@
                 <ScalarProperty Name="id_producto" ColumnName="id_producto" />
                 <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
                 <ScalarProperty Name="id" ColumnName="id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Direcciones">
-            <EntityTypeMapping TypeName="TFCModel.Direcciones">
-              <MappingFragment StoreEntitySet="Direcciones">
-                <ScalarProperty Name="tipo_direccion" ColumnName="tipo_direccion" />
-                <ScalarProperty Name="telefono" ColumnName="telefono" />
-                <ScalarProperty Name="pais" ColumnName="pais" />
-                <ScalarProperty Name="codigo_postal" ColumnName="codigo_postal" />
-                <ScalarProperty Name="ciudad" ColumnName="ciudad" />
-                <ScalarProperty Name="direccion" ColumnName="direccion" />
-                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
-                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1104,6 +1098,24 @@
               <MappingFragment StoreEntitySet="Productos_Colores">
                 <ScalarProperty Name="hex" ColumnName="hex" />
                 <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Direcciones">
+            <EntityTypeMapping TypeName="TFCModel.Direcciones">
+              <MappingFragment StoreEntitySet="Direcciones">
+                <ScalarProperty Name="provincia" ColumnName="provincia" />
+                <ScalarProperty Name="predeterminada" ColumnName="predeterminada" />
+                <ScalarProperty Name="tipo_direccion" ColumnName="tipo_direccion" />
+                <ScalarProperty Name="telefono" ColumnName="telefono" />
+                <ScalarProperty Name="pais" ColumnName="pais" />
+                <ScalarProperty Name="codigo_postal" ColumnName="codigo_postal" />
+                <ScalarProperty Name="ciudad" ColumnName="ciudad" />
+                <ScalarProperty Name="direccion2" ColumnName="direccion2" />
+                <ScalarProperty Name="direccion" ColumnName="direccion" />
+                <ScalarProperty Name="nombre" ColumnName="nombre" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

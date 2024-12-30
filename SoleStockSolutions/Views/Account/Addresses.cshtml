@@ -1,0 +1,371 @@
+﻿@model SoleStockSolutions.Models.Direcciones
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start All Title Box -->
+<div class="all-title-box rm-select-styles">
+    <div class="aux-title-box">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>TUS DIRECCIONES</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Account")">CUENTA</a></li>
+                        <li class="breadcrumb-item active">DIRECCIONES</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Title Box -->
+<!-- Start My Account  -->
+<div class="my-account-box-main">
+    <div class="container">
+        <div class="my-account-page">
+            <div class="container-fluid">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="create-tab" data-toggle="tab" href="#create" role="tab" aria-controls="create" aria-selected="false">Añadir Nuevo</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h4 class="m-0 p-0 font-weight-bold text-primary" style="color: #b68a7b !important">Lista de Direcciones</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Dirección</th>
+                                                <th>Dirección 2</th>
+                                                <th>CP</th>
+                                                <th>Ciudad</th>
+                                                <th>País</th>
+                                                <th>Teléfono</th>
+                                                <th>Predeterminada</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Nombre</th>
+                                                <th>Dirección</th>
+                                                <th>Dirección 2</th>
+                                                <th>CP</th>
+                                                <th>Ciudad</th>
+                                                <th>País</th>
+                                                <th>Teléfono</th>
+                                                <th>Predeterminada</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>
+                                            @foreach (var direccion in ViewBag.Direcciones as List<SoleStockSolutions.Models.Direcciones>)
+                                            {
+                                                <tr>
+                                                    <td>@direccion.nombre</td>
+                                                    <td>@direccion.direccion</td>
+                                                    <td>@direccion.direccion2</td>
+                                                    <td>@direccion.codigo_postal</td>
+                                                    <td>@direccion.ciudad</td>
+                                                    <td>@direccion.pais</td>
+                                                    <td>@direccion.telefono</td>
+                                                    <td>@direccion.predeterminada</td>
+                                                    <td>
+                                                        <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadDireccionData(@direccion.id_direccion, true); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
+                                                        <a class="btn btn-sm btn-danger" onclick='var data = { id: @direccion.id_direccion }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta dirección?", "/account/deletedireccion", data )'><i class="fas fa-trash"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane fade card shadow" id="create" role="tabpanel" aria-labelledby="create-tab">
+                        <div class="card-body">
+                            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "createDireccionForm" }))
+                            {
+                                <div class="form-group">
+                                    <label for="createNombre">Nombre</label>
+                                    @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", @id = "createNombre", @maxlength = "50", @required = "required" })
+                                    <span class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="createDireccion">Dirección</label>
+                                    @Html.TextBoxFor(m => m.direccion, new { @class = "form-control", @id = "createDireccion", @maxlength = "200", @required = "required" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="createDireccion2">Dirección 2</label>
+                                    @Html.TextBoxFor(m => m.direccion2, new { @class = "form-control", @id = "createDireccion2", @placeholder = "Apartamento, Edificio, Letra...", @maxlength = "200" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="createPais">País</label>
+                                    <select class="crs-country form-control" id="createPais" name="pais" data-region-id="createProvincia" data-value="shortcode" data-whitelist="AL,AD,AM,AT,AZ,BY,BE,BA,BG,HR,CY,CZ,DK,EE,FI,FR,GE,DE,GR,HU,IS,IE,IT,KZ,XK,LV,LI,LT,LU,MT,MD,MC,ME,NL,NO,PL,PT,RO,RU,SM,RS,SK,SI,ES,SE,CH,TR,UA,GB" required>
+                                        <option value="">Selecciona un país</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="createProvincia">Provincia</label>
+                                    <select class="form-control" id="createProvincia" name="provincia" required>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="createCiudad">Ciudad</label>
+                                    @Html.TextBoxFor(m => m.ciudad, new { @class = "form-control", @id = "createCiudad", @maxlength = "100", @required = "required" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="createCP">CP</label>
+                                    @Html.TextBoxFor(m => m.codigo_postal, new { @class = "form-control", @id = "createCP", @maxlength = "20", @required = "required" })
+                                    <span class="text-danger"></span>
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column;">
+                                    <label for="createTelefono">Teléfono</label>
+                                    @Html.TextBoxFor(m => m.telefono, new { @class = "form-control", @id = "createTelefono", @maxlength = "15" })
+                                    <span class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="createTipoDireccion">Tipo Dirección</label>
+                                    @Html.DropDownListFor(m => m.tipo_direccion, new List<SelectListItem>
+                                                        {
+                                        new SelectListItem { Text = "Envío", Value = "0" },
+                                        new SelectListItem { Text = "Facturación", Value = "1" }
+                                    }, new { @class = "form-control", @id = "createTipoDireccion", @required = "required" })
+                                </div>
+                                <div class="form-group d-flex align-items-center">
+                                    <label for="createPredeterminada" class="mb-0 mr-2">Predeterminada</label>
+                                    <input type="checkbox" id="createPredeterminada" style="width: unset" name="predeterminada" value="true" />
+                                </div>
+                                <button type="submit" class="btn btn-primary" disabled>Añadir Dirección</button>
+                                <button type="button" class="btn btn-warning" id="clearFieldsButton" disabled>Limpiar Campos</button>
+                                <button type="button" class="btn btn-secondary" id="cancelButton">Cancelar</button>
+                            }
+                        </div>
+                    </div>
+                    <div class="tab-pane fade card shadow" id="update" role="tabpanel">
+                        <div class="card-body">
+                            <form id="updateDireccionForm" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="updateNombre">Nombre</label>
+                                    <input type="text" class="form-control" id="updateNombre" name="nombre" required disabled />
+                                    <span class="text-danger"></span>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateDireccion">Dirección</label>
+                                    <input type="text" class="form-control" id="updateDireccion" name="direccion" required disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateDireccion2">Dirección2 (Apt/Edificio/Letra)</label>
+                                    <input type="text" class="form-control" id="updateDireccion2" name="direccion2" disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCP">CP</label>
+                                    <input type="text" class="form-control" id="updateCP" name="codigo_postal" required disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCiudad">Ciudad</label>
+                                    <input type="text" class="form-control" id="updateCiudad" name="ciudad" required disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updatePais">País</label>
+                                    <input type="text" class="form-control" id="updatePais" name="pais" required disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateTelefono">Teléfono</label>
+                                    <input type="text" class="form-control" id="updateTelefono" name="telefono" required disabled />
+                                </div>
+                                <div class="form-group">
+                                    <label for="updatePredeterminada">Predeterminada</label>
+                                    <input type="checkbox" class="form-control" id="updatePredeterminada" name="predeterminada" disabled />
+                                </div>
+                                <button type="submit" class="btn btn-primary" disabled>Modificar Dirección</button>
+                                <button type="button" id="cancelUpdateDireccion" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Addresses -->
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json",
+                    "emptyTable": "No tienes ninguna dirección registrada"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [6, 8] }
+                ],
+                "order": [[7, "desc"]]
+            });
+
+            $('#createDireccionForm').on('submit', function (e) {
+                e.preventDefault();
+
+                if (validateForm() && !hasErrors()) {
+                    $.ajax({
+                        url: '@Url.Action("AddAddress", "Account").ToLower()',
+                        type: $(this).attr("method"),
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                popups.showSuccessTimer("Dirección añadida correctamente.", "Redirigiendo a tu lista de direcciones...");
+                                setTimeout(function () {
+                                    window.location.href = '@Url.Action("Addresses", "Account").ToLower()';
+                                }, 2000);
+                            } else {
+                                popups.showErrorTimer("Error al añadir la dirección.");
+                            }
+                        },
+                        error: function () {
+                            alert("Ocurrió un error al enviar el formulario.");
+                        }
+                    });
+                }
+            });
+
+            $('#createProvincia, #createCiudad, #createCP').prop('disabled', true);
+
+            $('#createPais').on('change', function () {
+                var isCountrySelected = $(this).val() !== '';
+                $('#createProvincia, #createCiudad, #createCP').prop('disabled', !isCountrySelected);
+            });
+
+            $('#createDireccionForm input, #createDireccionForm select').on('input change', function () {
+                $('button[type="submit"]').prop('disabled', !validateForm());
+                $('#clearFieldsButton').prop('disabled', !checkFields());
+            });
+
+            $('#clearFieldsButton').on('click', function () {
+                $('#createDireccionForm')[0].reset();
+                $('button[type="submit"]').prop('disabled', true);
+                $('#clearFieldsButton').prop('disabled', true);
+                $('#createProvincia, #createCiudad, #createCP').prop('disabled', true);
+                $('#createCP').removeClass('is-invalid');
+                $('#createCP').siblings('.text-danger').text('');
+                $('#createTelefono').removeClass('is-invalid');
+                $('#createTelefono').siblings('.text-danger').text('');
+            });
+
+            $('#cancelButton').on('click', function () {
+                $('#createDireccionForm')[0].reset();
+                $('button[type="submit"]').prop('disabled', true);
+                $('#clearFieldsButton').prop('disabled', true);
+                $('#myTab a[href="#read"]').tab('show');
+                $('#createProvincia, #createCiudad, #createCP').prop('disabled', true);
+            });
+
+            $('#createCiudad').on('input', function () {
+                this.value = this.value.replace(/\d/g, '');
+            });
+
+            $('#createCP').on('input', function () {
+                validateCP();
+            });
+
+            $('#createPais, #createProvincia').on('change', function () {
+                validateCP();
+            });
+
+            var input = document.querySelector("#createTelefono");
+            var iti = window.intlTelInput(input, {
+                initialCountry: "auto",
+                onlyCountries: ["al", "ad", "am", "at", "az", "by", "be", "ba", "bg", "hr", "cy", "cz", "dk", "ee", "fi", "fr", "ge", "de", "gr", "hu", "is", "ie", "it", "kz", "xk", "lv", "li", "lt", "lu", "mt", "md", "mc", "me", "nl", "no", "pl", "pt", "ro", "ru", "sm", "rs", "sk", "si", "es", "se", "ch", "tr", "ua", "gb"],
+                geoIpLookup: function (callback) {
+                    $.get('https://ipinfo.io', function () { }, "jsonp").always(function (resp) {
+                        var countryCode = (resp && resp.country) ? resp.country : "es";
+                        callback(countryCode);
+                    });
+                },
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+
+            input.addEventListener('blur', function () {
+                if (input.value.trim()) {
+                    var errorSpan = input.parentNode.nextSibling.nextSibling;
+                    if (iti.isValidNumber()) {
+                        input.classList.remove("is-invalid");
+                        errorSpan.textContent = "";
+                    } else {
+                        input.classList.add("is-invalid");
+                        errorSpan.textContent = "El número de teléfono introducido es inválido.";
+                    }
+                }
+            });
+
+            input.addEventListener('input', function () {
+                this.value = this.value.replace(/[^\d+]/g, '');
+                if ($(this).hasClass(".is-invalid")) {
+                    $(this).removeClass(".is-invalid");
+                    $(this).parentNode.nextSibling.nextSibling.textContent = "";
+                }
+            });
+
+            window.crs.init();
+        });
+
+        function validateForm() {
+            let isValid = true;
+            $('#createDireccionForm [required]').each(function () {
+                if ($(this).val() === '')
+                    isValid = false;
+            });
+            return isValid;
+        }
+
+        function hasErrors() {
+            let hasErrors = false;
+
+            if ($('#createCP, #createTelefono').hasClass('is-invalid'))
+                hasErrors = true;
+
+            return hasErrors;
+        }
+
+
+        function checkFields() {
+            let hasContent = false;
+            $('#createDireccionForm input, #createDireccionForm select').each(function () {
+                if (($(this).val() !== '' && $(this).val() !== '0' && $(this).attr("id") != "createTipoDireccion") || $(this).is(":checked") || ($(this).attr("id") == "createTipoDireccion" && $(this).val() !== '0'))
+                    hasContent = true;
+            });
+            return hasContent;
+        }
+
+        function validateCP() {
+            var cp = $('#createCP').val();
+            var pais = $('#createPais').val();
+            var isValid = true;
+
+            if (pais && cp) {
+                var countryCode = $('#createPais option:selected').attr('value');
+                isValid = i18nZipcodes(countryCode, cp);
+            }
+
+            if (!isValid) {
+                $('#createCP').addClass('is-invalid');
+                $('#createCP').siblings('.text-danger').text('El código postal introducido es inválido.');
+            } else {
+                $('#createCP').removeClass('is-invalid');
+                $('#createCP').siblings('.text-danger').text('');
+            }
+        }
+    </script>
+}

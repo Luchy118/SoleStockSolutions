@@ -22,6 +22,7 @@
         "/account/login",
         "/account/signup",
         "/account/index",
+        "/account/addresses",
         "/checkout/cart"
     ];
 

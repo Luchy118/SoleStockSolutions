@@ -12,11 +12,13 @@ using SoleStockSolutions.Models;
 namespace SoleStockSolutions.Controllers
 {
     [LoadModelosRelevantes]
+    [CustomAuthorize(Roles = "User")]
     public class AccountController : Controller
     {
         /// <summary>
         /// Muestra la vista de inicio de sesión.
         /// </summary>
+        [AllowAnonymous]
         public ActionResult Login()
         {
             if (User.Identity.IsAuthenticated)
@@ -31,6 +33,7 @@ namespace SoleStockSolutions.Controllers
         /// <summary>
         /// Muestra la vista de registro.
         /// </summary>
+        [AllowAnonymous]
         public ActionResult SignUp()
         {
             if (User.Identity.IsAuthenticated)
@@ -75,6 +78,7 @@ namespace SoleStockSolutions.Controllers
         /// <param name="returnUrl">URL de retorno después del inicio de sesión.</param>
         /// <returns>Resultado de la validación en formato JSON.</returns>
         [HttpPost]
+        [AllowAnonymous]
         public JsonResult ValidateLogin(Usuarios u, string returnUrl)
         {
             using (var db = new TFCEntities())
@@ -119,6 +123,7 @@ namespace SoleStockSolutions.Controllers
         /// </summary>
         /// <param name="u">Objeto Usuarios con los datos del nuevo usuario.</param>
         /// <returns>Resultado de la validación en formato JSON.</returns>
+        [AllowAnonymous]
         public JsonResult ValidateSignUp(Usuarios u)
         {
             using (var db = new TFCEntities())
@@ -187,10 +192,47 @@ namespace SoleStockSolutions.Controllers
             if (user.administrador)
                 roles.Add("Admin");
 
-            if (roles.Count == 0)
-                roles.Add("User");
+            roles.Add("User");
 
             return string.Join(",", roles);
+        }
+
+        public ActionResult ChangePassword()
+        {
+            ViewBag.CurrentAction = "ChangePassword";
+            return View();
+        }
+
+        public ActionResult Addresses()
+        {
+            using (var db = new TFCEntities())
+            {
+                ViewBag.CurrentAction = "Addresses";
+
+                var usuarioActual = db.Usuarios.FirstOrDefault(u => u.email == User.Identity.Name);
+                var direcciones = db.Direcciones.Where(d => d.id_usuario == usuarioActual.id_usuario).ToList();
+                
+                ViewBag.Direcciones = direcciones;
+
+                return View();
+            }
+        }
+
+        [HttpPost]
+        public JsonResult AddAddress(Direcciones direccion)
+        {
+            if (ModelState.IsValid)
+            {
+                using (var db = new TFCEntities())
+                {
+                    db.Direcciones.Add(direccion);
+                    db.SaveChanges();
+                }
+
+                return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+            }
+
+            return Json(new { success = false, errors = ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).First() }, JsonRequestBehavior.AllowGet);
         }
     }
 }

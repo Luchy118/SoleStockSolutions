@@ -32,8 +32,8 @@ namespace SoleStockSolutions.Models
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Detalles_Pedidos> Detalles_Pedidos { get; set; }
-        public virtual Direcciones Direcciones { get; set; }
         public virtual Estados Estados { get; set; }
         public virtual Usuarios Usuarios { get; set; }
+        public virtual Direcciones Direcciones { get; set; }
     }
 }
