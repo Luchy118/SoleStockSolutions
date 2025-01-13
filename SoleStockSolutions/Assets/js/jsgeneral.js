@@ -94,6 +94,7 @@
                         </button>
                     </div>`,
             showConfirmButton: false,
+            scrollbarPadding: false,
             didOpen: () => {
                 const copyButton = document.getElementById('copyButton');
                 const productLink = document.getElementById('productLink');
@@ -118,15 +119,16 @@
         });
     }
 
-    showConfirmDelete(title, msg, url, data, onSuccessScript = null) {
+    showConfirmDelete(title, msg, url, data, successTitle = null, successText = null, confirmButtonText = null,  onSuccessScript = null) {
         Swal.fire({
             title: title,
             text: msg,
             icon: "warning",
             showCancelButton: true,
+            scrollbarPadding: false,
             confirmButtonColor: "#3085d6",
             cancelButtonColor: "#d33",
-            confirmButtonText: "Eliminar",
+            confirmButtonText: confirmButtonText ?? "Eliminar",
             cancelButtonText: "Cancelar"
         }).then((result) => {
             if (result.isConfirmed) {
@@ -137,9 +139,10 @@
                     success: function (response) {
                         if (response.success) {
                             Swal.fire({
-                                title: "Eliminado",
-                                text: "El registro ha sido eliminado correctamente.",
-                                icon: "success"
+                                title: successTitle ?? "Eliminado",
+                                text: successText ?? "El registro ha sido eliminado correctamente.",
+                                icon: "success",
+                                scrollbarPadding: false,
                             }).then(() => {
                                 if (onSuccessScript)
                                     eval(onSuccessScript);
@@ -150,7 +153,8 @@
                             Swal.fire({
                                 title: "Error",
                                 text: "Hubo un problema al eliminar el registro.",
-                                icon: "error"
+                                icon: "error",
+                                scrollbarPadding: false,
                             });
                         }
                     },
@@ -158,7 +162,8 @@
                         Swal.fire({
                             title: "Error",
                             text: "Hubo un problema al eliminar el registro.",
-                            icon: "error"
+                            icon: "error",
+                            scrollbarPadding: false,
                         });
                     }
                 });
@@ -166,13 +171,14 @@
         });
     }
 
-    showHTMLPopup(title, html, showButtons = true) {
+    showHTMLPopup(title, html, showButtons = true, onSuccessScript = null ) {
         Swal.fire({
             title: title,
             html: html,
             showCloseButton: true,
             showCancelButton: showButtons,
             showConfirmButton: showButtons,
+            scrollbarPadding: false,
             focusConfirm: false,
             confirmButtonText: "Guardar",
             cancelButtonText: "Cancelar"

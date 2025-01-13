@@ -18,10 +18,11 @@
             var minPrice = null;
             var maxPrice = null;
             var sortOrder = null;
+            var searchQuery = $('#search-query').val();
 
             if (selectedModelId != null) {
-                toggleModelFilterButton();
-                toggleAllFilterButton();
+                toggleFilterButton('#filter-btn-modelo', selectedModelId != null && selectedModelId != '');
+                toggleFilterButton('#filter-btn-all', selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || (selectedModelId != null && selectedModelId != '') || searchQuery, true);
                 updateFilters();
             }
 
@@ -49,43 +50,16 @@
                 return $('#sortOptions').val();
             }
 
-            function toggleAllFilterButton() {
-                var searchQuery = $('#search-query').val();
-                if (selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || (selectedModelId != null && selectedModelId != '') || searchQuery) {
-                    $('#filter-btn-all').css('visibility', 'visible');
-                    $('.active-filters-container').show();
+            function toggleFilterButton(buttonId, condition, all = false) {
+                if (condition) {
+                    $(buttonId).css('visibility', 'visible');
+                    if (all)
+                        $('.active-filters-container').show();
                 } else {
-                    $('#filter-btn-all').css('visibility', 'hidden');
-                    $('.active-filters-container').hide();
+                    $(buttonId).css('visibility', 'hidden');
+                    if (all)
+                        $('.active-filters-container').hide();
                 }
-            }
-
-            function toggleBrandFilterButton() {
-                if (selectedBrands.length > 0)
-                    $('#filter-btn-marca').css('visibility', 'visible');
-                else
-                    $('#filter-btn-marca').css('visibility', 'hidden');
-            }
-
-            function toggleModelFilterButton() {
-                if (selectedModelId != null && selectedModelId != '')
-                    $('#filter-btn-modelo').css('visibility', 'visible');
-                else
-                    $('#filter-btn-modelo').css('visibility', 'hidden');
-            }
-
-            function toggleSizeFilterButton() {
-                if (selectedSizes.length > 0)
-                    $('#filter-btn-talla').css('visibility', 'visible');
-                else
-                    $('#filter-btn-talla').css('visibility', 'hidden');
-            }
-
-            function togglePriceFilterButton() {
-                if ((minPrice !== initialMinPrice && minPrice !== '') || (maxPrice !== initialMaxPrice && maxPrice !== ''))
-                    $('#filter-btn-precio').css('visibility', 'visible');
-                else
-                    $('#filter-btn-precio').css('visibility', 'hidden');
             }
 
             function searchProducts(query) {
@@ -126,24 +100,6 @@
             }
 
             function initializeSlider() {
-                //$('#slider-range').slider({
-                //    range: true,
-                //    min: initialMinPrice,
-                //    max: initialMaxPrice,
-                //    values: [initialMinPrice, initialMaxPrice],
-                //    slide: function (event, ui) {
-                //        $('#min-amount').val(ui.values[0]);
-                //        $('#max-amount').val(ui.values[1]);
-                //    },
-                //    stop: function (event, ui) {
-                //        $('#min-amount').val(ui.values[0]);
-                //        $('#max-amount').val(ui.values[1]);
-                //        minPrice = getMinPrice();
-                //        maxPrice = getMaxPrice();
-                //        updateFilters();
-                //    }
-                //});
-
                 $('#slider-range').slider({
                     range: true,
                     min: initialMinPrice,
@@ -173,11 +129,11 @@
                 sortOrder = getSortOrder();
                 var searchQuery = $('#search-query').val();
 
-                toggleAllFilterButton();
-                toggleBrandFilterButton();
-                toggleModelFilterButton();
-                toggleSizeFilterButton();
-                togglePriceFilterButton();
+                toggleFilterButton('#filter-btn-all', selectedBrands.length > 0 || selectedSizes.length > 0 || minPrice !== initialMinPrice || maxPrice !== initialMaxPrice || (selectedModelId != null && selectedModelId != '') || searchQuery, true);
+                toggleFilterButton('#filter-btn-marca', selectedBrands.length > 0);
+                toggleFilterButton('#filter-btn-modelo', selectedModelId != null && selectedModelId != '');
+                toggleFilterButton('#filter-btn-talla', selectedSizes.length > 0);
+                toggleFilterButton('#filter-btn-precio', (minPrice !== initialMinPrice && minPrice !== '') || (maxPrice !== initialMaxPrice && maxPrice !== ''));
 
                 $('#active-filters-list').empty();
 
@@ -218,62 +174,49 @@
                     $('#active-filters-list').append($filterItem);
                 }
 
-                $.ajax({
-                    url: '@Url.Action("FilterProducts").ToLower()',
-                    traditional: true,
-                    data: {
-                        minPrice: minPrice !== initialMinPrice ?? minPrice,
-                        maxPrice: maxPrice !== initialMaxPrice ?? maxPrice,
-                        selectedBrands: selectedBrands,
-                        selectedSizes: selectedSizes,
-                        modelId: selectedModelId,
-                        sortOrder: sortOrder,
-                        query: searchQuery
-                    },
-                    success: function(data) {
-                        $('#productList').html(data.productListHtml);
-                        $('#product-count').text('Mostrando ' + data.productCount + ' resultados');
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("GetBrandFilter").ToLower()',
-                    traditional: true,
-                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
-                    success: function(data) {
-                        $('#brandFilter').html(data);
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("GetModelFilter").ToLower()',
-                    traditional: true,
-                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
-                    success: function(data) {
-                        $('#modelFilter').html(data);
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("GetSizeFilter").ToLower()',
-                    traditional: true,
-                    data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId },
-                    success: function(data) {
-                        $('#sizeFilter').html(data);
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("GetPriceRange").ToLower()',
-                    traditional: true,
-                    data: {
-                        selectedBrands: selectedBrands,
-                        selectedSizes: selectedSizes,
-                        modelId: selectedModelId
-                    },
-                    success: function(data) {
-                        updateSliderRange(data.rangeMinPrice, data.rangeMaxPrice);
-                    }
+                $.when(
+                    $.ajax({
+                        url: '@Url.Action("FilterProducts").ToLower()',
+                        traditional: true,
+                        data: {
+                            selectedBrands: selectedBrands,
+                            selectedSizes: selectedSizes,
+                            modelId: selectedModelId,
+                            sortOrder: sortOrder,
+                            query: searchQuery
+                        }
+                    }),
+                    $.ajax({
+                        url: '@Url.Action("GetBrandFilter").ToLower()',
+                        traditional: true,
+                        data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId }
+                    }),
+                    $.ajax({
+                        url: '@Url.Action("GetModelFilter").ToLower()',
+                        traditional: true,
+                        data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId }
+                    }),
+                    $.ajax({
+                        url: '@Url.Action("GetSizeFilter").ToLower()',
+                        traditional: true,
+                        data: { selectedBrands: selectedBrands, selectedSizes: selectedSizes, modelId: selectedModelId }
+                    }),
+                    $.ajax({
+                        url: '@Url.Action("GetPriceRange").ToLower()',
+                        traditional: true,
+                        data: {
+                            selectedBrands: selectedBrands,
+                            selectedSizes: selectedSizes,
+                            modelId: selectedModelId
+                        }
+                    })
+                ).done(function(filterProductsData, brandFilterData, modelFilterData, sizeFilterData, priceRangeData) {
+                    $('#productList').html(filterProductsData[0].productListHtml);
+                    $('#product-count').text('Mostrando ' + filterProductsData[0].productCount + ' resultados');
+                    $('#brandFilter').html(brandFilterData[0]);
+                    $('#modelFilter').html(modelFilterData[0]);
+                    $('#sizeFilter').html(sizeFilterData[0]);
+                    updateSliderRange(priceRangeData[0].rangeMinPrice, priceRangeData[0].rangeMaxPrice);
                 });
             }
 

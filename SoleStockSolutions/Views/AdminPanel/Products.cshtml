@@ -1,6 +1,7 @@
 ﻿@model SoleStockSolutions.Models.Productos
 @{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var productId = Request.Form["productId"];
 }
 
 <div class="container-fluid">
@@ -220,7 +221,7 @@
                                 @Html.TextBoxFor(m => m.fecha_lanzamiento, new { @class = "form-control", id = "updateFechaLanzamiento", type = "date", @disabled = "disabled" })
                             </div>
                             <button type="button" class="btn btn-primary" onclick="submitUpdateForm()" disabled>Guardar</button>
-                            <button type="reset" class="btn btn-secondary" onclick="location.reload()" id="updateCancelar">Cancelar</button>
+                            <button type="reset" class="btn btn-secondary" onclick="@(productId != null ? "window.close();" : "location.reload();")" id="updateCancelar">Cancelar</button>
                         </form>
                     </div>
                     <div class="col-md-4">
@@ -246,6 +247,13 @@
                     "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
                 }
             });
+
+            var productId = '@productId';
+            if (productId) {
+                loadProductData(productId);
+                $("#read").removeClass("active");
+                $("#update").addClass("show active");
+            }
 
             $('#manualSku').on('blur', function () {
                 var sku = $(this).val();
@@ -518,9 +526,14 @@
 
             inputs.forEach(function (input) {
                 input.value = '';
-                if (input.hasAttribute('disabled')) {
+                if (input.hasAttribute('disabled'))
                     input.disabled = true;
-                }
+                input.classList.remove('is-invalid');
+            });
+
+            var errorMessages = form.querySelectorAll('.text-danger');
+            errorMessages.forEach(function (errorMessage) {
+                errorMessage.textContent = '';
             });
 
             var guardarButton = form.querySelector('button[type="button"]');

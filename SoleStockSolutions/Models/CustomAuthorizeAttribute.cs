@@ -50,7 +50,7 @@ namespace SoleStockSolutions.Models
             {
                 filterContext.Result = new RedirectToRouteResult(
                     new RouteValueDictionary(
-                        new { controller = "Home", action = "Unauthorized" }
+                        new { controller = "Error", action = "Unauthorized" }
                     )
                 );
             }

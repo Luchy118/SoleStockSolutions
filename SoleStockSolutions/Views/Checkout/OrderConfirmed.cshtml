@@ -1,0 +1,97 @@
+﻿@model SoleStockSolutions.Models.OrderDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "¡Pedido confirmado!";
+}
+
+<div class="orderconfirmed-box-main">
+    <div class="container">
+        <div class="order-confirmation">
+            <h1 class="text-center display-4">¡Pedido confirmado!</h1>
+            <p class="text-center"><img src="~/Assets/images/check.gif" style="height: 100px" alt="Pedido confirmado" /></p>
+            <p class="text-center">Gracias por confiar en nosotros. Tu pedido ha sido confirmado.</p>
+
+            <h2 class="mt-4">Resumen del pedido</h2>
+            <p><strong>ID del pedido:</strong> @Model.OrderId</p>
+            <p><strong>Fecha del pedido:</strong> @Model.OrderDate.ToString("dd/MM/yyyy")</p>
+            <p><strong>Total (Envío Incl.):</strong> @Model.Total.ToString("C", new System.Globalization.CultureInfo("es-ES"))</p>
+            <p><strong>Precio del envío:</strong> @Model.ShippingCost.ToString("C", new System.Globalization.CultureInfo("es-ES"))</p>
+
+            <h3 class="mt-4">Datos de contacto</h3>
+            <p><strong>Enviar a:</strong> @Model.FirstName @Model.LastName</p>
+            <p><strong>Correo electrónico:</strong> @Model.Email</p>
+
+            <h3 class="mt-4">Datos de pago</h3>
+            @if (Model.PaymentMethod == "Tarjeta")
+            {
+                <p><strong>Pagado con:</strong> @Model.PaymentMethod</p>
+                <div style="display: flex; align-items: center">
+                    <p><strong>* * * @Model.Last4</strong></p>
+                    @if (Model.CardType == "mastercard" || Model.CardType == "visa" || Model.CardType == "discover")
+                    {
+                        <img src="~/Assets/images/@(Model.CardType).png" alt="@Model.CardType" style="height: 35px; margin-left: 5px" />
+                    }
+                </div>
+            }
+            else
+            {
+                <p><strong>Método de pago:</strong> @Model.PaymentMethod</p>
+            }
+
+            <h3 class="mt-4">Dirección de facturación</h3>
+            @if (Model.BillingAddress != null)
+            {
+                <p>@Model.BillingAddress.AddressLine1</p>
+                <p>@Model.BillingAddress.AddressLine2</p>
+                <p>@Model.BillingAddress.City, @Model.BillingAddress.Province, @Model.BillingAddress.PostalCode</p>
+                <p>@Model.BillingAddress.Country</p>
+                <p>@Model.BillingAddress.PhoneNumber</p>
+            }
+
+            <h3 class="mt-4">Dirección de envío</h3>
+            @if (Model.ShippingAddress != null)
+            {
+                <p>@Model.ShippingAddress.AddressLine1</p>
+                <p>@Model.ShippingAddress.AddressLine2</p>
+                <p>@Model.ShippingAddress.City, @Model.ShippingAddress.Province, @Model.ShippingAddress.PostalCode</p>
+                <p>@Model.ShippingAddress.Country</p>
+                <p>@Model.ShippingAddress.PhoneNumber</p>
+            }
+
+            <h3 class="mt-4">Detalles del pedido</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Producto</th>
+                            <th>Talla</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@item.ProductLink" target="_blank">
+                                        <img src="@item.ProductImageUrl" alt="@item.ProductName" class="img-fluid" style="max-width: 100px;" />
+                                    </a>
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Size</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("es-ES"))</td>
+                                <td>@item.Subtotal.ToString("C", new System.Globalization.CultureInfo("es-ES"))</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <a href="@Url.Action("Orders", "Account")" class="btn hvr-hover mt-4" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">VER TUS PEDIDOS</a>
+        </div>
+    </div>
+</div>

@@ -17,9 +17,9 @@ namespace SoleStockSolutions.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Usuarios()
         {
-            this.Pedidos = new HashSet<Pedidos>();
             this.Wishlist = new HashSet<Wishlist>();
             this.Direcciones = new HashSet<Direcciones>();
+            this.Pedidos = new HashSet<Pedidos>();
         }
     
         public int id_usuario { get; set; }
@@ -30,13 +30,19 @@ namespace SoleStockSolutions.Models
         public bool verificado { get; set; }
         public bool administrador { get; set; }
         public bool super_administrador { get; set; }
-        public System.DateTime fecha_registro { get; set; }
+        public Nullable<System.DateTime> fecha_registro { get; set; }
+        public bool guest { get; set; }
+        public string VerificationToken { get; set; }
+        public bool baja { get; set; }
+        public Nullable<System.DateTime> fecha_baja { get; set; }
+        public string ResetPasswordToken { get; set; }
+        public Nullable<System.DateTime> TokenExpiration { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Pedidos> Pedidos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Wishlist> Wishlist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Direcciones> Direcciones { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Pedidos> Pedidos { get; set; }
     }
 }

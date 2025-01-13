@@ -1,0 +1,122 @@
+﻿@model List<SoleStockSolutions.Models.Pedidos>
+
+@{
+    ViewBag.Title = "Pedidos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- Start All Title Box -->
+<div class="all-title-box rm-select-styles">
+    <div class="aux-title-box">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <h2>TUS PEDIDOS</h2>
+                    <ul class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index", "Account")">CUENTA</a></li>
+                        <li class="breadcrumb-item active">PEDIDOS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Title Box -->
+<!-- Start My Account  -->
+<div class="my-account-box-main">
+    <div class="container">
+        <div class="my-account-page">
+            <div class="container-fluid">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h4 class="m-0 p-0 font-weight-bold text-primary" style="color: #b68a7b !important">Lista de Pedidos</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>ID del Pedido</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                                <th>Total</th>
+                                                <th>Artículos</th>
+                                                <th>Método de Pago</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th>ID del Pedido</th>
+                                                <th>Fecha</th>
+                                                <th>Estado</th>
+                                                <th>Total</th>
+                                                <th>Artículos</th>
+                                                <th>Método de Pago</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>
+                                            @foreach (var pedido in Model)
+                                            {
+                                                <tr>
+                                                    <td>@pedido.id_pedido</td>
+                                                    <td>@pedido.fecha_pedido.ToString("dd/MM/yyyy")</td>
+                                                    <td>@pedido.Estados.nombre_estado</td>
+                                                    <td>@pedido.total.ToString("C")</td>
+                                                    <td>@pedido.Detalles_Pedidos.Sum(d => d.cantidad)</td>
+                                                    <td>
+                                                        @if (pedido.metodo_pago == "Tarjeta")
+                                                        {
+                                                            @($"Tarjeta - {pedido.last4}")
+                                                            if (pedido.tipo_tarjeta == "mastercard" || pedido.tipo_tarjeta == "visa" || pedido.tipo_tarjeta == "discover")
+                                                            {
+                                                                <img src="~/Assets/images/@(pedido.tipo_tarjeta).png" alt="@pedido.tipo_tarjeta" style="height: 35px;" />
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            @pedido.metodo_pago
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <a class="btn btn-sm btn-primary" style="color: white !important" href="@Url.Action("OrderDetails", "Account", new { orderId = pedido.id_pedido })" target="_blank"><i class="fas fa-eye"></i></a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json",
+                    "emptyTable": "No has realizado ningún pedido."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 6] }
+                ],
+                "order": [[1, "desc"]]
+            });
+        });
+    </script>
+}

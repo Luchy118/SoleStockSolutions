@@ -19,6 +19,7 @@ namespace SoleStockSolutions.Models
         {
             this.Detalles_Pedidos = new HashSet<Detalles_Pedidos>();
             this.Pedidos = new HashSet<Pedidos>();
+            this.Actualizaciones_Pedidos = new HashSet<Actualizaciones_Pedidos>();
         }
     
         public int id_estado { get; set; }
@@ -30,5 +31,7 @@ namespace SoleStockSolutions.Models
         public virtual ICollection<Detalles_Pedidos> Detalles_Pedidos { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Pedidos> Pedidos { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Actualizaciones_Pedidos> Actualizaciones_Pedidos { get; set; }
     }
 }

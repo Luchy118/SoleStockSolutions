@@ -1,6 +1,6 @@
-﻿@using Newtonsoft.Json
-@{
+﻿@{
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var productId = Request.Form["productId"];
 }
 
 <div class="container-fluid">
@@ -167,7 +167,7 @@
                         </div>
                         <div>
                             <button class="btn btn-primary mt-3" onclick="showAddStockPopup();" style="align-self: flex-start;">Añadir Existencias</button>
-                            <button class="btn btn-secondary mt-3" onclick="location.reload();" style="align-self: flex-start;">Volver</button>
+                            <button class="btn btn-secondary mt-3" onclick="@(productId != null ? "window.close();" : "location.reload();")" style="align-self: flex-start;">Volver</button>
                         </div>
                     </div>
                     <div class="col-md-4 text-center">
@@ -193,6 +193,13 @@
                 ]
             });
 
+            var productId = '@productId';
+            if (productId) {
+                loadInventoryItemDetails(productId);
+                $("#read").removeClass("active");
+                $("#details").addClass("show active");
+            }
+
             $('#productId').on('input', function () {
                 setTimeout(function () {
                     var query = $('#productId').val();
@@ -206,7 +213,7 @@
                                 dropdown.empty();
                                 data.forEach(function (item) {
                                     dropdown.append(`
-                                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);" onclick="selectProduct('${item.id_producto}', '${item.imagen}', '${item.nombre}')">
+                                        <a class="dropdown-item d-flex align-items-center" href="javascript:void(0);" onclick="selectProduct('${item.id_producto}', '${item.imagen}', '${item.nombre.replace(/'/g, "\\'")}')">
                                             <img src="${item.imagen}" alt="Imagen Producto" width="50" class="mr-2">
                                             <span>${item.nombre}</span>
                                         </a>

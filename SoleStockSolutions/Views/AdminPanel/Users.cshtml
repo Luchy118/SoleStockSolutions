@@ -1,0 +1,450 @@
+﻿@model List<SoleStockSolutions.Models.Usuarios>
+
+@{
+    ViewBag.Title = "Users";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    bool isSuperAdmin = ViewBag.IsSuperAdmin;
+}
+
+@section Styles {
+    <style>
+        .custom-checkbox {
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 10px;
+        }
+
+            .custom-checkbox .form-control {
+                width: 20px;
+                height: 20px;
+            }
+    </style>
+}
+
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Usuarios</h1>
+    <ul class="nav nav-tabs" id="mainTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-users-tab" data-toggle="tab" href="#read-users" role="tab" aria-controls="read-users" aria-selected="true">Consultar</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="mainTabContent">
+        <div class="tab-pane fade show active" id="read-users" role="tabpanel" aria-labelledby="read-users-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Usuarios</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTableUsers" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID Usuario</th>
+                                    <th>Nombre completo</th>
+                                    <th>Email</th>
+                                    <th>Invitado</th>
+                                    <th>Verificado</th>
+                                    <th>Administrador</th>
+                                    <th>Baja</th>
+                                    <th>Fecha Alta</th>
+                                    <th>Fecha Baja</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>ID Usuario</th>
+                                    <th>Nombre completo</th>
+                                    <th>Email</th>
+                                    <th>Invitado</th>
+                                    <th>Verificado</th>
+                                    <th>Administrador</th>
+                                    <th>Baja</th>
+                                    <th>Fecha Alta</th>
+                                    <th>Fecha Baja</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var usuario in Model)
+                                {
+                                    <tr>
+                                        <td>@usuario.id_usuario</td>
+                                        <td>@usuario.nombre @usuario.apellidos</td>
+                                        <td>@usuario.email</td>
+                                        <td>@(usuario.guest ? "Sí" : "No")</td>
+                                        <td>@(usuario.verificado ? "Sí" : "No")</td>
+                                        <td>@(usuario.administrador ? "Sí" : "No")</td>
+                                        <td>@(usuario.baja ? "Sí" : "No")</td>
+                                        <td>@(usuario.fecha_registro.HasValue ? usuario.fecha_registro.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                        <td>@(usuario.fecha_baja.HasValue ? usuario.fecha_baja.Value.ToString("dd/MM/yyyy") : "N/A")</td>
+                                        <td>
+                                            @if (usuario.baja && !usuario.administrador)
+                                            {
+                                                <a class="btn btn-sm btn-success" onclick='var data = { id: @usuario.id_usuario }; popups.showConfirmDelete("Confirmar Habilitación", "¿Está seguro de que desea habilitar este usuario?", "/adminpanel/enableuser", data, "Habilitación confirmada", "El usuario se ha habilitado correctamente.", "Habilitar" )'><i class="fa fa-user-plus" aria-hidden="true"></i></a>
+                                            }
+                                            else if (usuario.administrador && !isSuperAdmin)
+                                            {
+                                                <span>---</span>
+                                            }
+                                            else
+                                            {
+                                                <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='editUser(@usuario.id_usuario)'><i class="fas fa-edit"></i></a>
+                                                <a class="btn btn-sm btn-danger" onclick='var data = { id: @usuario.id_usuario }; popups.showConfirmDelete("Confirmar Baja", "¿Está seguro de que desea dar de baja este usuario?", "/adminpanel/deleteuser", data, "Baja confirmada", "El usuario se ha dado de baja correctamente." )'><i class="fas fa-trash"></i></a>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update-users" role="tabpanel">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="pb-3">
+                            <h5 class="m-0 font-weight-bold text-primary">Datos del usuario</h5>
+                        </div>
+                        <form id="updateUserForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="updateUserId">ID Usuario</label>
+                                <input type="text" class="form-control" id="updateUserId" name="id_usuario" readonly disabled />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUserName">Nombre</label>
+                                <input type="text" class="form-control" id="updateUserName" name="nombre" required />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUserLastName">Apellidos</label>
+                                <input type="text" class="form-control" id="updateUserLastName" name="apellidos" required />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUserEmail">Email</label>
+                                <input type="email" class="form-control" id="updateUserEmail" name="email" required disabled />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateUserAdmin">Administrador</label>
+                                <div class="custom-checkbox">
+                                    <input type="checkbox" class="form-control" id="updateUserAdmin" name="administrador" />
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Modificar Usuario</button>
+                            <button type="button" id="cancelUpdateUser" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mt-5">
+                        <div class="table-responsive">
+                            <div class="pb-3">
+                                <h5 class="m-0 font-weight-bold text-primary">Pedidos del usuario</h5>
+                            </div>
+                            <table class="table table-bordered" id="dataTableOrders" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>ID del Pedido</th>
+                                        <th>Cantidad Artículos</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>ID del Pedido</th>
+                                        <th>Cantidad Artículos</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mt-5">
+                        <div class="pb-3">
+                            <h5 class="m-0 font-weight-bold text-primary">Direcciones del usuario</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTableAddresses" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                        <th>Dirección 2</th>
+                                        <th>Código Postal</th>
+                                        <th>Ciudad</th>
+                                        <th>País</th>
+                                        <th>Teléfono</th>
+                                        <th>Predeterminada</th>
+                                        <th>Tipo de Dirección</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                        <th>Dirección 2</th>
+                                        <th>Código Postal</th>
+                                        <th>Ciudad</th>
+                                        <th>País</th>
+                                        <th>Teléfono</th>
+                                        <th>Predeterminada</th>
+                                        <th>Tipo de Dirección</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 mt-5">
+                        <div class="pb-3">
+                            <h5 class="m-0 font-weight-bold text-primary">Lista de deseos del usuario</h5>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="dataTableWishlist" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Imagen</th>
+                                        <th style="width: 1000px">Nombre del Producto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tfoot>
+                                    <tr>
+                                        <th class="fixed-width">Imagen</th>
+                                        <th>Nombre del Producto</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </tfoot>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts {
+    <script>
+        let initialFormData = {};
+
+        $(document).ready(function () {
+            $('#dataTableUsers').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 8 }
+                ],
+                "order": [[0, "asc"]]
+            });
+
+            $('#dataTableOrders').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "order": [[2, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 5 }
+                ]
+            });
+
+            $('#dataTableAddresses').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "order": [[7, "desc"]],
+                "columnDefs": [
+                    { "orderable": false, "targets": 8 }
+                ]
+            });
+
+            $('#dataTableWishlist').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 0 },
+                    { "orderable": false, "targets": 2 }
+                ],
+                "order": [[1, "asc"]]
+            });
+
+            $('#updateUserForm input, #updateUserForm checkbox').on('input change', function () {
+                const currentFormData = {
+                    nombre: $('#updateUserName').val(),
+                    apellidos: $('#updateUserLastName').val(),
+                    administrador: $('#updateUserAdmin').is(':checked')
+                };
+
+                const isFormChanged = JSON.stringify(initialFormData) !== JSON.stringify(currentFormData);
+                $('#updateUserForm button[type="submit"]').prop('disabled', !isFormChanged);
+            });
+
+            $('#updateUserForm').on('submit', function (e) {
+                e.preventDefault();
+
+                const formData = {
+                    id_usuario: $('#updateUserId').val(),
+                    nombre: $('#updateUserName').val(),
+                    apellidos: $('#updateUserLastName').val(),
+                    administrador: $('#updateUserAdmin').is(':checked')
+                };
+
+                $.ajax({
+                    url: '@Url.Action("UpdateUser", "AdminPanel").ToLower()',
+                    type: 'POST',
+                    data: JSON.stringify(formData),
+                    contentType: 'application/json; charset=utf-8',
+                    success: function (response) {
+                        if (response.success) {
+                            popups.showSuccessTimer("Usuario modificado correctamente.", "Redirigiendo a la lista de usuarios...");
+                            setTimeout(function () {
+                                window.location.href = '@Url.Action("Users", "AdminPanel").ToLower()';
+                            }, 2000);
+                        } else {
+                            popups.showErrorTimer("Error al modificar el usuario.");
+                        }
+                    },
+                    error: function () {
+                        popups.showErrorTimer('Error al modificar el usuario.');
+                    }
+                });
+            });
+        });
+
+        function editUser(id) {
+            $.ajax({
+                url: '/adminpanel/getuser',
+                type: 'POST',
+                data: { id: id },
+                success: async function (response) {
+                    if (response.success === true) {
+                        $('#updateUserId').val(response.data.id_usuario);
+                        $('#updateUserName').val(response.data.nombre);
+                        $('#updateUserLastName').val(response.data.apellidos);
+                        $('#updateUserEmail').val(response.data.email);
+                        $('#updateUserAdmin').prop('checked', response.data.administrador);
+
+                        initialFormData = {
+                            nombre: response.data.nombre,
+                            apellidos: response.data.apellidos,
+                            administrador: response.data.administrador
+                        };
+
+                        const ordersTable = $('#dataTableOrders').DataTable();
+                        ordersTable.clear();
+                        response.data.pedidos.forEach(pedido => {
+                            const fechaPedido = new Date(parseInt(pedido.fecha_pedido.replace(/\/Date\((\d+)\)\//, '$1')));
+                            const formattedDate = ('0' + fechaPedido.getDate()).slice(-2) + '/' + ('0' + (fechaPedido.getMonth() + 1)).slice(-2) + '/' + fechaPedido.getFullYear();
+                            ordersTable.row.add([
+                                pedido.id_pedido,
+                                pedido.cantidad_articulos,
+                                formattedDate,
+                                pedido.total.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' }),
+                                pedido.nombre_estado,
+                                `<a class="btn btn-sm btn-info" onclick='viewOrder("${pedido.id_pedido}")'><i class="fa fa-eye" aria-hidden="true"></i></a>`
+                            ]).draw();
+                        });
+
+                        const addressesTable = $('#dataTableAddresses').DataTable();
+                        addressesTable.clear();
+                        response.data.direcciones.forEach(direccion => {
+                            addressesTable.row.add([
+                                direccion.nombre,
+                                direccion.direccion,
+                                direccion.direccion2,
+                                direccion.codigo_postal,
+                                direccion.ciudad,
+                                direccion.pais,
+                                direccion.telefono,
+                                direccion.predeterminada,
+                                direccion.tipo_direccion
+                            ]).draw();
+                        });
+
+                        const wishlistTable = $('#dataTableWishlist').DataTable();
+                        wishlistTable.clear();
+                        response.data.wishlist.forEach(item => {
+                            wishlistTable.row.add([
+                                `<img src="${item.imagen}" alt="${item.nombre}" style="width: 120px;" />`,
+                                item.nombre,
+                                `<a class="btn btn-sm btn-info" onclick='viewWishlistItem("${item.id_producto}")'><i class="fa fa-eye" aria-hidden="true"></i></a>`
+                            ]).draw();
+                        });
+
+                        $('#updateUserForm button[type="submit"]').prop('disabled', true);
+                        $('#read-users').removeClass('show active');
+                        $('#update-users').addClass('show active');
+                    } else {
+                        popups.showErrorTimer(response.message);
+                    }
+                }
+            });
+        }
+
+        function viewOrder(id) {
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/adminpanel/orders";
+            form.target = "_blank";
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "orderId";
+            input.value = id;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function viewWishlistItem(id) {
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/adminpanel/products";
+            form.target = "_blank";
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "productId";
+            input.value = id;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        function clearCreateForm() {
+            $('#createUserForm')[0].reset();
+        }
+
+        function cancelCreateForm() {
+            $('#createUserForm')[0].reset();
+            $('#create-users').removeClass('show active');
+            $('#read-users').addClass('show active');
+        }
+    </script>
+}

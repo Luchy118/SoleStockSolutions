@@ -192,7 +192,7 @@
                 <!-- Start Atribute Navigation -->
                 <div class="attr-nav">
                     <ul>
-                        <li class="search"><a href="#"><i class="fa fa-search"></i></a></li>
+                        @*<li class="search"><a href="#"><i class="fa fa-search"></i></a></li>*@
                         @{
                             List<string> accountPages = new List<string> { "LogIn", "SignUp", "AccountIndex" };
                             var redirectUrlAccount = User.Identity.IsAuthenticated ? Url.Action("Index", "Account") : @Url.Action("Login", "Account");
@@ -228,15 +228,15 @@
     </header>
     <!-- End Main Top -->
     <!-- Start Top Search -->
-    <div class="top-search">
-        <div class="container">
-            <div class="input-group">
-                <span class="input-group-addon"><i class="fa fa-search"></i></span>
-                <input type="text" class="form-control" placeholder="Search">
-                <span class="input-group-addon close-search"><i class="fa fa-times"></i></span>
+    @*<div class="top-search">
+            <div class="container">
+                <div class="input-group">
+                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    <input type="text" class="form-control" placeholder="Search">
+                    <span class="input-group-addon close-search"><i class="fa fa-times"></i></span>
+                </div>
             </div>
-        </div>
-    </div>
+        </div>*@
     <!-- End Top Search -->
 
     @RenderBody()
@@ -260,9 +260,8 @@
                             <ul>
                                 <li><a href="@Url.Action("About", "Information")">Sobre nosotros</a></li>
                                 <li><a href="@Url.Action("Contact", "Information")">Atención al cliente</a></li>
-                                <li><a href="#">Términos y condiciones</a></li>
-                                <li><a href="#">Política de privacidad</a></li>
-                                <li><a href="#">Información de envíos</a></li>
+                                <li><a href="@Url.Action("TermsAndConditions", "Information")">Términos y condiciones</a></li>
+                                <li><a href="@Url.Action("PrivacyPolicy", "Information")">Política de privacidad</a></li>
                             </ul>
                         </div>
                     </div>
@@ -287,7 +286,7 @@
     <!-- Start copyright  -->
     <div class="footer-copyright">
         <p class="footer-company">
-            &copy; 2024 <a href="#">Sole Stock Solutions</a>
+            &copy; 2024 <a href="@Url.Action("Index", "Home")">Sole Stock Solutions</a>
         </p>
     </div>
     <!-- End copyright  -->
@@ -329,6 +328,33 @@
                 data: { modeloId: modeloId },
                 success: function (response) {
                     window.location.href = "/products/index";
+                }
+            });
+        }
+
+        function addToWishlist(productId, callerElement) {
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("AddToWishlist", "Account").ToLower()',
+                data: { productId: productId },
+                success: function (response) {
+                    if (response.success === true) {
+                        popups.showSuccessTimer("Lista de Deseos", "El producto se ha añadido correctamente a la lista de deseos.");
+
+                        var heartIcon = '<i class="fas fa-heart heart-icon"></i>';
+                        var boxImgHover = $(callerElement).closest('.box-img-hover');
+                        boxImgHover.append(heartIcon);
+
+                        $(callerElement).closest('li').remove();
+                    } else if (response.message === "La secuencia no contiene elementos" || response.message === "Sequence contains no elements") {
+                        var returnUrl = window.location.href;
+                        window.location.href = '@Url.Action("Login", "Account").ToLower()' + '?returnUrl=' + encodeURIComponent(returnUrl);
+                    } else if (response.success === false) {
+                        popups.showErrorTimer(response.message || "No se pudo añadir el producto a la lista de deseos.");
+                    }
+                },
+                error: function () {
+                    popups.showErrorTimer("Ocurrió un error al intentar añadir el producto a la lista de deseos.");
                 }
             });
         }

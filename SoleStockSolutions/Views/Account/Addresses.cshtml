@@ -46,26 +46,28 @@
                                         <thead>
                                             <tr>
                                                 <th>Nombre</th>
-                                                <th>Dirección</th>
+                                                <th>Dirección 1</th>
                                                 <th>Dirección 2</th>
                                                 <th>CP</th>
                                                 <th>Ciudad</th>
                                                 <th>País</th>
                                                 <th>Teléfono</th>
                                                 <th>Predeterminada</th>
+                                                <th>Tipo de dirección</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </thead>
                                         <tfoot>
                                             <tr>
                                                 <th>Nombre</th>
-                                                <th>Dirección</th>
+                                                <th>Dirección 1</th>
                                                 <th>Dirección 2</th>
                                                 <th>CP</th>
                                                 <th>Ciudad</th>
                                                 <th>País</th>
                                                 <th>Teléfono</th>
                                                 <th>Predeterminada</th>
+                                                <th>Tipo de dirección</th>
                                                 <th>Acciones</th>
                                             </tr>
                                         </tfoot>
@@ -80,10 +82,11 @@
                                                     <td>@direccion.ciudad</td>
                                                     <td>@direccion.pais</td>
                                                     <td>@direccion.telefono</td>
-                                                    <td>@direccion.predeterminada</td>
+                                                    <td>@(direccion.predeterminada ? "Sí" : "No")</td>
+                                                    <td>@(direccion.tipo_direccion == 0 ? "Envío" : "Facturación")</td>
                                                     <td>
-                                                        <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadDireccionData(@direccion.id_direccion, true); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
-                                                        <a class="btn btn-sm btn-danger" onclick='var data = { id: @direccion.id_direccion }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta dirección?", "/account/deletedireccion", data )'><i class="fas fa-trash"></i></a>
+                                                        <a class="btn btn-sm btn-primary" style="color: white !important" data-toggle="tab" onclick='loadAddressData(@direccion.id_direccion, true); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-edit"></i></a>
+                                                        <a class="btn btn-sm btn-danger" style="color: white !important" onclick='var data = { id: @direccion.id_direccion }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta dirección?", "/account/deleteaddress", data )'><i class="fas fa-trash"></i></a>
                                                     </td>
                                                 </tr>
                                             }
@@ -100,7 +103,7 @@
                                 <div class="form-group">
                                     <label for="createNombre">Nombre</label>
                                     @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", @id = "createNombre", @maxlength = "50", @required = "required" })
-                                    <span class="text-danger"></span>
+                                    <span class="text-danger" id="createNombreError"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="createDireccion">Dirección</label>
@@ -139,7 +142,7 @@
                                 <div class="form-group">
                                     <label for="createTipoDireccion">Tipo Dirección</label>
                                     @Html.DropDownListFor(m => m.tipo_direccion, new List<SelectListItem>
-                                                        {
+                                    {
                                         new SelectListItem { Text = "Envío", Value = "0" },
                                         new SelectListItem { Text = "Facturación", Value = "1" }
                                     }, new { @class = "form-control", @id = "createTipoDireccion", @required = "required" })
@@ -156,43 +159,62 @@
                     </div>
                     <div class="tab-pane fade card shadow" id="update" role="tabpanel">
                         <div class="card-body">
-                            <form id="updateDireccionForm" enctype="multipart/form-data">
+                            @using (Html.BeginForm("", "", FormMethod.Post, new { id = "updateDireccionForm" }))
+                            {
                                 <div class="form-group">
                                     <label for="updateNombre">Nombre</label>
-                                    <input type="text" class="form-control" id="updateNombre" name="nombre" required disabled />
-                                    <span class="text-danger"></span>
+                                    @Html.TextBoxFor(m => m.nombre, new { @class = "form-control", @id = "updateNombre", @maxlength = "50", @required = "required" })
+                                    <span class="text-danger" id="updateNombreError"></span>
                                 </div>
                                 <div class="form-group">
                                     <label for="updateDireccion">Dirección</label>
-                                    <input type="text" class="form-control" id="updateDireccion" name="direccion" required disabled />
+                                    @Html.TextBoxFor(m => m.direccion, new { @class = "form-control", @id = "updateDireccion", @maxlength = "200", @required = "required" })
                                 </div>
                                 <div class="form-group">
-                                    <label for="updateDireccion2">Dirección2 (Apt/Edificio/Letra)</label>
-                                    <input type="text" class="form-control" id="updateDireccion2" name="direccion2" disabled />
-                                </div>
-                                <div class="form-group">
-                                    <label for="updateCP">CP</label>
-                                    <input type="text" class="form-control" id="updateCP" name="codigo_postal" required disabled />
-                                </div>
-                                <div class="form-group">
-                                    <label for="updateCiudad">Ciudad</label>
-                                    <input type="text" class="form-control" id="updateCiudad" name="ciudad" required disabled />
+                                    <label for="updateDireccion2">Dirección 2</label>
+                                    @Html.TextBoxFor(m => m.direccion2, new { @class = "form-control", @id = "updateDireccion2", @placeholder = "Apartamento, Edificio, Letra...", @maxlength = "200" })
                                 </div>
                                 <div class="form-group">
                                     <label for="updatePais">País</label>
-                                    <input type="text" class="form-control" id="updatePais" name="pais" required disabled />
+                                    <select class="crs-country form-control" id="updatePais" name="pais" data-region-id="updateProvincia" data-value="shortcode" data-whitelist="AL,AD,AM,AT,AZ,BY,BE,BA,BG,HR,CY,CZ,DK,EE,FI,FR,GE,DE,GR,HU,IS,IE,IT,KZ,XK,LV,LI,LT,LU,MT,MD,MC,ME,NL,NO,PL,PT,RO,RU,SM,RS,SK,SI,ES,SE,CH,TR,UA,GB" required>
+                                        <option value="">Selecciona un país</option>
+                                    </select>
                                 </div>
                                 <div class="form-group">
+                                    <label for="updateProvincia">Provincia</label>
+                                    <select class="form-control" id="updateProvincia" name="provincia" required>
+                                        <option value="">-</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCiudad">Ciudad</label>
+                                    @Html.TextBoxFor(m => m.ciudad, new { @class = "form-control", @id = "updateCiudad", @maxlength = "100", @required = "required" })
+                                </div>
+                                <div class="form-group">
+                                    <label for="updateCP">CP</label>
+                                    @Html.TextBoxFor(m => m.codigo_postal, new { @class = "form-control", @id = "updateCP", @maxlength = "20", @required = "required" })
+                                    <span class="text-danger"></span>
+                                </div>
+                                <div class="form-group" style="display: flex; flex-direction: column;">
                                     <label for="updateTelefono">Teléfono</label>
-                                    <input type="text" class="form-control" id="updateTelefono" name="telefono" required disabled />
+                                    @Html.TextBoxFor(m => m.telefono, new { @class = "form-control", @id = "updateTelefono", @maxlength = "15" })
+                                    <span class="text-danger"></span>
                                 </div>
                                 <div class="form-group">
-                                    <label for="updatePredeterminada">Predeterminada</label>
-                                    <input type="checkbox" class="form-control" id="updatePredeterminada" name="predeterminada" disabled />
+                                    <label for="updateTipoDireccion">Tipo Dirección</label>
+                                    @Html.DropDownListFor(m => m.tipo_direccion, new List<SelectListItem>
+                                    {
+                                        new SelectListItem { Text = "Envío", Value = "0" },
+                                        new SelectListItem { Text = "Facturación", Value = "1" }
+                                    }, new { @class = "form-control", @id = "updateTipoDireccion", @required = "required" })
                                 </div>
-                                <button type="submit" class="btn btn-primary" disabled>Modificar Dirección</button>
-                                <button type="button" id="cancelUpdateDireccion" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
-                            </form>
+                                <div class="form-group d-flex align-items-center">
+                                    <label for="updatePredeterminada" class="mb-0 mr-2">Predeterminada</label>
+                                    <input type="checkbox" id="updatePredeterminada" style="width: unset" name="predeterminada" value="true" />
+                                </div>
+                                <button type="submit" class="btn btn-primary" id="updateButton" disabled>Modificar Dirección</button>
+                                <button type="button" class="btn btn-secondary" id="cancelUpdateButton">Cancelar</button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -204,6 +226,9 @@
 
 @section Scripts {
     <script>
+        var initialFormData;
+        var initialNombre;
+
         $(document).ready(function () {
             $('#dataTable').DataTable({
                 "language": {
@@ -211,7 +236,7 @@
                     "emptyTable": "No tienes ninguna dirección registrada"
                 },
                 "columnDefs": [
-                    { "orderable": false, "targets": [6, 8] }
+                    { "orderable": false, "targets": [6, 9] }
                 ],
                 "order": [[7, "desc"]]
             });
@@ -318,34 +343,183 @@
                 }
             });
 
+            $('#updateDireccionForm').on('submit', function (e) {
+                e.preventDefault();
+
+                if (validateForm(true) && !hasErrors(true)) {
+                    $.ajax({
+                        url: '@Url.Action("UpdateAddress", "Account").ToLower()',
+                        type: $(this).attr("method"),
+                        data: $(this).serialize(),
+                        success: function (response) {
+                            if (response.success) {
+                                popups.showSuccessTimer("Dirección modificada correctamente.", "Redirigiendo a tu lista de direcciones...");
+                                setTimeout(function () {
+                                    window.location.href = '@Url.Action("Addresses", "Account").ToLower()';
+                                }, 2000);
+                            } else {
+                                popups.showErrorTimer("Error al modificar la dirección.");
+                            }
+                        },
+                        error: function () {
+                            alert("Ocurrió un error al enviar el formulario.");
+                        }
+                    });
+                }
+            });
+
+            $('#updateProvincia, #updateCiudad, #updateCP').prop('disabled', true);
+
+            $('#updatePais').on('change', function () {
+                var isCountrySelected = $(this).val() !== '';
+                $('#updateProvincia, #updateCiudad, #updateCP').prop('disabled', !isCountrySelected);
+            });
+
+            $('#updateDireccionForm input, #updateDireccionForm select').on('input change', function () {
+                $('button[type="submit"]').prop('disabled', !validateForm());
+                $('#clearUpdateFieldsButton').prop('disabled', !checkFields());
+            });
+
+            $('#cancelUpdateButton').on('click', function () {
+                $('#updateDireccionForm')[0].reset();
+                $('button[type="submit"]').prop('disabled', true);
+                $('#update').removeClass('show active');
+                $('#read').addClass('show active');
+                $('#updateProvincia, #updateCiudad, #updateCP').prop('disabled', true);
+                $('#updateNombre').removeClass('is-invalid');
+                $('#updateNombreError').text('');
+            });
+
+            $('#updateCiudad').on('input', function () {
+                this.value = this.value.replace(/\d/g, '');
+            });
+
+            $('#updateCP').on('input', function () {
+                validateCP_Update();
+            });
+
+            $('#updatePais, #updateProvincia').on('change', function () {
+                validateCP_Update();
+            });
+
+            var updateInput = document.querySelector("#updateTelefono");
+            var updateIti = window.intlTelInput(updateInput, {
+                initialCountry: "auto",
+                onlyCountries: ["al", "ad", "am", "at", "az", "by", "be", "ba", "bg", "hr", "cy", "cz", "dk", "ee", "fi", "fr", "ge", "de", "gr", "hu", "is", "ie", "it", "kz", "xk", "lv", "li", "lt", "lu", "mt", "md", "mc", "me", "nl", "no", "pl", "pt", "ro", "ru", "sm", "rs", "sk", "si", "es", "se", "ch", "tr", "ua", "gb"],
+                geoIpLookup: function (callback) {
+                    $.get('https://ipinfo.io', function () { }, "jsonp").always(function (resp) {
+                        var countryCode = (resp && resp.country) ? resp.country : "es";
+                        callback(countryCode);
+                    });
+                },
+                utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+            });
+
+            updateInput.addEventListener('blur', function () {
+                if (updateInput.value.trim()) {
+                    var errorSpan = updateInput.parentNode.nextSibling.nextSibling;
+                    if (updateIti.isValidNumber()) {
+                        updateInput.classList.remove("is-invalid");
+                        errorSpan.textContent = "";
+                    } else {
+                        updateInput.classList.add("is-invalid");
+                        errorSpan.textContent = "El número de teléfono introducido es inválido.";
+                    }
+                }
+            });
+
+            updateInput.addEventListener('input', function () {
+                this.value = this.value.replace(/[^\d+]/g, '');
+                if ($(this).hasClass(".is-invalid")) {
+                    $(this).removeClass(".is-invalid");
+                    $(this).parentNode.nextSibling.nextSibling.textContent = "";
+                }
+            });
+
+            $('#updateDireccionForm input, #updateDireccionForm select').on('change keyup', function () {
+                checkFormChanges();
+            });
+
+            $('#createNombre').on('change', function() {
+                var nombre = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("CheckAddressName", "Account").ToLower()',
+                    type: 'GET',
+                    data: { nombre: nombre },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#createNombre').addClass('is-invalid');
+                            $('#createNombreError').text('Ya hay una dirección existente con este nombre.');
+                        } else {
+                            $('#createNombre').removeClass('is-invalid');
+                            $('#createNombreError').text('');
+                        }
+                    }
+                });
+            });
+
+            $('#updateNombre').on('change', function() {
+                var nombre = $(this).val();
+                if (nombre !== initialNombre) {
+                    $.ajax({
+                        url: '@Url.Action("CheckAddressName", "Account").ToLower()',
+                        type: 'GET',
+                        data: { nombre: nombre },
+                        success: function(response) {
+                            if (response.exists) {
+                                $('#updateNombre').addClass('is-invalid');
+                                $('#updateNombreError').text('Ya hay una dirección existente con este nombre.');
+                            } else {
+                                $('#updateNombre').removeClass('is-invalid');
+                                $('#updateNombreError').text('');
+                            }
+                        }
+                    });
+                } else {
+                    $('#updateNombre').removeClass('is-invalid');
+                    $('#updateNombreError').text('');
+                }
+            });
+
             window.crs.init();
         });
 
-        function validateForm() {
+        function validateForm(updateForm = false) {
             let isValid = true;
-            $('#createDireccionForm [required]').each(function () {
+            var selector = '#createDireccionForm [required]';
+
+            if (updateForm)
+                selector = '#updateDireccionForm [required]';
+
+            $(selector).each(function () {
                 if ($(this).val() === '')
                     isValid = false;
             });
+
             return isValid;
         }
 
-        function hasErrors() {
+        function hasErrors(updateForm = false) {
             let hasErrors = false;
+            var selector = '#createNombre, #createCP, #createTelefono';
 
-            if ($('#createCP, #createTelefono').hasClass('is-invalid'))
+            if (updateForm)
+                selector = '#updateNombre, #updateCP, #updateTelefono';
+
+            if ($(selector).hasClass('is-invalid'))
                 hasErrors = true;
 
             return hasErrors;
         }
 
-
-        function checkFields() {
+        function checkFields(updateForm = false) {
             let hasContent = false;
+
             $('#createDireccionForm input, #createDireccionForm select').each(function () {
-                if (($(this).val() !== '' && $(this).val() !== '0' && $(this).attr("id") != "createTipoDireccion") || $(this).is(":checked") || ($(this).attr("id") == "createTipoDireccion" && $(this).val() !== '0'))
+                if (($(this).val() !== '' && $(this).val() !== '0' && $(this).attr("id") != "createTipoDireccion" && $(this).attr("id") != "createPredeterminada") || $(this).is(":checked") || ($(this).attr("id") == "createTipoDireccion" && $(this).val() !== '0'))
                     hasContent = true;
             });
+
             return hasContent;
         }
 
@@ -366,6 +540,75 @@
                 $('#createCP').removeClass('is-invalid');
                 $('#createCP').siblings('.text-danger').text('');
             }
+        }
+
+        function validateCP_Update() {
+            var cp = $('#updateCP').val();
+            var pais = $('#updatePais').val();
+            var isValid = true;
+
+            if (pais && cp) {
+                var countryCode = $('#updatePais option:selected').attr('value');
+                isValid = i18nZipcodes(countryCode, cp);
+            }
+
+            if (!isValid) {
+                $('#updateCP').addClass('is-invalid');
+                $('#updateCP').siblings('.text-danger').text('El código postal introducido es inválido.');
+            } else {
+                $('#updateCP').removeClass('is-invalid');
+                $('#updateCP').siblings('.text-danger').text('');
+            }
+        }
+
+        function loadAddressData(id_direccion, isEdit) {
+            $.ajax({
+                url: '@Url.Action("GetAddressById", "Account").ToLower()',
+                type: 'POST',
+                data: { id: id_direccion },
+                success: function (response) {
+                    if (response.success === true) {
+                        var direccion = response.data;
+
+                        $('#updateNombre').val(direccion.nombre);
+                        $('#updateDireccion').val(direccion.direccion);
+                        $('#updateDireccion2').val(direccion.direccion2);
+                        $('#updatePais').val(direccion.pais).trigger('change');
+                        $('#updateProvincia').val(direccion.provincia);
+                        $('#updateCiudad').val(direccion.ciudad);
+                        $('#updateCP').val(direccion.codigo_postal);
+                        $('#updateTelefono').val(direccion.telefono);
+                        $('#updateTipoDireccion').val(direccion.tipo_direccion);
+                        $('#updatePredeterminada').prop('checked', direccion.predeterminada);
+
+                        if (isEdit) {
+                            $('#update').addClass('show active');
+                            $('#read').removeClass('active');
+                        }
+
+                        resetForm();
+                    } else {
+                        popups.showErrorTimer("Ocurrió un error al cargar los datos de la dirección.");
+                    }
+                },
+                error: function () {
+                    popups.showErrorTimer("Ocurrió un error al cargar los datos de la dirección.");
+                }
+            });
+        }
+
+        function checkFormChanges() {
+            var currentFormData = $('#updateDireccionForm').serialize();
+            if (initialFormData !== currentFormData)
+                $('#updateButton').prop('disabled', false);
+            else
+                $('#updateButton').prop('disabled', true);
+        }
+
+        function resetForm() {
+            initialFormData = $('#updateDireccionForm').serialize();
+            initialNombre = $('#updateNombre').val();
+            $('#updateButton').prop('disabled', true);
         }
     </script>
 }

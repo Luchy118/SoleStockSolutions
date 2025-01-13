@@ -20,6 +20,7 @@ namespace SoleStockSolutions.Models
             this.Inventario = new HashSet<Inventario>();
             this.Wishlist = new HashSet<Wishlist>();
             this.Productos_Colores = new HashSet<Productos_Colores>();
+            this.Detalles_Pedidos = new HashSet<Detalles_Pedidos>();
         }
     
         public string id_producto { get; set; }
@@ -41,5 +42,7 @@ namespace SoleStockSolutions.Models
         public virtual ICollection<Wishlist> Wishlist { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Productos_Colores> Productos_Colores { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Detalles_Pedidos> Detalles_Pedidos { get; set; }
     }
 }

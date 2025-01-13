@@ -95,6 +95,9 @@
     <Reference Include="RestSharp, Version=112.1.0.0, Culture=neutral, PublicKeyToken=598062e77f915f75, processorArchitecture=MSIL">
       <HintPath>..\packages\RestSharp.112.1.0\lib\net48\RestSharp.dll</HintPath>
     </Reference>
+    <Reference Include="Stripe.net, Version=47.2.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Stripe.net.47.2.0\lib\net461\Stripe.net.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Buffers, Version=4.0.4.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Buffers.4.6.0\lib\net462\System.Buffers.dll</HintPath>
@@ -131,6 +134,11 @@
     </Reference>
     <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=6.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Runtime.CompilerServices.Unsafe.6.1.0\lib\net462\System.Runtime.CompilerServices.Unsafe.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Runtime.InteropServices.RuntimeInformation, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Runtime.InteropServices.RuntimeInformation.4.3.0\lib\net45\System.Runtime.InteropServices.RuntimeInformation.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Security" />
@@ -215,17 +223,23 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\AdminPanelController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\InformationController.cs" />
     <Compile Include="Controllers\CheckoutController.cs" />
+    <Compile Include="Controllers\MailsController.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Controllers\SearchController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\Actualizaciones_Pedidos.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
     <Compile Include="Models\Categorías_Estados.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
+    <Compile Include="Models\ControllerExtensions.cs" />
     <Compile Include="Models\Colores.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
@@ -2001,6 +2015,8 @@
     <Content Include="Assets\images\blog-img-01.jpg" />
     <Content Include="Assets\images\blog-img-02.jpg" />
     <Content Include="Assets\images\blog-img.jpg" />
+    <Content Include="Assets\images\check.gif" />
+    <Content Include="Assets\images\discover.png" />
     <Content Include="Assets\images\favicon.ico" />
     <Content Include="Assets\images\img-1.jpg" />
     <Content Include="Assets\images\img-2.jpg" />
@@ -2020,6 +2036,7 @@
     <Content Include="Assets\images\instagram-img-08.jpg" />
     <Content Include="Assets\images\instagram-img-09.jpg" />
     <Content Include="Assets\images\logo.png" />
+    <Content Include="Assets\images\mastercard.png" />
     <Content Include="Assets\images\payment-icon\1.png" />
     <Content Include="Assets\images\payment-icon\2.png" />
     <Content Include="Assets\images\payment-icon\3.png" />
@@ -2033,6 +2050,7 @@
     <Content Include="Assets\images\smp-img-02.jpg" />
     <Content Include="Assets\images\smp-img-03.jpg" />
     <Content Include="Assets\images\t-shirts-img.jpg" />
+    <Content Include="Assets\images\visa.png" />
     <Content Include="Assets\images\wallet-img.jpg" />
     <Content Include="Assets\images\women-bag-img.jpg" />
     <Content Include="Assets\images\women-shoes-img.jpg" />
@@ -2075,8 +2093,18 @@
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\bootstrap.rtl.css" />
     <Content Include="Content\bootstrap.rtl.min.css" />
+    <Content Include="Content\BrandLogos\adidaslogo.png" />
+    <Content Include="Content\BrandLogos\descarga.jfif" />
+    <Content Include="Content\BrandLogos\descarga.png" />
+    <Content Include="Content\BrandLogos\jordan-logo.png" />
+    <Content Include="Content\BrandLogos\jordanlogo.png" />
+    <Content Include="Content\BrandLogos\newbalancelogo.png" />
+    <Content Include="Content\BrandLogos\nikelogo.jpg" />
+    <Content Include="Content\BrandLogos\nikelogo.png" />
+    <Content Include="Content\BrandLogos\yeezylogo.png" />
     <Content Include="Content\font-awesome.css" />
     <Content Include="Content\font-awesome.min.css" />
+    <Content Include="Content\ProductImages\descarga.jfif" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\fontawesome-webfont.svg" />
     <Content Include="Global.asax" />
@@ -2293,6 +2321,8 @@
     <Content Include="Assets2\vendor\fontawesome-free\webfonts\fa-solid-900.woff2" />
     <Content Include="Assets2\vendor\jquery\jquery.min.map" />
     <Content Include="Assets2\vendor\jquery\jquery.slim.min.map" />
+    <None Include="Properties\PublishProfiles\luchytfc-001-site1 - FTP.pubxml" />
+    <None Include="Properties\PublishProfiles\luchytfc-001-site1 - Web Deploy.pubxml" />
     <None Include="Scripts\jquery-3.7.1.intellisense.js" />
     <Content Include="Scripts\jquery-3.7.1.js" />
     <Content Include="Scripts\jquery-3.7.1.min.js" />
@@ -2340,12 +2370,31 @@
     <Content Include="Views\AdminPanel\Inventory.cshtml" />
     <Content Include="Views\Checkout\_CartPartial.cshtml" />
     <Content Include="Views\Account\Addresses.cshtml" />
+    <Content Include="Views\Checkout\OrderConfirmed.cshtml" />
+    <Content Include="Views\Shared\Unauthorized.cshtml" />
+    <Content Include="Views\Shared\NotFound.cshtml" />
+    <Content Include="Views\Mails\OrderConfirmed.cshtml" />
+    <Content Include="Views\Account\Settings.cshtml" />
+    <Content Include="Views\Mails\VerifyAccount.cshtml" />
+    <Content Include="Views\Account\VerificationSuccess.cshtml" />
+    <Content Include="Views\Account\VerificationFailed.cshtml" />
+    <Content Include="Views\Account\Orders.cshtml" />
+    <Content Include="Views\Account\OrderDetails.cshtml" />
+    <Content Include="Views\AdminPanel\Orders.cshtml" />
+    <Content Include="Views\AdminPanel\_OrderDetails.cshtml" />
+    <Content Include="Views\Mails\OrderUpdates.cshtml" />
+    <Content Include="Views\AdminPanel\States.cshtml" />
+    <Content Include="Views\AdminPanel\Users.cshtml" />
+    <Content Include="Views\Mails\ResetPassword.cshtml" />
+    <Content Include="Views\Account\ChangePassword.cshtml" />
+    <Content Include="Views\Account\InvalidToken.cshtml" />
+    <Content Include="Views\Information\TermsAndConditions.cshtml" />
+    <Content Include="Views\Information\PrivacyPolicy.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Assets\fonts\" />
-    <Folder Include="Content\BrandLogos\" />
-    <Folder Include="Content\ProductImages\" />
+    <Folder Include="Views\Error\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\bootstrap.rtl.min.css.map" />

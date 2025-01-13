@@ -18,9 +18,10 @@ namespace SoleStockSolutions.Models
         public Pedidos()
         {
             this.Detalles_Pedidos = new HashSet<Detalles_Pedidos>();
+            this.Actualizaciones_Pedidos = new HashSet<Actualizaciones_Pedidos>();
         }
     
-        public int id_pedido { get; set; }
+        public string id_pedido { get; set; }
         public int id_usuario { get; set; }
         public System.DateTime fecha_pedido { get; set; }
         public decimal total { get; set; }
@@ -28,12 +29,19 @@ namespace SoleStockSolutions.Models
         public Nullable<System.DateTime> fecha_envio { get; set; }
         public string notas { get; set; }
         public int id_estado { get; set; }
-        public Nullable<int> id_direccion { get; set; }
+        public Nullable<int> id_direccionEnvio { get; set; }
+        public Nullable<int> id_direccionFacturacion { get; set; }
+        public string last4 { get; set; }
+        public string tipo_tarjeta { get; set; }
+        public decimal precio_envio { get; set; }
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Detalles_Pedidos> Detalles_Pedidos { get; set; }
         public virtual Estados Estados { get; set; }
         public virtual Usuarios Usuarios { get; set; }
-        public virtual Direcciones Direcciones { get; set; }
+        public virtual Direcciones Direcciones1 { get; set; }
+        public virtual Direcciones Direcciones11 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Actualizaciones_Pedidos> Actualizaciones_Pedidos { get; set; }
     }
 }

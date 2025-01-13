@@ -20,7 +20,6 @@
     </div>
 </div>
 <!-- End All Title Box -->
-
 <!-- Start Contact  -->
 <div class="contact-box-main">
     <div class="container">
@@ -44,6 +43,7 @@
                     <h2>ENVÍANOS UN MENSAJE</h2>
                     <p>Rellene el formulario para enviarnos un mensaje. Responderemos en un plazo de 24 a 72 horas.</p>
                     <form id="contactForm">
+                        @Html.AntiForgeryToken()
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="form-group">
@@ -53,19 +53,19 @@
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="text" placeholder="Tu correo electrónico" id="email" class="form-control" name="name" required data-error="Por favor, introduzca su correo electrónico">
+                                    <input type="email" placeholder="Tu correo electrónico" id="email" class="form-control" name="email" required data-error="Por favor, introduzca su correo electrónico">
                                     <div class="help-block with-errors"></div>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <input type="text" class="form-control" id="subject" name="name" placeholder="Asunto" required data-error="Por favor, introduzca el asunto del mensaje">
+                                    <input type="text" class="form-control" id="subject" name="subject" placeholder="Asunto" required data-error="Por favor, introduzca el asunto del mensaje">
                                     <div class="help-block with-errors"></div>
                                 </div>
                             </div>
                             <div class="col-md-12">
                                 <div class="form-group">
-                                    <textarea class="form-control" id="message" placeholder="Tu mensaje" rows="4" data-error="Por favor, introduzca el mensaje" required></textarea>
+                                    <textarea class="form-control" id="message" name="message" placeholder="Tu mensaje" rows="4" data-error="Por favor, introduzca el mensaje" required></textarea>
                                     <div class="help-block with-errors"></div>
                                 </div>
                                 <div class="submit-button text-center">
@@ -81,3 +81,32 @@
     </div>
 </div>
 <!-- End Contact -->
+
+@section Scripts {
+    <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-3.5.1.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#contactForm').on('submit', function (e) {
+                e.preventDefault();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("SendContactMessageAsync", "Information").ToLower()',
+                    data: $(this).serialize(),
+                    success: function (response) {
+                        if (response.success) {
+                            popups.showSuccessTimer("Mensaje enviado", "Hemos recibido su mensaje correctamente.", setTimeout(function () {
+                                location.reload();
+                            }));
+                        } else {
+                            popups.showErrorTimer(response.message);
+                        }
+                    },
+                    error: function () {
+                        popups.showErrorTimer('Error al enviar el mensaje.');
+                    }
+                });
+            });
+        });
+    </script>
+}

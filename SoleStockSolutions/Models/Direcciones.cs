@@ -17,7 +17,8 @@ namespace SoleStockSolutions.Models
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2214:DoNotCallOverridableMethodsInConstructors")]
         public Direcciones()
         {
-            this.Pedidos = new HashSet<Pedidos>();
+            this.Pedidos1 = new HashSet<Pedidos>();
+            this.Pedidos11 = new HashSet<Pedidos>();
         }
     
         public int id_direccion { get; set; }
@@ -33,8 +34,10 @@ namespace SoleStockSolutions.Models
         public bool predeterminada { get; set; }
         public string provincia { get; set; }
     
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<Pedidos> Pedidos { get; set; }
         public virtual Usuarios Usuarios { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Pedidos> Pedidos1 { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<Pedidos> Pedidos11 { get; set; }
     }
 }

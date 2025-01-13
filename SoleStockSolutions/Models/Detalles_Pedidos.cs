@@ -15,15 +15,16 @@ namespace SoleStockSolutions.Models
     public partial class Detalles_Pedidos
     {
         public int id { get; set; }
-        public int id_pedido { get; set; }
+        public string id_pedido { get; set; }
         public string id_producto { get; set; }
-        public int id_talla { get; set; }
+        public string id_talla { get; set; }
         public int cantidad { get; set; }
         public decimal precio_unitario { get; set; }
         public Nullable<decimal> subtotal { get; set; }
         public int estado_linea { get; set; }
     
-        public virtual Estados Estados { get; set; }
         public virtual Pedidos Pedidos { get; set; }
+        public virtual Estados Estados { get; set; }
+        public virtual Productos Productos { get; set; }
     }
 }

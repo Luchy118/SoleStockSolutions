@@ -1,0 +1,258 @@
+﻿@model SoleStockSolutions.Models.Usuarios
+
+@{
+    ViewBag.Title = "Configuración de la cuenta";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@section Styles{
+    <style>
+        .btn.hvr-hover:hover {
+            color: #ffffff !important;
+            border: 1px solid #000000 !important;
+        }
+
+        .btn:disabled {
+            pointer-events: none;
+        }
+
+        .account-box {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+        }
+
+            .account-box button {
+                align-self: center;
+            }
+
+        .form-group label {
+            display: flex;
+            justify-content: flex-start;
+            text-align: left !important;
+        }
+
+        .spaced-container {
+            margin-top: 20px;
+        }
+
+        @@media (max-width: 768px) {
+            .spaced-container-top {
+                margin-bottom: 20px;
+            }
+        }
+
+        .account-box-title h4 {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    </style>
+}
+
+<!-- Start All Title Box -->
+<div class="all-title-box">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h2>CONFIGURACIÓN DE LA CUENTA</h2>
+                <ul class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
+                    <li class="breadcrumb-item"><a href="@Url.Action("Index", "Account")">CUENTA</a></li>
+                    <li class="breadcrumb-item active">CONFIGURACIÓN</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End All Title Box -->
+<!-- Start Account Settings -->
+<div class="my-account-box-main">
+    <div class="container">
+        <div class="my-account-page">
+            <div class="row">
+                <div class="col-lg-6 col-md-12 spaced-container-top">
+                    <div class="account-box">
+                        <div>
+                            <div class="account-box-title">
+                                <h4>Información Personal</h4>
+                            </div>
+                            <form id="personalInfoForm" onsubmit="submitPersonalInfoForm(event)">
+                                <div class="form-group">
+                                    <label for="firstName">Nombre</label>
+                                    <input type="text" class="form-control" id="firstName" placeholder="Introduce tu nombre" value="@Model.nombre" oninput="checkPersonalInfoForm()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="lastName">Apellidos</label>
+                                    <input type="text" class="form-control" id="lastName" placeholder="Introduce tus apellidos" value="@Model.apellidos" oninput="checkPersonalInfoForm()">
+                                </div>
+                            </form>
+                        </div>
+                        <button type="submit" class="btn hvr-hover" id="savePersonalInfoBtn" form="personalInfoForm" disabled>Guardar Cambios</button>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12">
+                    <div class="account-box">
+                        <div>
+                            <div class="account-box-title">
+                                <h4>Cambiar Contraseña</h4>
+                            </div>
+                            <form id="changePasswordForm" onsubmit="submitChangePasswordForm(event)">
+                                <div class="form-group">
+                                    <label for="currentPassword">Contraseña Actual</label>
+                                    <input type="password" class="form-control" id="currentPassword" placeholder="Introduce tu contraseña actual" oninput="checkChangePasswordForm()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="newPassword">Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="newPassword" placeholder="Introduce tu nueva contraseña" oninput="checkChangePasswordForm()">
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirmar Nueva Contraseña</label>
+                                    <input type="password" class="form-control" id="confirmPassword" placeholder="Confirma tu nueva contraseña" oninput="checkChangePasswordForm()">
+                                </div>
+                            </form>
+                        </div>
+                        <button type="submit" class="btn hvr-hover" id="changePasswordBtn" form="changePasswordForm" disabled>Cambiar Contraseña</button>
+                    </div>
+                </div>
+                <div class="col-lg-12 col-md-12 spaced-container">
+                    <div class="account-box">
+                        <div class="account-box-title">
+                            <h4>Verificación de Correo Electrónico</h4>
+                        </div>
+                        @if (!Model.verificado)
+                        {
+                            <p>Haz clic en el botón de abajo para enviar un correo de verificación a tu dirección de correo electrónico.</p>
+                            <button type="button" class="btn hvr-hover" onclick="sendVerificationEmail()">Enviar Correo de Verificación</button>
+                        }
+                        else
+                        {
+                            <p>Tu cuenta está verificada correctamente.</p>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Account Settings -->
+
+@section scripts{
+    <script>
+        const initialFirstName = decodeURIComponent('@Uri.EscapeDataString(Model.nombre)');
+        const initialLastName = decodeURIComponent('@Uri.EscapeDataString(Model.apellidos)');
+
+        function checkPersonalInfoForm() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const savePersonalInfoBtn = document.getElementById('savePersonalInfoBtn');
+            savePersonalInfoBtn.disabled = (firstName === initialFirstName && lastName === initialLastName) || !(firstName && lastName);
+        }
+
+        function submitPersonalInfoForm(event) {
+            event.preventDefault();
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+
+            $.ajax({
+                url: '@Url.Action("UpdatePersonalInfo", "Account").ToLower()',
+                type: 'POST',
+                data: {
+                    firstName: firstName,
+                    lastName: lastName
+                },
+                success: function (response) {
+                    if (response.success) {
+                        popups.showSuccessTimer("Cambios exitosos", "Tu información personal se ha actualizado correctamente.", setTimeout(function () {
+                            location.reload()
+                        }, 2000));
+                    } else {
+                        popups.showErrorTimer(response.message);
+                    }
+                },
+                error: function () {
+                    popups.showErrorTimer("Error al actualizar la información personal.");
+                }
+            });
+        }
+
+        function checkChangePasswordForm() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const changePasswordBtn = document.getElementById('changePasswordBtn');
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,}$/;
+
+            changePasswordBtn.disabled = !(currentPassword && newPassword && confirmPassword);
+        }
+
+        function submitChangePasswordForm(event) {
+            event.preventDefault();
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@@$!%*?&])[A-Za-z\d@@$!%*?&]{8,}$/;
+
+            if (!passwordRegex.test(newPassword)) {
+                popups.showErrorTimer("La contraseña debe tener al menos 8 caracteres y contener 1 mayúscula, 1 minúscula y 1 símbolo.");
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                popups.showErrorTimer("Las contraseñas no coinciden.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("ChangePassword", "Account").ToLower()',
+                type: 'POST',
+                data: {
+                    currentPassword: currentPassword,
+                    newPassword: newPassword
+                },
+                success: function (response) {
+                    if (response.success) {
+                        popups.showSuccessTimer("Cambio exitoso", "Tu contraseña se ha actualizado correctamente.", setTimeout(function () {
+                            location.reload()
+                        }, 2000));
+                    } else {
+                        popups.showErrorTimer(response.message);
+                    }
+                },
+                error: function () {
+                    popups.showErrorTimer("Error al actualizar la contraseña.");
+                }
+            });
+        }
+
+        function sendVerificationEmail() {
+            Swal.fire({
+                title: 'Enviando correo de verificación...',
+                text: 'Por favor, espera un momento.',
+                icon: 'info',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("SendVerificationEmail", "Account").ToLower()',
+                type: 'POST',
+                data: {
+                    userEmail: '@Model.email'
+                },
+                success: function (response) {
+                    Swal.close();
+                    if (response.success)
+                        popups.showSuccessTimer("Correo enviado", "El correo de verificación ha sido enviado correctamente.");
+                    else
+                        popups.showErrorTimer(response.message);
+                },
+                error: function () {
+                    popups.showErrorTimer("Error al enviar el correo de verificación.");
+                }
+            });
+        }
+    </script>
+}

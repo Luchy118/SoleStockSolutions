@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Página No Encontrada";
+}
+
+<div class="notfound-box-main">
+    <div class="container text-center">
+        <h1 class="display-4">Página No Encontrada</h1>
+        <p class="lead mb-3">Lo sentimos, la página que estás buscando no existe.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn hvr-hover" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">Volver al Inicio</a>
+    </div>
+</div>

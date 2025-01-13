@@ -17,6 +17,14 @@ else
         <div class="col-sm-6 col-md-6 col-lg-4 col-xl-4 product-item">
             <div class="products-single fix">
                 <div class="box-img-hover">
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        var wishlistProductIds = ViewBag.WishlistProductsIds;
+                        if (wishlistProductIds.Contains(regProducto.id_producto))
+                        {
+                            <i class="fas fa-heart heart-icon" style="color: red; padding: 10px 10px"></i>
+                        }
+                    }
                     @if (regProducto.fecha_lanzamiento > DateTime.Now.AddDays(-14))
                     {
                         <div class="type-lb">
@@ -28,7 +36,20 @@ else
                     </a>
                     <div class="mask-icon">
                         <ul>
-                            <li><a href="javascript:void(0)" title="Añadir a favoritos"><i class="far fa-heart"></i></a></li>
+                            @{
+                                if (User.Identity.IsAuthenticated)
+                                {
+                                    var wishlistProductIds = ViewBag.WishlistProductsIds;
+                                    if (!wishlistProductIds.Contains(regProducto.id_producto))
+                                    {
+                                        <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                    }
+                                }
+                                else
+                                {
+                                    <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                }
+                            }
                         </ul>
                     </div>
                 </div>
@@ -39,4 +60,5 @@ else
             </div>
         </div>
     }
+    db.Dispose();
 }

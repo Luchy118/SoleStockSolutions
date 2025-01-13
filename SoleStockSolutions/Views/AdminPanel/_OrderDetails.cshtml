@@ -1,0 +1,149 @@
+﻿@model SoleStockSolutions.Models.Pedidos
+@{ 
+    var orderId = Request.Form["orderId"];
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <h4>Detalles del Pedido</h4>
+        <p><strong>ID</strong>: @Model.id_pedido</p>
+        <p><strong>Fecha</strong>: @Model.fecha_pedido.ToString("dd/MM/yyyy HH:mm")</p>
+        <p><strong>Total (envío incl.)</strong>: @Model.total.ToString("C", new System.Globalization.CultureInfo("es-ES"))</p>
+        <p><strong>Tipo de envío</strong>: @(Model.precio_envio == 0 ? "Estándar" : Model.precio_envio == 12 ? "Express" : "24h")</p>
+    </div>
+    <div class="col-md-2">
+        <h4>Estado del Pedido</h4>
+        <select class="form-control" id="updateStatus" name="status" onchange="updateLineStatuses(this.value)">
+            @foreach (var estado in ViewBag.Estados)
+            {
+                if (estado.nombre_estado != "Pendiente")
+                {
+                    <option value="@estado.id_estado" @(estado.id_estado == Model.id_estado ? "selected" : "")>@estado.nombre_estado</option>
+                }
+            }
+        </select>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <h4>Datos de Contacto</h4>
+        <p><strong>Enviar a</strong>: @Model.Usuarios.nombre @Model.Usuarios.apellidos</p>
+        <p><strong>Correo electrónico</strong>: @Model.Usuarios.email</p>
+    </div>
+    <div class="col-md-4">
+        <h4>Datos de Pago</h4>
+        @if (Model.metodo_pago == "Tarjeta")
+        {
+            <p><strong>Pagado con</strong>: @Model.metodo_pago</p>
+            <div style="display: flex; align-items: center">
+                <p><strong>* * * @Model.last4</strong></p>
+                @if (Model.tipo_tarjeta == "mastercard" || Model.tipo_tarjeta == "visa" || Model.tipo_tarjeta == "discover")
+                {
+                    <img src="~/Assets/images/@(Model.tipo_tarjeta).png" alt="@Model.tipo_tarjeta" style="height: 35px; margin-left: 5px" />
+                }
+            </div>
+        }
+        else
+        {
+            <p><strong>Pagado con</strong>: @Model.metodo_pago</p>
+        }
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-4">
+        <h4>Dirección de Facturación</h4>
+        <p><strong>Dirección 1</strong>: @Model.Direcciones1.direccion</p>
+        <p><strong>Dirección 2</strong>: @Model.Direcciones1.direccion2</p>
+        <p><strong>Ciudad</strong>: @Model.Direcciones1.ciudad, <strong>Provincia</strong>: @Model.Direcciones1.provincia, <strong>Código Postal</strong>: @Model.Direcciones1.codigo_postal</p>
+        <p><strong>País</strong>: @Model.Direcciones1.pais</p>
+        <p><strong>Teléfono</strong>: @Model.Direcciones1.telefono</p>
+    </div>
+    <div class="col-md-4">
+        <h4>Dirección de Envío</h4>
+        <p><strong>Dirección 1</strong>: @Model.Direcciones11.direccion</p>
+        <p><strong>Dirección 2</strong>: @Model.Direcciones11.direccion2</p>
+        <p><strong>Ciudad</strong>: @Model.Direcciones11.ciudad, <strong>Provincia</strong>: @Model.Direcciones11.provincia, <strong>Código Postal</strong>: @Model.Direcciones11.codigo_postal</p>
+        <p><strong>País</strong>: @Model.Direcciones11.pais</p>
+        <p><strong>Teléfono</strong>: @Model.Direcciones11.telefono</p>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h4>Actualizaciones del Pedido</h4>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Descripción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var update in Model.Actualizaciones_Pedidos)
+                    {
+                        <tr>
+                            <td>@(update.fecha?.ToString("dd/MM/yyyy HH:mm") ?? "Fecha no disponible")</td>
+                            <td>@update.Estados.nombre_estado</td>
+                            <td>@update.descripcion</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <h4>Artículos del Pedido</h4>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Imagen</th>
+                        <th>Producto</th>
+                        <th>Talla</th>
+                        <th>Cantidad</th>
+                        <th>Precio</th>
+                        <th>Subtotal</th>
+                        <th>Estado de la línea</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Detalles_Pedidos)
+                    {
+                        <tr>
+                            <td>
+                                <a href="javascript:void(0);" onclick="postToInventory('@item.Productos.id_producto')" target="_blank">
+                                    <img src="@item.Productos.imagen" alt="@item.Productos.imagen" class="img-fluid" style="max-width: 100px;" />
+                                </a>
+                            </td>
+                            <td>@item.Productos.nombre</td>
+                            <td>@item.id_talla</td>
+                            <td>@item.cantidad</td>
+                            <td>@(item.precio_unitario.ToString("C", new System.Globalization.CultureInfo("es-ES")))</td>
+                            <td>@(Convert.ToDecimal(item.subtotal).ToString("C", new System.Globalization.CultureInfo("es-ES")))</td>
+                            <td>
+                                <select class="form-control lineStatus" name="lineStatus" data-product-id="@item.Productos.id_producto">
+                                    @foreach (var estado in ViewBag.Estados)
+                                    {
+                                        if (estado.nombre_estado != "Confirmado" && estado.nombre_estado != "Cancelado")
+                                        {
+                                            <option value="@estado.id_estado" @(estado.id_estado == item.estado_linea ? "selected" : "")>@estado.nombre_estado</option>
+                                        }
+                                    }
+                                </select>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="row mt-4">
+    <div class="col-md-12">
+        <button type="button" class="btn btn-primary" onclick="saveChanges('@Model.id_pedido')">Guardar Cambios</button>
+        <button type="button" id="cancelUpdateOrder" onclick="orderId != null && orderId != '' ? window.close() : location.reload()" class="btn btn-secondary">Cancelar</button>
+    </div>
+</div>

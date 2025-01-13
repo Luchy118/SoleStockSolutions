@@ -87,11 +87,22 @@
                 var form = $(this);
                 var url = "@Url.Action("ValidateSignUp", "Account").ToLower()";
 
+                Swal.fire({
+                    title: 'Completando registro...',
+                    text: 'Por favor, espere un momento.',
+                    icon: 'info',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
                 $.ajax({
                     type: form.attr("method"),
                     url: url,
                     data: form.serialize(),
                     success: function (response) {
+                        Swal.close();
                         if (response.success) {
                             popups.showSuccessTimer("Registro exitoso", response.message);
                             setTimeout(function() {

@@ -1,0 +1,11 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="verifyfail-box-main">
+    <div class="container text-center">
+        <h1 class="display-4">Token expirado</h1>
+        <p class="lead mb-3">El enlace de restablecimiento de contraseña ha expirado, vuelva a solicitar un cambio de contraseña desde la pestaña de inicio de sesión.</p>
+        <a href="@Url.Action("Index", "Account")" class="btn hvr-hover" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">IR AL INICIO DE SESIÓN</a>
+    </div>
+</div>

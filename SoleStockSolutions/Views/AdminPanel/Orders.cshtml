@@ -1,0 +1,181 @@
+﻿@model List<SoleStockSolutions.Models.Pedidos>
+@{
+    ViewBag.Title = "Pedidos";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+    var orderId = Request.Form["orderId"];
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Órdenes</h1>
+    <ul class="nav nav-tabs" id="myTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Lista de Pedidos</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>ID del Pedido</th>
+                                    <th>Cantidad Artículos</th>
+                                    <th>Nombre del Cliente</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Fecha del Pedido</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tfoot>
+                                <tr>
+                                    <th>ID del Pedido</th>
+                                    <th>Cantidad Artículos</th>
+                                    <th>Nombre del Cliente</th>
+                                    <th>Correo Electrónico</th>
+                                    <th>Fecha del Pedido</th>
+                                    <th>Estado</th>
+                                    <th>Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </tfoot>
+                            <tbody>
+                                @foreach (var order in Model)
+                                {
+                                    <tr>
+                                        <td>@order.id_pedido</td>
+                                        <td>@order.Detalles_Pedidos.Sum(dp => dp.cantidad)</td>
+                                        <td>@order.Usuarios.nombre @order.Usuarios.apellidos</td>
+                                        <td>@order.Usuarios.email</td>
+                                        <td>@order.fecha_pedido.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@order.Estados.nombre_estado</td>
+                                        <td>@order.total.ToString("C", new System.Globalization.CultureInfo("es-ES"))</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-info" data-toggle="tab" onclick='loadOrderData("@order.id_pedido"); $("#read").removeClass("active"); $("#update").addClass("show active");'><i class="fas fa-eye"></i></a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade card shadow" id="update" role="tabpanel">
+            <div class="card-body" id="updateContent"></div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var orderId = '@orderId';
+
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 7] }
+                ],
+                "order": [[4, "desc"]]
+            });
+
+            if (orderId) {
+                loadOrderData(orderId);
+                $("#read").removeClass("active");
+                $("#update").addClass("show active");
+            }
+        });
+
+        function loadOrderData(orderId) {
+            $.ajax({
+                url: '@Url.Action("GetOrderDetails", "AdminPanel").ToLower()',
+                type: 'GET',
+                data: { orderId: orderId },
+                success: function (data) {
+                    $('#updateContent').html(data);
+                },
+                error: function () {
+                    popups.showErrorTimer('Error al cargar los datos del pedido.');
+                }
+            });
+        }
+
+        function updateLineStatuses(orderStatus) {
+            const estadoConfirmado = '@ViewBag.EstadoConfirmadoId';
+            const estadoCancelado = '@ViewBag.EstadoCanceladoId';
+            const estadoPendiente = '@ViewBag.EstadoPendienteId';
+
+            document.querySelectorAll('.lineStatus').forEach(function (select) {
+                if (orderStatus === estadoConfirmado || orderStatus === estadoCancelado)
+                    select.value = estadoPendiente;
+                else
+                    select.value = orderStatus;
+            });
+        }
+
+        function saveChanges(orderId) {
+            var orderStatus = $('#updateStatus').val();
+            var lineStatuses = [];
+
+            $('.lineStatus').each(function() {
+                var productId = $(this).data('product-id');
+                var status = $(this).val();
+                lineStatuses.push({ productId: productId, status: status });
+            });
+
+            Swal.fire({
+                title: 'Actualizando pedido...',
+                text: 'Por favor, espere un momento.',
+                icon: 'info',
+                allowOutsideClick: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
+
+            $.ajax({
+                url: '@Url.Action("UpdateOrder", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: JSON.stringify({ orderId: orderId, orderStatus: orderStatus, lineStatuses: lineStatuses }),
+                contentType: 'application/json; charset=utf-8',
+                success: function (response) {
+                    Swal.close();
+                    if (response.success) {
+                        popups.showSuccessTimer('Cambios guardados exitosamente.', "Los estados han sido modificados correctamente.");
+                        loadOrderData(orderId);
+                    } else {
+                        popups.showErrorTimer('Error al guardar los cambios.');
+                    }
+                },
+                error: function() {
+                    popups.showErrorTimer('Error al guardar los cambios.');
+                }
+            });
+        }
+
+        function postToInventory(productId) {
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "/adminpanel/inventory";
+            form.target = "_blank";
+
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = "productId";
+            input.value = productId;
+            form.appendChild(input);
+
+            document.body.appendChild(form);
+            form.submit();
+        }
+    </script>
+}

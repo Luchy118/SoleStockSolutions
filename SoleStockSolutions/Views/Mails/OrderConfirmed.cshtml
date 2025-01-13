@@ -1,0 +1,315 @@
+﻿@model SoleStockSolutions.Models.OrderDetailsViewModel
+@{ 
+    Layout = null;
+    var domain = "https://demo.solestocksolutions.es";
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <style type="text/css">
+
+        body, table, td, a {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        table, td {
+            mso-table-lspace: 0pt;
+            mso-table-rspace: 0pt;
+        }
+
+        img {
+            -ms-interpolation-mode: bicubic;
+        }
+
+        img {
+            border: 0;
+            height: auto;
+            line-height: 100%;
+            outline: none;
+            text-decoration: none;
+        }
+
+        table {
+            border-collapse: collapse !important;
+        }
+
+        body {
+            height: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+
+
+        a[x-apple-data-detectors] {
+            color: inherit !important;
+            text-decoration: none !important;
+            font-size: inherit !important;
+            font-family: inherit !important;
+            font-weight: inherit !important;
+            line-height: inherit !important;
+        }
+
+        @@media screen and (max-width: 480px) {
+            .mobile-hide {
+                display: none !important;
+            }
+
+            .mobile-center {
+                text-align: center !important;
+            }
+        }
+
+        div[style*="margin: 16px 0;"] {
+            margin: 0 !important;
+        }
+    </style>
+</head>
+<body style="margin: 0 !important; padding: 0 !important; background-color: #eeeeee;" bgcolor="#eeeeee">
+    <table border="0" cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+            <td align="center" style="background-color: #eeeeee;" bgcolor="#eeeeee">
+
+                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                    <tr>
+                        <td align="center" valign="top" style="font-size:0; padding: 35px;" bgcolor="#343535">
+
+                            <div style="display:inline-block; min-width:100px; vertical-align:top; width:100%;">
+                                <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
+                                    <tr>
+                                        <td align="center" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;" class="mobile-center">
+                                            <a class="navbar-brand" href="@($"{domain}{Url.Action("Index", "Home")}".ToLower())" style="margin: 0 !important">
+                                                <img src="@($"{domain}/Assets/images/logo.png")" class="logo img-fluid" style="height: 150px;" alt="SoleStockSolutions">
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 35px 35px 20px 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                                <tr>
+                                    <td align="center" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 25px;">
+                                        <img src="https://img.icons8.com/carbon-copy/100/000000/checked-checkbox.png" width="125" height="120" style="display: block; border: 0px;" /><br>
+                                        <h2 style="font-size: 30px; font-weight: 800; line-height: 36px; color: #333333; margin: 0;">
+                                            ¡Gracias por su pedido!
+                                        </h2>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding-top: 10px;">
+                                        <p style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;">
+                                            Hemos recibido su pedido correctamente y pronto estará en preparación. Si tiene alguna consulta, no dude en contactarnos. También puede consultar el estado de su pedido pulsando <a href="@($"{domain}{Url.Action("OrderDetails", "Account", new { orderId = Model.OrderId })}".ToLower())" target="_blank" style="color: #777777; text-decoration: none"><b>aquí</b></a>.
+                                        </p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left" style="padding-top: 20px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="25%" align="left" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 0px;">
+                                                    ID Pedido #
+                                                </td>
+                                                <td width="75%" align="right" bgcolor="#eeeeee" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; padding: 0px;">
+                                                    @Model.OrderId
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 0px 5px 0px;">
+                                                    Artículos (@Model.Items.Sum(i => i.Quantity))
+                                                </td>
+                                                <td width="75%" align="right" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 15px 0px 5px 0px;">
+                                                    @(Model.Items.Sum(item => item.Subtotal * 0.79M).ToString("C", new System.Globalization.CultureInfo("es-ES")))
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 0px;">
+                                                    Costes de envío (imp. incl.)
+                                                </td>
+                                                <td width="75%" align="right" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 0px;">
+                                                    @(Model.ShippingCost.ToString("C", new System.Globalization.CultureInfo("es-ES")))
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 0px;">
+                                                    IVA (21%)
+                                                </td>
+                                                <td width="75%" align="right" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px; padding: 5px 0px;">
+                                                    @((Model.Total * 0.21M).ToString("C", new System.Globalization.CultureInfo("es-ES")))
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left" style="padding-top: 20px;">
+                                        <table cellspacing="0" cellpadding="0" border="0" width="100%">
+                                            <tr>
+                                                <td width="25%" align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
+                                                    TOTAL
+                                                </td>
+                                                <td width="75%" align="right" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 800; line-height: 24px; border-top: 3px solid #eeeeee; border-bottom: 3px solid #eeeeee;">
+                                                    @((Model.Total).ToString("C", new System.Globalization.CultureInfo("es-ES")))
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" height="100%" valign="top" width="100%" style="padding: 0 35px 10px 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:660px;">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:0;">
+                                        <div style="display: inline-block; max-width: 50%; min-width: 240px; vertical-align: top; width: 100%;">
+                                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
+                                                <tr>
+                                                    <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
+                                                        <p style="font-weight: 800;">Información de pago</p>
+                                                        @if (Model.PaymentMethod == "Tarjeta")
+                                                        {
+                                                            <p style="margin-bottom: 0 !important">
+                                                                Pagado con: @Model.PaymentMethod
+                                                            </p>
+                                                            <div style="display: flex; align-items: center !important; margin-bottom: 20px">
+                                                                <p style="margin: 0 !important">
+                                                                    * * * @Model.Last4
+                                                                </p>
+                                                                @if (Model.CardType == "mastercard" || Model.CardType == "visa" || Model.CardType == "discover")
+                                                                {
+                                                                    <img src="@($"{domain}/Assets/images/{Model.CardType}.png")" alt="@Model.CardType" style="height: 35px; margin-left: 5px" />
+                                                                }
+                                                            </div>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>Método de pago: @Model.PaymentMethod</p>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" height="100%" valign="top" width="100%" style="padding: 0 35px 35px 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:660px;">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:0;">
+                                        <div style="display: inline-block; max-width: 50%; min-width: 240px; vertical-align: top; width: 100%; margin-bottom: 20px;">
+                                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
+                                                <tr>
+                                                    <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
+                                                        <p style="font-weight: 800;">Dirección de Facturación</p>
+                                                        <p>@Model.FirstName @Model.LastName<br>@Model.BillingAddress.AddressLine1<br>@Model.BillingAddress.AddressLine2<br>@Model.BillingAddress.City, @Model.BillingAddress.Province, @Model.BillingAddress.Country, @Model.BillingAddress.PostalCode<br>@Model.BillingAddress.Country<br>@Model.BillingAddress.PhoneNumber</p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:0;">
+                                        <div style="display:inline-block; max-width:50%; min-width:240px; vertical-align:top; width:100%;">
+                                            <table align="right" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:300px;">
+                                                <tr>
+                                                    <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
+                                                        <p style="font-weight: 800;">Dirección de Envío</p>
+                                                        <p>@Model.FirstName @Model.LastName<br>@Model.ShippingAddress.AddressLine1<br>@Model.ShippingAddress.AddressLine2<br>@Model.ShippingAddress.City, @Model.ShippingAddress.Province, @Model.ShippingAddress.Country, @Model.ShippingAddress.PostalCode<br>@Model.ShippingAddress.Country<br>@Model.ShippingAddress.PhoneNumber</p>
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" height="100%" valign="top" width="100%" style="padding: 0 35px 35px 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:660px;">
+                                <tr>
+                                    <td align="left" valign="top" style="font-size:0;">
+                                        <div style="display: inline-block; max-width: 100%; min-width: 240px; vertical-align: top; width: 100%; margin-bottom: 20px;">
+                                            <table align="left" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                                                <tr>
+                                                    <td align="left" valign="top" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; line-height: 24px;">
+                                                        <p style="font-weight: 800; margin-bottom: 20px">Artículos del Pedido</p>
+                                                        @foreach (var item in Model.Items)
+                                                        {
+                                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 10px;">
+                                                                <tr>
+                                                                    <td width="20%" align="left" valign="top">
+                                                                        <a href="@($"{domain}{item.ProductLink}")">
+                                                                            <img src="@item.ProductImageUrl" alt="@item.ProductName" class="img-fluid" width="100" height="100" />
+                                                                        </a>
+                                                                    </td>
+                                                                    <td width="80%" align="left" valign="top" style="padding-left: 10px;">
+                                                                        <p style="margin: 0; font-weight: 800;">@item.ProductName</p>
+                                                                        <p style="margin: 0;">Talla: @item.Size / Cantidad: @item.Quantity</p>
+                                                                        <p style="margin: 0;">Precio Unitario: @(item.Price.ToString("C", new System.Globalization.CultureInfo("es-ES")))</p>
+                                                                        <p style="margin: 0;">Subtotal: @((item.Price * item.Quantity).ToString("C", new System.Globalization.CultureInfo("es-ES")))</p>
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 35px; background-color: #343535;" bgcolor="#1b9ba3">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                                <tr>
+                                    <td align="center" style="padding: 25px 0 15px 0;">
+                                        <table border="0" cellspacing="0" cellpadding="0">
+                                            <tr>
+                                                <td align="center" style="border-radius: 5px;" bgcolor="#66b3b7">
+                                                    <a href="@($"{domain}{Url.Action("Index", "Products")}".ToLower())" target="_blank" style="font-size: 18px; font-family: Open Sans, Helvetica, Arial, sans-serif; color: #ffffff; text-decoration: none; border-radius: 5px; background-color: #b68a7b; padding: 15px 30px; border: 1px solid #b68a7b; display: block; ">Compra Nuevamente</a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td align="center" style="padding: 35px; background-color: #ffffff;" bgcolor="#ffffff">
+                            <table align="center" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width:600px;">
+                                <tr>
+                                    <td align="left" style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; line-height: 24px;">
+                                        <p style="font-size: 14px; font-weight: 400; line-height: 20px; color: #777777;">
+                                            Si no realizaste un pedido utilizando esta dirección de correo electrónico, por favor ignora este mensaje.
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

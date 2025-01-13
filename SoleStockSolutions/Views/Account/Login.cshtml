@@ -29,7 +29,7 @@
                             </div>
                         </div>
                         <div class="mt-1 mb-3" style="text-align: right;">
-                            <a id="forgotPassword" href="/Account/ForgotPassword">¿Has olvidado tu contraseña?</a>
+                            <a id="forgotPassword" style="cursor: pointer">¿Has olvidado tu contraseña?</a>
                         </div>
                         <div class="form-row">
                             <div class="form-group col-md-12" style="margin-bottom: 0" bis_skin_checked="1">
@@ -81,6 +81,57 @@
                         popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo.");
                     }
                 });
+            });
+
+            $("#forgotPassword").on("click", function () {
+                popups.showHTMLPopup("Recuperar contraseña", `
+                    <div>
+                        <label for="email" style="text-align: left; display: block;">Correo electrónico:</label>
+                        <input type="email" id="resetEmail" class="form-control" placeholder="Introduce tu correo electrónico" required pattern="[a-z0-9._%+-]+@@[a-z0-9.-]+\\.[a-z]{2,}$">
+                    </div>
+                    <div class="mt-3" style="text-align: center;">
+                        <button id="sendEmailButton" class="btn btn-primary" disabled>Enviar</button>
+                        <button id="cancelButton" class="btn btn-secondary">Cancelar</button>
+                    </div>
+                `, false);
+
+                $(document).on("click", "#sendEmailButton", function () {
+                    var email = $("#resetEmail").val();
+                    var emailPattern = /^[a-z0-9._%+-]+@@[a-z0-9.-]+\.[a-z]{2,}$/i;
+
+                    if (email && emailPattern.test(email)) {
+                        $.ajax({
+                            type: "POST",
+                            url: "@Url.Action("SendResetPasswordEmailAsync", "Account").ToLower()",
+                            data: { email: email },
+                            success: function (response) {
+                                if (response.success) {
+                                    popups.showSuccessTimer("Correo enviado", "Se ha enviado un correo para restablecer tu contraseña.");
+                                } else {
+                                    popups.showErrorTimer(response.message);
+                                }
+                            },
+                            error: function (xhr, status, error) {
+                                console.log("Error en Forgot Password AJAX: " + error);
+                                popups.showErrorTimer("Ha ocurrido un error. Por favor, inténtelo de nuevo.");
+                            }
+                        });
+                    } else {
+                        popups.showErrorTimer("Por favor, introduce un correo electrónico válido.");
+                    }
+                });
+
+                $(document).on("click", "#cancelButton", function () {
+                    Swal.close();
+                });
+            });
+
+            $(document).on("input", "#resetEmail", function () {
+                var email = $(this).val();
+                if (email.trim() === "")
+                    $("#sendEmailButton").prop("disabled", true);
+                else
+                    $("#sendEmailButton").prop("disabled", false);
             });
         });
     </script>

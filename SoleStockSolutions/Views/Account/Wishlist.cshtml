@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<SoleStockSolutions.Models.WishlistViewModel>
+
+@{
     ViewBag.Title = "Tus favoritos";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -13,7 +15,7 @@
                     <ul class="breadcrumb">
                         <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">INICIO</a></li>
                         <li class="breadcrumb-item"><a href="@Url.Action("Index", "Account")">TU CUENTA</a></li>
-                        <li class="breadcrumb-item active">FAVORITOS</li>
+                        <li class="breadcrumb-item active">LISTA DE DESEOS</li>
                     </ul>
                 </div>
             </div>
@@ -21,102 +23,103 @@
     </div>
 </div>
 <!-- End All Title Box -->
-
 <!-- Start Wishlist  -->
 <div class="wishlist-box-main">
     <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="table-main table-responsive">
-                    <table class="table">
-                        <thead>
-                            <tr>
-                                <th>Images</th>
-                                <th>Product Name</th>
-                                <th>Unit Price </th>
-                                <th>Stock</th>
-                                <th>Add Item</th>
-                                <th>Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-01.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 80.0</p>
-                                </td>
-                                <td class="quantity-box">In Stock</td>
-                                <td class="add-pr">
-                                    <a class="btn hvr-hover" href="#">Add to Cart</a>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-02.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 60.0</p>
-                                </td>
-                                <td class="quantity-box">In Stock</td>
-                                <td class="add-pr">
-                                    <a class="btn hvr-hover" href="#">Add to Cart</a>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="thumbnail-img">
-                                    <a href="#">
-                                        <img class="img-fluid" src="~/Assets/images/img-pro-03.jpg" alt="" />
-                                    </a>
-                                </td>
-                                <td class="name-pr">
-                                    <a href="#">
-                                        Lorem ipsum dolor sit amet
-                                    </a>
-                                </td>
-                                <td class="price-pr">
-                                    <p>$ 30.0</p>
-                                </td>
-                                <td class="quantity-box">In Stock</td>
-                                <td class="add-pr">
-                                    <a class="btn hvr-hover" href="#">Add to Cart</a>
-                                </td>
-                                <td class="remove-pr">
-                                    <a href="#">
-                                        <i class="fas fa-times"></i>
-                                    </a>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+        <div class="my-account-page">
+            <div class="container-fluid">
+                <ul class="nav nav-tabs" id="myTab" role="tablist">
+                    <li class="nav-item">
+                        <a class="nav-link active" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true">Consultar</a>
+                    </li>
+                </ul>
+                <div class="tab-content" id="myTabContent">
+                    <div class="tab-pane fade show active" id="read" role="tabpanel" aria-labelledby="read-tab">
+                        <div class="card shadow mb-4">
+                            <div class="card-header py-3">
+                                <h4 class="m-0 p-0 font-weight-bold text-primary" style="color: #b68a7b !important">Lista de Deseos</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                                        <thead>
+                                            <tr>
+                                                <th>Imagen</th>
+                                                <th>Nombre del producto</th>
+                                                <th>En stock</th>
+                                                <th>Precio unitario</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tfoot>
+                                            <tr>
+                                                <th>Imagen</th>
+                                                <th>Nombre del producto</th>
+                                                <th>En stock</th>
+                                                <th>Precio unitario</th>
+                                                <th>Acciones</th>
+                                            </tr>
+                                        </tfoot>
+                                        <tbody>
+                                            @foreach (var item in Model)
+                                            {
+                                                <tr>
+                                                    <td class="thumbnail-img">
+                                                        <a href="@Url.Action("ProductDetails", "Products", new { productName = item.ProductName.Replace(" ", "-").Replace("(", "").Replace(")", "") })" target="_blank">
+                                                            <img class="img-fluid" style="width: 120px" src="@item.ImageUrl" alt="@item.ProductName" />
+                                                        </a>
+                                                    </td>
+                                                    <td class="name-pr">
+                                                        <a href="@Url.Action("ProductDetails", "Products", new { productName = item.ProductName.Replace(" ", "-").Replace("(", "").Replace(")", "") })" target="_blank">
+                                                            @item.ProductName
+                                                        </a>
+                                                    </td>
+                                                    <td class="stock-pr">
+                                                        <p>@(item.InStock ? "Sí" : "No")</p>
+                                                    </td>
+                                                    <td class="price-pr">
+                                                        @if (item.InStock)
+                                                        {
+                                                            <p>Desde @item.LowestPrice.ToString("C")</p>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p>---</p>
+
+                                                        }
+                                                    </td>
+                                                    <td class="actions-pr">
+                                                        <a class="btn btn-sm btn-primary" style="color: white !important" href="@Url.Action("ProductDetails", "Products", new { productName = item.ProductName.Replace(" ", "-").Replace("(", "").Replace(")", "") })" target="_blank"><i class="fas fa-eye"></i> Ver</a>
+                                                        <a class="btn btn-sm btn-danger" style="color: white !important" onclick='var data = { productId: "@item.ProductId" }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este producto de su lista de favoritos?", "/account/removefromwishlist", data)'><i class="fas fa-times"></i> Eliminar</a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 <!-- End Wishlist -->
+
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json",
+                    "emptyTable": "No tienes productos en tu lista de favoritos."
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 2, 4] }
+                ],
+                "order": [[1, "asc"]]
+            });
+        });
+    </script>
+}

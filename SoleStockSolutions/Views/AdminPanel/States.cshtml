@@ -1,0 +1,527 @@
+﻿@model SoleStockSolutions.Models.EstadoCategoriaViewModel
+
+@{
+    ViewBag.Title = "States";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800">Estados y Categorías</h1>
+    <ul class="nav nav-tabs" id="mainTab" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" id="estados-tab" data-toggle="tab" href="#estados" role="tab" aria-controls="estados" aria-selected="true">Estados</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" id="categorias-tab" data-toggle="tab" href="#categorias" role="tab" aria-controls="categorias" aria-selected="false">Categorías</a>
+        </li>
+    </ul>
+    <div class="tab-content" id="mainTabContent">
+        <div class="tab-pane fade show active" id="estados" role="tabpanel" aria-labelledby="estados-tab">
+            <ul class="nav nav-tabs" id="estadosSubTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="read-estados-tab" data-toggle="tab" href="#read-estados" role="tab" aria-controls="read-estados" aria-selected="true">Consultar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="create-estados-tab" data-toggle="tab" href="#create-estados" role="tab" aria-controls="create-estados" aria-selected="false">Añadir Nuevo</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="estadosSubTabContent">
+                <div class="tab-pane fade show active" id="read-estados" role="tabpanel" aria-labelledby="read-estados-tab">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Estados</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTableEstados" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Estado</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>ID Estado</th>
+                                            <th>Nombre</th>
+                                            <th>Categoría</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        @foreach (var estado in Model.Estados)
+                                        {
+                                            <tr>
+                                                <td>@estado.id_estado</td>
+                                                <td>@estado.nombre_estado</td>
+                                                <td>@estado.Categorías_Estados.nombre_categoria</td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadEstadoData(@estado.id_estado, true); $("#read-estados").removeClass("active"); $("#update-estados").addClass("show active");'><i class="fas fa-edit"></i></a>
+                                                    <a class="btn btn-sm btn-danger" onclick='var data = { id: @estado.id_estado }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar este estado?", "/adminpanel/deleteestado", data )'><i class="fas fa-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade card shadow" id="create-estados" role="tabpanel" aria-labelledby="create-estados-tab">
+                    <div class="card-body">
+                        <form id="createEstadoForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="createNombreEstado">Nombre Estado</label>
+                                <input type="text" class="form-control" id="createNombreEstado" name="nombre_estado" required />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="createCategoriaEstado">Categoría</label>
+                                <select class="form-control" id="createCategoriaEstado" name="id_categoria_estado" required>
+                                    <option value="">Seleccione una categoría</option>
+                                    @foreach (var categoria in Model.Categorias)
+                                    {
+                                        <option value="@categoria.id_categoria_estado">@categoria.id_categoria_estado - @categoria.nombre_categoria</option>
+                                    }
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Añadir Estado</button>
+                            <button type="button" class="btn btn-warning" onclick="clearCreateForm()">Limpiar Campos</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelCreateForm()">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade card shadow" id="update-estados" role="tabpanel">
+                    <div class="card-body">
+                        <form id="updateEstadoForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="updateIdEstado">ID Estado</label>
+                                <input type="text" class="form-control" id="updateIdEstado" name="id_estado" readonly disabled />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateNombreEstado">Nombre Estado</label>
+                                <input type="text" class="form-control" id="updateNombreEstado" name="nombre_estado" required disabled />
+                                <span class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="updateCategoriaEstado">Categoría</label>
+                                <select class="form-control" id="updateCategoriaEstado" name="id_categoria_estado" required>
+                                    <option value="">Seleccione una categoría</option>
+                                    @foreach (var categoria in Model.Categorias)
+                                    {
+                                        <option value="@categoria.id_categoria_estado">@categoria.id_categoria_estado - @categoria.nombre_categoria</option>
+                                    }
+                                </select>
+                                <span class="text-danger"></span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" disabled>Modificar Estado</button>
+                            <button type="button" id="cancelUpdateEstado" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="tab-pane fade" id="categorias" role="tabpanel" aria-labelledby="categorias-tab">
+            <ul class="nav nav-tabs" id="categoriasSubTab" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" id="read-categorias-tab" data-toggle="tab" href="#read-categorias" role="tab" aria-controls="read-categorias" aria-selected="true">Consultar</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" id="create-categorias-tab" data-toggle="tab" href="#create-categorias" role="tab" aria-controls="create-categorias" aria-selected="false">Añadir Nuevo</a>
+                </li>
+            </ul>
+            <div class="tab-content" id="categoriasSubTabContent">
+                <div class="tab-pane fade show active" id="read-categorias" role="tabpanel" aria-labelledby="read-categorias-tab">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Lista de Categorías</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="dataTableCategorias" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>ID Categoría</th>
+                                            <th>Nombre</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tfoot>
+                                        <tr>
+                                            <th>ID Categoría</th>
+                                            <th>Nombre</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </tfoot>
+                                    <tbody>
+                                        @foreach (var categoria in Model.Categorias)
+                                        {
+                                            <tr>
+                                                <td>@categoria.id_categoria_estado</td>
+                                                <td>@categoria.nombre_categoria</td>
+                                                <td>
+                                                    <a class="btn btn-sm btn-primary" data-toggle="tab" onclick='loadCategoriaData(@categoria.id_categoria_estado, true); $("#read-categorias").removeClass("active"); $("#update-categorias").addClass("show active");'><i class="fas fa-edit"></i></a>
+                                                    <a class="btn btn-sm btn-danger" onclick='var data = { id: @categoria.id_categoria_estado }; popups.showConfirmDelete("Confirmar Eliminación", "¿Está seguro de que desea eliminar esta categoría?", "/adminpanel/deletecategoria", data )'><i class="fas fa-trash"></i></a>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tab-pane fade card shadow" id="create-categorias" role="tabpanel" aria-labelledby="create-categorias-tab">
+                    <div class="card-body">
+                        <form id="createCategoriaForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="createNombreCategoria">Nombre Categoría</label>
+                                <input type="text" class="form-control" id="createNombreCategoria" name="nombre_categoria" required />
+                                <span class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Añadir Categoría</button>
+                            <button type="button" class="btn btn-warning" onclick="clearCreateForm()">Limpiar Campos</button>
+                            <button type="button" class="btn btn-secondary" onclick="cancelCreateForm()">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="tab-pane fade card shadow" id="update-categorias" role="tabpanel">
+                    <div class="card-body">
+                        <form id="updateCategoriaForm" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="updateIdCategoria">ID Categoría</label>
+                                <input type="text" class="form-control" id="updateIdCategoria" name="id_categoria" readonly disabled />
+                            </div>
+                            <div class="form-group">
+                                <label for="updateNombreCategoria">Nombre Categoría</label>
+                                <input type="text" class="form-control" id="updateNombreCategoria" name="nombre_categoria" required disabled />
+                                <span class="text-danger"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary" disabled>Modificar Categoría</button>
+                            <button type="button" id="cancelUpdateCategoria" onclick="location.reload()" class="btn btn-secondary">Cancelar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section scripts{
+    <script>
+        var initialUpdateValues = {};
+
+        $(document).ready(function () {
+            $('#dataTableEstados').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 3 }
+                ],
+                "order": [[0, "asc"]]
+            });
+
+            $('#dataTableCategorias').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.21/i18n/Spanish.json"
+                },
+                "columnDefs": [
+                    { "orderable": false, "targets": 2 }
+                ],
+                "order": [[0, "asc"]]
+            });
+
+            $('#createEstadoForm').submit(function (e) {
+                e.preventDefault();
+                submitCreateEstadoForm();
+            });
+
+            $('#updateEstadoForm').submit(function (e) {
+                e.preventDefault();
+                submitUpdateEstadoForm();
+            });
+
+            $('#createCategoriaForm').submit(function (e) {
+                e.preventDefault();
+                submitCreateCategoriaForm();
+            });
+
+            $('#updateCategoriaForm').submit(function (e) {
+                e.preventDefault();
+                submitUpdateCategoriaForm();
+            });
+
+            $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                if (e.target.id !== 'update-estados-tab') {
+                    $('#updateEstadoForm')[0].reset();
+                    $('#updateEstadoForm input, #updateEstadoForm button[type="submit"]').prop('disabled', true);
+                }
+                if (e.target.id !== 'create-estados-tab') {
+                    $('#createEstadoForm')[0].reset();
+                    $('#createEstadoForm button[type="submit"], #createEstadoForm button.btn-warning').prop('disabled', true);
+                }
+                if (e.target.id !== 'update-categorias-tab') {
+                    $('#updateCategoriaForm')[0].reset();
+                    $('#updateCategoriaForm input, #updateCategoriaForm button[type="submit"]').prop('disabled', true);
+                }
+                if (e.target.id !== 'create-categorias-tab') {
+                    $('#createCategoriaForm')[0].reset();
+                    $('#createCategoriaForm button[type="submit"], #createCategoriaForm button.btn-warning').prop('disabled', true);
+                }
+            });
+
+            $('#createEstadoForm button[type="submit"], #createEstadoForm button.btn-warning').prop('disabled', true);
+            $('#createCategoriaForm button[type="submit"], #createCategoriaForm button.btn-warning').prop('disabled', true);
+
+            $('#createEstadoForm input, #createEstadoForm select').on('input change', function () {
+                var allFilled = true;
+                $('#createEstadoForm input[required], #createEstadoForm select[required]').each(function () {
+                    if ($(this).val() === '') {
+                        allFilled = false;
+                    }
+                });
+                $('#createEstadoForm button[type="submit"]').prop('disabled', !allFilled);
+            });
+
+            $('#createEstadoForm input, #createEstadoForm select').on('input change', function () {
+                var anyFilled = false;
+                $('#createEstadoForm input, #createEstadoForm select').each(function () {
+                    if ($(this).val() !== '') {
+                        anyFilled = true;
+                    }
+                });
+                $('#createEstadoForm button.btn-warning').prop('disabled', !anyFilled);
+            });
+
+            $('#createCategoriaForm input').on('input change', function () {
+                var allFilled = true;
+                $('#createCategoriaForm input[required]').each(function () {
+                    if ($(this).val() === '') {
+                        allFilled = false;
+                    }
+                });
+                $('#createCategoriaForm button[type="submit"]').prop('disabled', !allFilled);
+            });
+
+            $('#createCategoriaForm input').on('input change', function () {
+                var anyFilled = false;
+                $('#createCategoriaForm input').each(function () {
+                    if ($(this).val() !== '') {
+                        anyFilled = true;
+                    }
+                });
+                $('#createCategoriaForm button.btn-warning').prop('disabled', !anyFilled);
+            });
+
+            $('#updateEstadoForm input').each(function () {
+                initialUpdateValues[$(this).attr('id')] = $(this).val();
+            });
+
+            $('#updateEstadoForm input').on('input', function () {
+                var anyChanged = false;
+                $('#updateEstadoForm input').each(function () {
+                    if ($(this).val() !== initialUpdateValues[$(this).attr('id')]) {
+                        anyChanged = true;
+                    }
+                });
+                $('#updateEstadoForm button[type="submit"]').prop('disabled', !anyChanged);
+            });
+
+            $('#updateEstadoForm input, #updateEstadoForm select').on('input change', function () {
+                checkForChanges();
+            });
+
+            $('#updateCategoriaForm input').each(function () {
+                initialUpdateValues[$(this).attr('id')] = $(this).val();
+            });
+
+            $('#updateCategoriaForm input').on('input', function () {
+                var anyChanged = false;
+                $('#updateCategoriaForm input').each(function () {
+                    if ($(this).val() !== initialUpdateValues[$(this).attr('id')]) {
+                        anyChanged = true;
+                    }
+                });
+                $('#updateCategoriaForm button[type="submit"]').prop('disabled', !anyChanged);
+            });
+
+            $('#updateCategoriaForm input').on('input change', function () {
+                checkForChangesCategoria();
+            });
+        });
+
+        function submitCreateEstadoForm() {
+            var formData = new FormData($('#createEstadoForm')[0]);
+            $.ajax({
+                url: '@Url.Action("CreateEstado", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Estado añadido exitosamente.", "Redirigiendo a la lista de estados...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("States", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer("Error al añadir el estado.");
+                    }
+                }
+            });
+        }
+
+        function submitUpdateEstadoForm() {
+            var formData = new FormData($('#updateEstadoForm')[0]);
+            $.ajax({
+                url: '@Url.Action("UpdateEstado", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Estado modificado exitosamente.", "Redirigiendo a la lista de estados...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("States", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.message || "Error al modificar el estado.");
+                    }
+                }
+            });
+        }
+
+        function submitCreateCategoriaForm() {
+            var formData = new FormData($('#createCategoriaForm')[0]);
+            $.ajax({
+                url: '@Url.Action("CreateCategoria", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Categoría añadida exitosamente.", "Redirigiendo a la lista de categorías...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("States", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer("Error al añadir la categoría.");
+                    }
+                }
+            });
+        }
+
+        function submitUpdateCategoriaForm() {
+            var formData = new FormData($('#updateCategoriaForm')[0]);
+            $.ajax({
+                url: '@Url.Action("UpdateCategoria", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    if (data.success) {
+                        popups.showSuccessTimer("Categoría modificada exitosamente.", "Redirigiendo a la lista de categorías...");
+                        setTimeout(function () {
+                            window.location.href = '@Url.Action("States", "AdminPanel").ToLower()';
+                        }, 2000);
+                    } else {
+                        popups.showErrorTimer(data.message || "Error al modificar la categoría.");
+                    }
+                }
+            });
+        }
+
+        function loadEstadoData(id) {
+            $.ajax({
+                url: '@Url.Action("GetEstado", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: id },
+                success: function (data) {
+                    $('#updateIdEstado').val(data.id_estado);
+                    $('#updateNombreEstado').val(data.nombre_estado);
+                    $('#updateCategoriaEstado').val(data.id_categoria_estado).change();
+                    enableUpdateEstadoForm();
+                    saveInitialValues();
+                    $('#updateEstadoForm button[type="submit"]').prop('disabled', true);
+                }
+            });
+        }
+
+        function loadCategoriaData(id) {
+            $.ajax({
+                url: '@Url.Action("GetCategoria", "AdminPanel").ToLower()',
+                type: 'POST',
+                data: { id: id },
+                success: function (data) {
+                    $('#updateIdCategoria').val(data.id_categoria_estado);
+                    $('#updateNombreCategoria').val(data.nombre_categoria);
+                    enableUpdateCategoriaForm();
+                    saveInitialValuesCategoria();
+                    $('#updateCategoriaForm button[type="submit"]').prop('disabled', true);
+                }
+            });
+        }
+
+        function enableUpdateEstadoForm() {
+            $('#updateEstadoForm input, #updateEstadoForm select').prop('disabled', false);
+        }
+
+        function enableUpdateCategoriaForm() {
+            $('#updateCategoriaForm input, #updateCategoriaForm button').prop('disabled', false);
+        }
+
+        function clearCreateForm() {
+            $('#createEstadoForm')[0].reset();
+            $('#createCategoriaForm')[0].reset();
+            $('#createEstadoForm button[type="submit"], #createEstadoForm button.btn-warning').prop('disabled', true);
+            $('#createCategoriaForm button[type="submit"], #createCategoriaForm button.btn-warning').prop('disabled', true);
+        }
+
+        function cancelCreateForm() {
+            clearCreateForm();
+            $('#read-estados-tab').tab('show');
+            $('#read-categorias-tab').tab('show');
+        }
+
+        function saveInitialValues() {
+            $('#updateEstadoForm input, #updateEstadoForm select').each(function () {
+                initialUpdateValues[$(this).attr('id')] = $(this).val();
+            });
+        }
+
+        function saveInitialValuesCategoria() {
+            $('#updateCategoriaForm input').each(function () {
+                initialUpdateValues[$(this).attr('id')] = $(this).val();
+            });
+        }
+
+        function checkForChanges() {
+            var anyChanged = false;
+            $('#updateEstadoForm input, #updateEstadoForm select').each(function () {
+                if ($(this).val() !== initialUpdateValues[$(this).attr('id')]) {
+                    anyChanged = true;
+                }
+            });
+            $('#updateEstadoForm button[type="submit"]').prop('disabled', !anyChanged);
+        }
+
+        function checkForChangesCategoria() {
+            var anyChanged = false;
+            $('#updateCategoriaForm input').each(function () {
+                if ($(this).val() !== initialUpdateValues[$(this).attr('id')]) {
+                    anyChanged = true;
+                }
+            });
+            $('#updateCategoriaForm button[type="submit"]').prop('disabled', !anyChanged);
+        }
+    </script>
+}

@@ -5,6 +5,16 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
     <Schema Namespace="TFCModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Actualizaciones_Pedidos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_pedido" Type="varchar" MaxLength="150" />
+          <Property Name="fecha" Type="datetime" />
+          <Property Name="id_estado" Type="int" />
+          <Property Name="descripcion" Type="varchar" MaxLength="255" />
+        </EntityType>
         <EntityType Name="Categorías_Estados">
           <Key>
             <PropertyRef Name="id_categoria_estado" />
@@ -24,9 +34,9 @@
             <PropertyRef Name="id" />
           </Key>
           <Property Name="id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="id_pedido" Type="int" Nullable="false" />
+          <Property Name="id_pedido" Type="varchar" MaxLength="150" Nullable="false" />
           <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
-          <Property Name="id_talla" Type="int" Nullable="false" />
+          <Property Name="id_talla" Type="varchar" MaxLength="10" Nullable="false" />
           <Property Name="cantidad" Type="int" Nullable="false" />
           <Property Name="precio_unitario" Type="decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="subtotal" Type="decimal" Precision="21" Scale="2" StoreGeneratedPattern="Computed" />
@@ -53,7 +63,7 @@
           <Key>
             <PropertyRef Name="id_estado" />
           </Key>
-          <Property Name="id_estado" Type="int" Nullable="false" />
+          <Property Name="id_estado" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="nombre_estado" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="id_categoria_estado" Type="int" Nullable="false" />
         </EntityType>
@@ -91,15 +101,19 @@
           <Key>
             <PropertyRef Name="id_pedido" />
           </Key>
-          <Property Name="id_pedido" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="id_pedido" Type="varchar" MaxLength="150" Nullable="false" />
           <Property Name="id_usuario" Type="int" Nullable="false" />
-          <Property Name="fecha_pedido" Type="date" Nullable="false" />
+          <Property Name="fecha_pedido" Type="datetime" Nullable="false" />
           <Property Name="total" Type="decimal" Precision="10" Scale="2" Nullable="false" />
           <Property Name="metodo_pago" Type="varchar" MaxLength="50" />
-          <Property Name="fecha_envio" Type="date" />
+          <Property Name="fecha_envio" Type="datetime" />
           <Property Name="notas" Type="varchar" MaxLength="200" />
           <Property Name="id_estado" Type="int" Nullable="false" />
-          <Property Name="id_direccion" Type="int" />
+          <Property Name="id_direccionEnvio" Type="int" />
+          <Property Name="id_direccionFacturacion" Type="int" />
+          <Property Name="last4" Type="varchar" MaxLength="4" />
+          <Property Name="tipo_tarjeta" Type="varchar" MaxLength="20" />
+          <Property Name="precio_envio" Type="decimal" Precision="10" Scale="2" Nullable="false" />
         </EntityType>
         <EntityType Name="Productos">
           <Key>
@@ -150,11 +164,17 @@
           <Property Name="nombre" Type="varchar" MaxLength="40" Nullable="false" />
           <Property Name="apellidos" Type="varchar" MaxLength="60" Nullable="false" />
           <Property Name="email" Type="varchar" MaxLength="80" Nullable="false" />
-          <Property Name="contrasenia" Type="varchar(max)" Nullable="false" />
+          <Property Name="contrasenia" Type="varchar(max)" />
           <Property Name="verificado" Type="bit" Nullable="false" />
           <Property Name="administrador" Type="bit" Nullable="false" />
           <Property Name="super_administrador" Type="bit" Nullable="false" />
-          <Property Name="fecha_registro" Type="date" Nullable="false" />
+          <Property Name="fecha_registro" Type="date" />
+          <Property Name="guest" Type="bit" Nullable="false" />
+          <Property Name="VerificationToken" Type="varchar" MaxLength="64" />
+          <Property Name="baja" Type="bit" Nullable="false" />
+          <Property Name="fecha_baja" Type="date" />
+          <Property Name="ResetPasswordToken" Type="varchar" MaxLength="64" />
+          <Property Name="TokenExpiration" Type="datetime" />
         </EntityType>
         <EntityType Name="Wishlist">
           <Key>
@@ -165,6 +185,30 @@
           <Property Name="id_producto" Type="varchar" MaxLength="50" Nullable="false" />
           <Property Name="en_stock" Type="bit" Nullable="false" />
         </EntityType>
+        <Association Name="FK__Actualiza__id_es__45BE5BA9">
+          <End Role="Estados" Type="Self.Estados" Multiplicity="0..1" />
+          <End Role="Actualizaciones_Pedidos" Type="Self.Actualizaciones_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Actualizaciones_Pedidos">
+              <PropertyRef Name="id_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Actualiza__id_pe__44CA3770">
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="0..1" />
+          <End Role="Actualizaciones_Pedidos" Type="Self.Actualizaciones_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Actualizaciones_Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK__Inventari__id_pr__74794A92">
           <End Role="Productos" Type="Self.Productos" Multiplicity="1">
             <OnDelete Action="Cascade" />
@@ -193,6 +237,30 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Detalles_Pedidos_Pedidos">
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="1" />
+          <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Detalles_Pedidos_Productos">
+          <End Role="Productos" Type="Self.Productos" Multiplicity="1" />
+          <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_DetallesPedidos_Estados">
           <End Role="Estados" Type="Self.Estados" Multiplicity="1" />
           <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
@@ -205,7 +273,7 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_direccion">
+        <Association Name="fk_direccion_envio">
           <End Role="Direcciones" Type="Self.Direcciones" Multiplicity="0..1" />
           <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="*" />
           <ReferentialConstraint>
@@ -213,7 +281,19 @@
               <PropertyRef Name="id_direccion" />
             </Principal>
             <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccionEnvio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_direccion_facturacion">
+          <End Role="Direcciones" Type="Self.Direcciones" Multiplicity="0..1" />
+          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
               <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccionFacturacion" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -230,7 +310,9 @@
           </ReferentialConstraint>
         </Association>
         <Association Name="FK_Estados_Categorias">
-          <End Role="Categorías_Estados" Type="Self.Categorías_Estados" Multiplicity="1" />
+          <End Role="Categorías_Estados" Type="Self.Categorías_Estados" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
           <End Role="Estados" Type="Self.Estados" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Categorías_Estados">
@@ -264,18 +346,6 @@
             </Principal>
             <Dependent Role="Modelos">
               <PropertyRef Name="id_marca" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_pedido">
-          <End Role="Pedidos" Type="Self.Pedidos" Multiplicity="1" />
-          <End Role="Detalles_Pedidos" Type="Self.Detalles_Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Pedidos">
-              <PropertyRef Name="id_pedido" />
-            </Principal>
-            <Dependent Role="Detalles_Pedidos">
-              <PropertyRef Name="id_pedido" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -352,6 +422,7 @@
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="TFCModelStoreContainer">
+          <EntitySet Name="Actualizaciones_Pedidos" EntityType="Self.Actualizaciones_Pedidos" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Categorías_Estados" EntityType="Self.Categorías_Estados" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Colores" EntityType="Self.Colores" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Detalles_Pedidos" EntityType="Self.Detalles_Pedidos" Schema="dbo" store:Type="Tables" />
@@ -367,6 +438,14 @@
           <EntitySet Name="Tallas_Universales" EntityType="Self.Tallas_Universales" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Usuarios" EntityType="Self.Usuarios" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Wishlist" EntityType="Self.Wishlist" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK__Actualiza__id_es__45BE5BA9" Association="Self.FK__Actualiza__id_es__45BE5BA9">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Actualizaciones_Pedidos" EntitySet="Actualizaciones_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Actualiza__id_pe__44CA3770" Association="Self.FK__Actualiza__id_pe__44CA3770">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Actualizaciones_Pedidos" EntitySet="Actualizaciones_Pedidos" />
+          </AssociationSet>
           <AssociationSet Name="FK__Inventari__id_pr__74794A92" Association="Self.FK__Inventari__id_pr__74794A92">
             <End Role="Productos" EntitySet="Productos" />
             <End Role="Inventario" EntitySet="Inventario" />
@@ -375,11 +454,23 @@
             <End Role="Marcas" EntitySet="Marcas" />
             <End Role="Tallas_Marcas" EntitySet="Tallas_Marcas" />
           </AssociationSet>
+          <AssociationSet Name="FK_Detalles_Pedidos_Pedidos" Association="Self.FK_Detalles_Pedidos_Pedidos">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Detalles_Pedidos_Productos" Association="Self.FK_Detalles_Pedidos_Productos">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
           <AssociationSet Name="FK_DetallesPedidos_Estados" Association="Self.FK_DetallesPedidos_Estados">
             <End Role="Estados" EntitySet="Estados" />
             <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
           </AssociationSet>
-          <AssociationSet Name="fk_direccion" Association="Self.fk_direccion">
+          <AssociationSet Name="fk_direccion_envio" Association="Self.fk_direccion_envio">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_direccion_facturacion" Association="Self.fk_direccion_facturacion">
             <End Role="Direcciones" EntitySet="Direcciones" />
             <End Role="Pedidos" EntitySet="Pedidos" />
           </AssociationSet>
@@ -398,10 +489,6 @@
           <AssociationSet Name="FK_Modelos_Marcas" Association="Self.FK_Modelos_Marcas">
             <End Role="Marcas" EntitySet="Marcas" />
             <End Role="Modelos" EntitySet="Modelos" />
-          </AssociationSet>
-          <AssociationSet Name="fk_pedido" Association="Self.fk_pedido">
-            <End Role="Pedidos" EntitySet="Pedidos" />
-            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
           </AssociationSet>
           <AssociationSet Name="fk_producto_wishlist" Association="Self.fk_producto_wishlist">
             <End Role="Productos" EntitySet="Productos" />
@@ -434,12 +521,10 @@
       <Schema Namespace="TFCModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
         <EntityContainer Name="TFCEntities" annotation:LazyLoadingEnabled="true">
           <EntitySet Name="Categorías_Estados" EntityType="TFCModel.Categorías_Estados" />
-          <EntitySet Name="Detalles_Pedidos" EntityType="TFCModel.Detalles_Pedidos" />
           <EntitySet Name="Estados" EntityType="TFCModel.Estados" />
           <EntitySet Name="Inventario" EntityType="TFCModel.Inventario" />
           <EntitySet Name="Marcas" EntityType="TFCModel.Marcas" />
           <EntitySet Name="Modelos" EntityType="TFCModel.Modelos" />
-          <EntitySet Name="Pedidos" EntityType="TFCModel.Pedidos" />
           <EntitySet Name="Productos" EntityType="TFCModel.Productos" />
           <EntitySet Name="Tallas_Marcas" EntityType="TFCModel.Tallas_Marcas" />
           <EntitySet Name="Tallas_Universales" EntityType="TFCModel.Tallas_Universales" />
@@ -448,18 +533,6 @@
           <AssociationSet Name="FK_Estados_Categorias" Association="TFCModel.FK_Estados_Categorias">
             <End Role="Categorías_Estados" EntitySet="Categorías_Estados" />
             <End Role="Estados" EntitySet="Estados" />
-          </AssociationSet>
-          <AssociationSet Name="FK_DetallesPedidos_Estados" Association="TFCModel.FK_DetallesPedidos_Estados">
-            <End Role="Estados" EntitySet="Estados" />
-            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
-          </AssociationSet>
-          <AssociationSet Name="fk_pedido" Association="TFCModel.fk_pedido">
-            <End Role="Pedidos" EntitySet="Pedidos" />
-            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
-          </AssociationSet>
-          <AssociationSet Name="fk_estado" Association="TFCModel.fk_estado">
-            <End Role="Estados" EntitySet="Estados" />
-            <End Role="Pedidos" EntitySet="Pedidos" />
           </AssociationSet>
           <AssociationSet Name="FK__Inventari__id_pr__74794A92" Association="TFCModel.FK__Inventari__id_pr__74794A92">
             <End Role="Productos" EntitySet="Productos" />
@@ -489,10 +562,6 @@
             <End Role="Modelos" EntitySet="Modelos" />
             <End Role="Productos" EntitySet="Productos" />
           </AssociationSet>
-          <AssociationSet Name="fk_usuario" Association="TFCModel.fk_usuario">
-            <End Role="Usuarios" EntitySet="Usuarios" />
-            <End Role="Pedidos" EntitySet="Pedidos" />
-          </AssociationSet>
           <AssociationSet Name="fk_producto_wishlist" Association="TFCModel.fk_producto_wishlist">
             <End Role="Productos" EntitySet="Productos" />
             <End Role="Wishlist" EntitySet="Wishlist" />
@@ -512,13 +581,48 @@
             <End Role="Productos_Colores" EntitySet="Productos_Colores" />
           </AssociationSet>
           <EntitySet Name="Direcciones" EntityType="TFCModel.Direcciones" />
-          <AssociationSet Name="fk_direccion" Association="TFCModel.fk_direccion">
-            <End Role="Direcciones" EntitySet="Direcciones" />
-            <End Role="Pedidos" EntitySet="Pedidos" />
-          </AssociationSet>
           <AssociationSet Name="fk_usuario_direccion" Association="TFCModel.fk_usuario_direccion">
             <End Role="Usuarios" EntitySet="Usuarios" />
             <End Role="Direcciones" EntitySet="Direcciones" />
+          </AssociationSet>
+          <EntitySet Name="Detalles_Pedidos" EntityType="TFCModel.Detalles_Pedidos" />
+          <EntitySet Name="Pedidos" EntityType="TFCModel.Pedidos" />
+          <AssociationSet Name="FK_Detalles_Pedidos_Pedidos" Association="TFCModel.FK_Detalles_Pedidos_Pedidos">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_DetallesPedidos_Estados" Association="TFCModel.FK_DetallesPedidos_Estados">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_estado" Association="TFCModel.fk_estado">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_usuario" Association="TFCModel.fk_usuario">
+            <End Role="Usuarios" EntitySet="Usuarios" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_direccion_envio" Association="TFCModel.fk_direccion_envio">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="fk_direccion_facturacion" Association="TFCModel.fk_direccion_facturacion">
+            <End Role="Direcciones" EntitySet="Direcciones" />
+            <End Role="Pedidos" EntitySet="Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Detalles_Pedidos_Productos" Association="TFCModel.FK_Detalles_Pedidos_Productos">
+            <End Role="Productos" EntitySet="Productos" />
+            <End Role="Detalles_Pedidos" EntitySet="Detalles_Pedidos" />
+          </AssociationSet>
+          <EntitySet Name="Actualizaciones_Pedidos" EntityType="TFCModel.Actualizaciones_Pedidos" />
+          <AssociationSet Name="FK__Actualiza__id_es__45BE5BA9" Association="TFCModel.FK__Actualiza__id_es__45BE5BA9">
+            <End Role="Estados" EntitySet="Estados" />
+            <End Role="Actualizaciones_Pedidos" EntitySet="Actualizaciones_Pedidos" />
+          </AssociationSet>
+          <AssociationSet Name="FK__Actualiza__id_pe__44CA3770" Association="TFCModel.FK__Actualiza__id_pe__44CA3770">
+            <End Role="Pedidos" EntitySet="Pedidos" />
+            <End Role="Actualizaciones_Pedidos" EntitySet="Actualizaciones_Pedidos" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Categorías_Estados">
@@ -528,21 +632,6 @@
           <Property Name="id_categoria_estado" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="nombre_categoria" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="true" />
           <NavigationProperty Name="Estados" Relationship="TFCModel.FK_Estados_Categorias" FromRole="Categorías_Estados" ToRole="Estados" />
-        </EntityType>
-        <EntityType Name="Detalles_Pedidos">
-          <Key>
-            <PropertyRef Name="id" />
-          </Key>
-          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_pedido" Type="Int32" Nullable="false" />
-          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="id_talla" Type="Int32" Nullable="false" />
-          <Property Name="cantidad" Type="Int32" Nullable="false" />
-          <Property Name="precio_unitario" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
-          <Property Name="subtotal" Type="Decimal" Precision="21" Scale="2" annotation:StoreGeneratedPattern="Computed" />
-          <Property Name="estado_linea" Type="Int32" Nullable="false" />
-          <NavigationProperty Name="Estados" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Detalles_Pedidos" ToRole="Estados" />
-          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Detalles_Pedidos" ToRole="Pedidos" />
         </EntityType>
         <EntityType Name="Estados">
           <Key>
@@ -554,6 +643,7 @@
           <NavigationProperty Name="Categorías_Estados" Relationship="TFCModel.FK_Estados_Categorias" FromRole="Estados" ToRole="Categorías_Estados" />
           <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Estados" ToRole="Detalles_Pedidos" />
           <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_estado" FromRole="Estados" ToRole="Pedidos" />
+          <NavigationProperty Name="Actualizaciones_Pedidos" Relationship="TFCModel.FK__Actualiza__id_es__45BE5BA9" FromRole="Estados" ToRole="Actualizaciones_Pedidos" />
         </EntityType>
         <EntityType Name="Inventario">
           <Key>
@@ -593,24 +683,6 @@
           <NavigationProperty Name="Marcas" Relationship="TFCModel.FK_Modelos_Marcas" FromRole="Modelos" ToRole="Marcas" />
           <NavigationProperty Name="Productos" Relationship="TFCModel.FK_Productos_Modelos" FromRole="Modelos" ToRole="Productos" />
         </EntityType>
-        <EntityType Name="Pedidos">
-          <Key>
-            <PropertyRef Name="id_pedido" />
-          </Key>
-          <Property Name="id_pedido" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="id_usuario" Type="Int32" Nullable="false" />
-          <Property Name="fecha_pedido" Type="DateTime" Nullable="false" Precision="0" />
-          <Property Name="total" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
-          <Property Name="metodo_pago" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="fecha_envio" Type="DateTime" Precision="0" />
-          <Property Name="notas" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="id_estado" Type="Int32" Nullable="false" />
-          <Property Name="id_direccion" Type="Int32" />
-          <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.fk_pedido" FromRole="Pedidos" ToRole="Detalles_Pedidos" />
-          <NavigationProperty Name="Estados" Relationship="TFCModel.fk_estado" FromRole="Pedidos" ToRole="Estados" />
-          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario" FromRole="Pedidos" ToRole="Usuarios" />
-          <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_direccion" FromRole="Pedidos" ToRole="Direcciones" />
-        </EntityType>
         <EntityType Name="Productos">
           <Key>
             <PropertyRef Name="id_producto" />
@@ -630,6 +702,7 @@
           <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_producto_wishlist" FromRole="Productos" ToRole="Wishlist" />
           <Property Name="veces_visto" Type="Int32" Nullable="false" />
           <NavigationProperty Name="Productos_Colores" Relationship="TFCModel.ProductosProductos_Colores" FromRole="Productos" ToRole="Productos_Colores" />
+          <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.FK_Detalles_Pedidos_Productos" FromRole="Productos" ToRole="Detalles_Pedidos" />
         </EntityType>
         <EntityType Name="Tallas_Marcas">
           <Key>
@@ -659,15 +732,21 @@
           <Property Name="id_usuario" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="nombre" Type="String" Nullable="false" MaxLength="40" FixedLength="false" Unicode="false" />
           <Property Name="apellidos" Type="String" Nullable="false" MaxLength="60" FixedLength="false" Unicode="false" />
-          <Property Name="email" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="contrasenia" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="email" Type="String" MaxLength="80" FixedLength="false" Unicode="false" Nullable="false" />
+          <Property Name="contrasenia" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
           <Property Name="verificado" Type="Boolean" Nullable="false" />
           <Property Name="administrador" Type="Boolean" Nullable="false" />
           <Property Name="super_administrador" Type="Boolean" Nullable="false" />
-          <Property Name="fecha_registro" Type="DateTime" Nullable="false" Precision="0" />
-          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_usuario" FromRole="Usuarios" ToRole="Pedidos" />
+          <Property Name="fecha_registro" Type="DateTime" Precision="0" />
           <NavigationProperty Name="Wishlist" Relationship="TFCModel.fk_usuario_wishlist" FromRole="Usuarios" ToRole="Wishlist" />
           <NavigationProperty Name="Direcciones" Relationship="TFCModel.fk_usuario_direccion" FromRole="Usuarios" ToRole="Direcciones" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_usuario" FromRole="Usuarios" ToRole="Pedidos" />
+          <Property Name="guest" Type="Boolean" Nullable="false" />
+          <Property Name="VerificationToken" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="baja" Type="Boolean" Nullable="false" />
+          <Property Name="fecha_baja" Type="DateTime" Precision="0" />
+          <Property Name="ResetPasswordToken" Type="String" MaxLength="64" FixedLength="false" Unicode="false" />
+          <Property Name="TokenExpiration" Type="DateTime" Precision="3" />
         </EntityType>
         <EntityType Name="Wishlist">
           <Key>
@@ -689,42 +768,6 @@
             </Principal>
             <Dependent Role="Estados">
               <PropertyRef Name="id_categoria_estado" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_DetallesPedidos_Estados">
-          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
-          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Estados">
-              <PropertyRef Name="id_estado" />
-            </Principal>
-            <Dependent Role="Detalles_Pedidos">
-              <PropertyRef Name="estado_linea" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_pedido">
-          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="1" />
-          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Pedidos">
-              <PropertyRef Name="id_pedido" />
-            </Principal>
-            <Dependent Role="Detalles_Pedidos">
-              <PropertyRef Name="id_pedido" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="fk_estado">
-          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
-          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Estados">
-              <PropertyRef Name="id_estado" />
-            </Principal>
-            <Dependent Role="Pedidos">
-              <PropertyRef Name="id_estado" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -820,18 +863,6 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="fk_usuario">
-          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
-          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Usuarios">
-              <PropertyRef Name="id_usuario" />
-            </Principal>
-            <Dependent Role="Pedidos">
-              <PropertyRef Name="id_usuario" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="fk_producto_wishlist">
           <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1" />
           <End Type="TFCModel.Wishlist" Role="Wishlist" Multiplicity="*" />
@@ -914,21 +945,10 @@
           <Property Name="tipo_direccion" Type="Byte" Nullable="false" />
           <Property Name="predeterminada" Type="Boolean" Nullable="false" />
           <Property Name="provincia" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
-          <NavigationProperty Name="Pedidos" Relationship="TFCModel.fk_direccion" FromRole="Direcciones" ToRole="Pedidos" />
           <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario_direccion" FromRole="Direcciones" ToRole="Usuarios" />
+          <NavigationProperty Name="Pedidos1" Relationship="TFCModel.fk_direccion_envio" FromRole="Direcciones" ToRole="Pedidos" />
+          <NavigationProperty Name="Pedidos11" Relationship="TFCModel.fk_direccion_facturacion" FromRole="Direcciones" ToRole="Pedidos" />
         </EntityType>
-        <Association Name="fk_direccion">
-          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
-          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="Direcciones">
-              <PropertyRef Name="id_direccion" />
-            </Principal>
-            <Dependent Role="Pedidos">
-              <PropertyRef Name="id_direccion" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
         <Association Name="fk_usuario_direccion">
           <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
           <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="*" />
@@ -938,6 +958,166 @@
             </Principal>
             <Dependent Role="Direcciones">
               <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Detalles_Pedidos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_pedido" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_producto" Type="String" Nullable="false" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="id_talla" Type="String" Nullable="false" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="cantidad" Type="Int32" Nullable="false" />
+          <Property Name="precio_unitario" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="subtotal" Type="Decimal" Precision="21" Scale="2" annotation:StoreGeneratedPattern="Computed" />
+          <Property Name="estado_linea" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.FK_Detalles_Pedidos_Pedidos" FromRole="Detalles_Pedidos" ToRole="Pedidos" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.FK_DetallesPedidos_Estados" FromRole="Detalles_Pedidos" ToRole="Estados" />
+          <NavigationProperty Name="Productos" Relationship="TFCModel.FK_Detalles_Pedidos_Productos" FromRole="Detalles_Pedidos" ToRole="Productos" />
+        </EntityType>
+        <EntityType Name="Pedidos">
+          <Key>
+            <PropertyRef Name="id_pedido" />
+          </Key>
+          <Property Name="id_pedido" Type="String" Nullable="false" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="id_usuario" Type="Int32" Nullable="false" />
+          <Property Name="fecha_pedido" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="total" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+          <Property Name="metodo_pago" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="fecha_envio" Type="DateTime" Precision="3" />
+          <Property Name="notas" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="id_estado" Type="Int32" Nullable="false" />
+          <NavigationProperty Name="Detalles_Pedidos" Relationship="TFCModel.FK_Detalles_Pedidos_Pedidos" FromRole="Pedidos" ToRole="Detalles_Pedidos" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.fk_estado" FromRole="Pedidos" ToRole="Estados" />
+          <NavigationProperty Name="Usuarios" Relationship="TFCModel.fk_usuario" FromRole="Pedidos" ToRole="Usuarios" />
+          <Property Name="id_direccionEnvio" Type="Int32" />
+          <Property Name="id_direccionFacturacion" Type="Int32" />
+          <NavigationProperty Name="Direcciones1" Relationship="TFCModel.fk_direccion_envio" FromRole="Pedidos" ToRole="Direcciones" />
+          <NavigationProperty Name="Direcciones11" Relationship="TFCModel.fk_direccion_facturacion" FromRole="Pedidos" ToRole="Direcciones" />
+          <Property Name="last4" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="tipo_tarjeta" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Actualizaciones_Pedidos" Relationship="TFCModel.FK__Actualiza__id_pe__44CA3770" FromRole="Pedidos" ToRole="Actualizaciones_Pedidos" />
+          <Property Name="precio_envio" Type="Decimal" Nullable="false" Precision="10" Scale="2" />
+        </EntityType>
+        <Association Name="FK_Detalles_Pedidos_Pedidos">
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="1" />
+          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_DetallesPedidos_Estados">
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
+          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="estado_linea" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_estado">
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_usuario">
+          <End Type="TFCModel.Usuarios" Role="Usuarios" Multiplicity="1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Usuarios">
+              <PropertyRef Name="id_usuario" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_usuario" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_direccion_envio">
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
+              <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccionEnvio" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="fk_direccion_facturacion">
+          <End Type="TFCModel.Direcciones" Role="Direcciones" Multiplicity="0..1" />
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Direcciones">
+              <PropertyRef Name="id_direccion" />
+            </Principal>
+            <Dependent Role="Pedidos">
+              <PropertyRef Name="id_direccionFacturacion" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Detalles_Pedidos_Productos">
+          <End Type="TFCModel.Productos" Role="Productos" Multiplicity="1" />
+          <End Type="TFCModel.Detalles_Pedidos" Role="Detalles_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Productos">
+              <PropertyRef Name="id_producto" />
+            </Principal>
+            <Dependent Role="Detalles_Pedidos">
+              <PropertyRef Name="id_producto" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Actualizaciones_Pedidos">
+          <Key>
+            <PropertyRef Name="id" />
+          </Key>
+          <Property Name="id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="id_pedido" Type="String" MaxLength="150" FixedLength="false" Unicode="false" />
+          <Property Name="fecha" Type="DateTime" Precision="3" />
+          <Property Name="id_estado" Type="Int32" />
+          <Property Name="descripcion" Type="String" MaxLength="255" FixedLength="false" Unicode="false" />
+          <NavigationProperty Name="Estados" Relationship="TFCModel.FK__Actualiza__id_es__45BE5BA9" FromRole="Actualizaciones_Pedidos" ToRole="Estados" />
+          <NavigationProperty Name="Pedidos" Relationship="TFCModel.FK__Actualiza__id_pe__44CA3770" FromRole="Actualizaciones_Pedidos" ToRole="Pedidos" />
+        </EntityType>
+        <Association Name="FK__Actualiza__id_es__45BE5BA9">
+          <End Type="TFCModel.Estados" Role="Estados" Multiplicity="0..1" />
+          <End Type="TFCModel.Actualizaciones_Pedidos" Role="Actualizaciones_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Estados">
+              <PropertyRef Name="id_estado" />
+            </Principal>
+            <Dependent Role="Actualizaciones_Pedidos">
+              <PropertyRef Name="id_estado" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK__Actualiza__id_pe__44CA3770">
+          <End Type="TFCModel.Pedidos" Role="Pedidos" Multiplicity="0..1" />
+          <End Type="TFCModel.Actualizaciones_Pedidos" Role="Actualizaciones_Pedidos" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Pedidos">
+              <PropertyRef Name="id_pedido" />
+            </Principal>
+            <Dependent Role="Actualizaciones_Pedidos">
+              <PropertyRef Name="id_pedido" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -952,20 +1132,6 @@
               <MappingFragment StoreEntitySet="Categorías_Estados">
                 <ScalarProperty Name="nombre_categoria" ColumnName="nombre_categoria" />
                 <ScalarProperty Name="id_categoria_estado" ColumnName="id_categoria_estado" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="Detalles_Pedidos">
-            <EntityTypeMapping TypeName="TFCModel.Detalles_Pedidos">
-              <MappingFragment StoreEntitySet="Detalles_Pedidos">
-                <ScalarProperty Name="estado_linea" ColumnName="estado_linea" />
-                <ScalarProperty Name="subtotal" ColumnName="subtotal" />
-                <ScalarProperty Name="precio_unitario" ColumnName="precio_unitario" />
-                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
-                <ScalarProperty Name="id_talla" ColumnName="id_talla" />
-                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
-                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
-                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1011,21 +1177,6 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="Pedidos">
-            <EntityTypeMapping TypeName="TFCModel.Pedidos">
-              <MappingFragment StoreEntitySet="Pedidos">
-                <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
-                <ScalarProperty Name="id_estado" ColumnName="id_estado" />
-                <ScalarProperty Name="notas" ColumnName="notas" />
-                <ScalarProperty Name="fecha_envio" ColumnName="fecha_envio" />
-                <ScalarProperty Name="metodo_pago" ColumnName="metodo_pago" />
-                <ScalarProperty Name="total" ColumnName="total" />
-                <ScalarProperty Name="fecha_pedido" ColumnName="fecha_pedido" />
-                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
-                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
           <EntitySetMapping Name="Productos">
             <EntityTypeMapping TypeName="TFCModel.Productos">
               <MappingFragment StoreEntitySet="Productos">
@@ -1064,6 +1215,12 @@
           <EntitySetMapping Name="Usuarios">
             <EntityTypeMapping TypeName="TFCModel.Usuarios">
               <MappingFragment StoreEntitySet="Usuarios">
+                <ScalarProperty Name="TokenExpiration" ColumnName="TokenExpiration" />
+                <ScalarProperty Name="ResetPasswordToken" ColumnName="ResetPasswordToken" />
+                <ScalarProperty Name="fecha_baja" ColumnName="fecha_baja" />
+                <ScalarProperty Name="baja" ColumnName="baja" />
+                <ScalarProperty Name="VerificationToken" ColumnName="VerificationToken" />
+                <ScalarProperty Name="guest" ColumnName="guest" />
                 <ScalarProperty Name="fecha_registro" ColumnName="fecha_registro" />
                 <ScalarProperty Name="super_administrador" ColumnName="super_administrador" />
                 <ScalarProperty Name="administrador" ColumnName="administrador" />
@@ -1116,6 +1273,50 @@
                 <ScalarProperty Name="nombre" ColumnName="nombre" />
                 <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
                 <ScalarProperty Name="id_direccion" ColumnName="id_direccion" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Detalles_Pedidos">
+            <EntityTypeMapping TypeName="TFCModel.Detalles_Pedidos">
+              <MappingFragment StoreEntitySet="Detalles_Pedidos">
+                <ScalarProperty Name="estado_linea" ColumnName="estado_linea" />
+                <ScalarProperty Name="subtotal" ColumnName="subtotal" />
+                <ScalarProperty Name="precio_unitario" ColumnName="precio_unitario" />
+                <ScalarProperty Name="cantidad" ColumnName="cantidad" />
+                <ScalarProperty Name="id_talla" ColumnName="id_talla" />
+                <ScalarProperty Name="id_producto" ColumnName="id_producto" />
+                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
+                <ScalarProperty Name="id" ColumnName="id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Pedidos">
+            <EntityTypeMapping TypeName="TFCModel.Pedidos">
+              <MappingFragment StoreEntitySet="Pedidos">
+                <ScalarProperty Name="precio_envio" ColumnName="precio_envio" />
+                <ScalarProperty Name="tipo_tarjeta" ColumnName="tipo_tarjeta" />
+                <ScalarProperty Name="last4" ColumnName="last4" />
+                <ScalarProperty Name="id_direccionFacturacion" ColumnName="id_direccionFacturacion" />
+                <ScalarProperty Name="id_direccionEnvio" ColumnName="id_direccionEnvio" />
+                <ScalarProperty Name="id_estado" ColumnName="id_estado" />
+                <ScalarProperty Name="notas" ColumnName="notas" />
+                <ScalarProperty Name="fecha_envio" ColumnName="fecha_envio" />
+                <ScalarProperty Name="metodo_pago" ColumnName="metodo_pago" />
+                <ScalarProperty Name="total" ColumnName="total" />
+                <ScalarProperty Name="fecha_pedido" ColumnName="fecha_pedido" />
+                <ScalarProperty Name="id_usuario" ColumnName="id_usuario" />
+                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Actualizaciones_Pedidos">
+            <EntityTypeMapping TypeName="TFCModel.Actualizaciones_Pedidos">
+              <MappingFragment StoreEntitySet="Actualizaciones_Pedidos">
+                <ScalarProperty Name="descripcion" ColumnName="descripcion" />
+                <ScalarProperty Name="id_estado" ColumnName="id_estado" />
+                <ScalarProperty Name="fecha" ColumnName="fecha" />
+                <ScalarProperty Name="id_pedido" ColumnName="id_pedido" />
+                <ScalarProperty Name="id" ColumnName="id" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

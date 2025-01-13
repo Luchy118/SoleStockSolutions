@@ -19,6 +19,7 @@
     let paths = [
         "/information/contact",
         "/account/wishlist",
+        "/account/orders",
         "/account/login",
         "/account/signup",
         "/account/index",

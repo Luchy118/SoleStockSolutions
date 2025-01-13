@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
 using RestSharp;
 using SoleStockSolutions.Filters;
@@ -11,7 +12,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
@@ -19,7 +22,6 @@ using System.Web.UI.WebControls;
 
 namespace SoleStockSolutions.Controllers
 {
-    [LoadModelosRelevantes]
     [CustomAuthorize(Roles = "Admin")]
     public class AdminPanelController : Controller
     {
@@ -63,6 +65,7 @@ namespace SoleStockSolutions.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    producto.nombre = new string(producto.nombre.Where(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)).ToArray());
                     producto.fecha_ultimo_uso_interno = DateTime.Now;
 
                     if (imagen != null && imagen.ContentLength > 0)
@@ -92,6 +95,8 @@ namespace SoleStockSolutions.Controllers
                     var existingProduct = db.Productos.Find(producto.id_producto);
                     if (existingProduct != null)
                     {
+                        producto.nombre = new string(producto.nombre.Where(c => char.IsLetterOrDigit(c) || char.IsWhiteSpace(c)).ToArray());
+
                         if (imagen != null && imagen.ContentLength > 0)
                         {
                             var fileName = Path.GetFileName(imagen.FileName);
@@ -921,7 +926,7 @@ namespace SoleStockSolutions.Controllers
                 {
                     var lines = db.Inventario.Where(p => p.id_producto == productId).ToList();
 
-                    foreach(var line in lines)
+                    foreach (var line in lines)
                         db.Inventario.Remove(line);
 
                     db.SaveChanges();
@@ -1172,11 +1177,460 @@ namespace SoleStockSolutions.Controllers
             return null;
         }
 
+        public ActionResult Orders()
+        {
+            using (var db = new TFCEntities())
+            {
+                var orders = db.Pedidos
+                    .Include(p => p.Usuarios)
+                    .Include(p => p.Estados)
+                    .Include(p => p.Detalles_Pedidos)
+                    .Include(p => p.Actualizaciones_Pedidos)
+                    .ToList();
+
+                ViewBag.CurrentAction = "AdminOrders";
+                ViewBag.EstadoConfirmadoId = db.Estados.FirstOrDefault(e => e.nombre_estado == "Confirmado")?.id_estado;
+                ViewBag.EstadoCanceladoId = db.Estados.FirstOrDefault(e => e.nombre_estado == "Cancelado")?.id_estado;
+                ViewBag.EstadoPendienteId = db.Estados.FirstOrDefault(e => e.nombre_estado == "Pendiente")?.id_estado;
+
+                return View(orders);
+            }
+        }
+
+        [HttpGet]
+        public ActionResult GetOrderDetails(string orderId)
+        {
+            using (var db = new TFCEntities())
+            {
+                var pedido = db.Pedidos.Include(p => p.Usuarios).Include(p => p.Direcciones1).Include(p => p.Direcciones11).Include(p => p.Actualizaciones_Pedidos).Include(p => p.Detalles_Pedidos).Include(p => p.Detalles_Pedidos.Select(dp => dp.Productos)).Include(p => p.Estados).FirstOrDefault(p => p.id_pedido == orderId);
+                var estados = db.Estados.ToList();
+
+                ViewBag.Estados = estados;
+
+                return PartialView("_OrderDetails", pedido);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateOrder(string orderId, int orderStatus, List<LineStatusUpdate> lineStatuses)
+        {
+            using (var db = new TFCEntities())
+            {
+                try
+                {
+                    var order = db.Pedidos.Find(orderId);
+
+                    if (order.id_estado != orderStatus)
+                    {
+                        order.id_estado = orderStatus;
+
+                        if (orderStatus == EstadoIds.Cancelado)
+                        {
+                            foreach (var lineStatus in lineStatuses)
+                            {
+                                var line = order.Detalles_Pedidos.FirstOrDefault(dp => dp.Productos.id_producto == lineStatus.ProductId);
+                                if (line != null)
+                                    line.estado_linea = lineStatus.Status;
+                            }
+                        }
+                        else
+                        {
+                            foreach (var line in order.Detalles_Pedidos)
+                                line.estado_linea = orderStatus;
+                        }
+                    }
+                    else
+                    {
+                        foreach (var lineStatus in lineStatuses)
+                        {
+                            var line = order.Detalles_Pedidos.FirstOrDefault(dp => dp.Productos.id_producto == lineStatus.ProductId);
+                            if (line != null)
+                                line.estado_linea = lineStatus.Status;
+                        }
+
+                        var pendienteEstadoId = db.Estados.FirstOrDefault(e => e.nombre_estado == "Pendiente")?.id_estado;
+                        bool allLinesPending = lineStatuses.All(ls => ls.Status == pendienteEstadoId);
+
+                        if (!allLinesPending)
+                        {
+                            var firstLineStatus = lineStatuses.First().Status;
+                            bool allLineStatusesEqual = lineStatuses.All(ls => ls.Status == firstLineStatus);
+
+                            if (allLineStatusesEqual)
+                                order.id_estado = firstLineStatus;
+                        }
+                        else
+                            order.id_estado = EstadoIds.Confirmado;
+                    }
+
+                    if (!db.Actualizaciones_Pedidos.Any(ap => ap.id_pedido == orderId && ap.id_estado == order.id_estado))
+                    {
+                        var actualizacion = new Actualizaciones_Pedidos
+                        {
+                            id_pedido = orderId,
+                            id_estado = orderStatus,
+                            fecha = DateTime.Now,
+                            descripcion = ObtenerDescripcionEstado(orderStatus)
+                        };
+                        db.Actualizaciones_Pedidos.Add(actualizacion);
+                        EnviarCorreoModificacionPedido(orderId, db.Estados.First(e => e.id_estado == orderStatus).nombre_estado);
+                    }
+
+                    db.SaveChanges();
+
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { success = false, message = ex.Message }, JsonRequestBehavior.AllowGet);
+                }
+            }
+        }
+
+        private static readonly Dictionary<int, string> EstadoDescripciones = new Dictionary<int, string>
+        {
+            { EstadoIds.Confirmado, "El pedido ha sido confirmado." },
+            { EstadoIds.Procesando, "El pedido está siendo procesado." },
+            { EstadoIds.Enviado, "El pedido ha sido enviado." },
+            { EstadoIds.EnCamino, "El pedido está en camino." },
+            { EstadoIds.Entregado, "El pedido ha sido entregado." },
+            { EstadoIds.Cancelado, "El pedido ha sido cancelado." },
+            { EstadoIds.Devuelto, "El pedido ha sido devuelto." },
+            { EstadoIds.ReembolsoEnProceso, "El reembolso está en proceso." },
+            { EstadoIds.Reembolsado, "El pedido ha sido reembolsado." },
+            { EstadoIds.EnEspera, "El pedido está en espera." },
+            { EstadoIds.PreparadoParaEnvio, "El pedido está preparado para envío." },
+            { EstadoIds.NoEntregado, "El pedido no ha sido entregado." },
+            { EstadoIds.Recogido, "El pedido ha sido recogido." }
+        };
+
+        private string ObtenerDescripcionEstado(int estadoId)
+        {
+            if (EstadoDescripciones.TryGetValue(estadoId, out var descripcion))
+                return descripcion;
+            return "El estado del pedido ha cambiado.";
+        }
+
+        private void EnviarCorreoModificacionPedido(string orderId, string orderStatus)
+        {
+            var fromAddress = new MailAddress("solestocksolutions@gmail.com", "Sole Stock Solutions");
+            var db = new TFCEntities();
+            var order = db.Pedidos.Include(o => o.Usuarios).FirstOrDefault(o => o.id_pedido == orderId);
+            var toAddress = new MailAddress(order.Usuarios.email);
+            const string fromPassword = "mbbe uhmn vcaz ktbg";
+            string subject = $"Actualización del estado de su pedido: {orderId}";
+
+            var callbackUrl = Url.Action("OrderDetails", "Account", new { orderId }, protocol: Request.Url.Scheme).ToLower();
+            var model = new Tuple<string, string, string>(orderStatus.ToString(), orderId, callbackUrl);
+
+            string body = this.RenderViewToString("~/Views/Mails/OrderUpdates.cshtml", model);
+
+            var smtp = new SmtpClient
+            {
+                Host = "smtp.gmail.com",
+                Port = 587,
+                EnableSsl = true,
+                DeliveryMethod = SmtpDeliveryMethod.Network,
+                UseDefaultCredentials = false,
+                Credentials = new NetworkCredential(fromAddress.Address, fromPassword)
+            };
+
+            using (var message = new MailMessage(fromAddress, toAddress)
+            {
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = true
+            })
+            {
+                smtp.Send(message);
+            }
+
+            db.Dispose();
+        }
+
+        public ActionResult States()
+        {
+            using (var db = new TFCEntities())
+            {
+                var model = new EstadoCategoriaViewModel
+                {
+                    Estados = db.Estados.Include(e => e.Categorías_Estados).ToList(),
+                    Categorias = db.Categorías_Estados.ToList()
+                };
+
+                ViewBag.CurrentAction = "AdminStatuses";
+
+                return View(model);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateEstado(Estados estado)
+        {
+            using (var db = new TFCEntities())
+            {
+                var exists = db.Estados.Any(e => e.nombre_estado == estado.nombre_estado && e.id_categoria_estado == estado.id_categoria_estado);
+                if (exists)
+                    return Json(new { success = false, message = "El estado ya existe en esta categoría." }, JsonRequestBehavior.AllowGet);
+
+                db.Estados.Add(estado);
+                db.SaveChanges();
+                return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateEstado(Estados estado)
+        {
+            using (var db = new TFCEntities())
+            {
+                var exists = db.Estados.Any(e => e.nombre_estado == estado.nombre_estado && e.id_categoria_estado == estado.id_categoria_estado && e.id_estado != estado.id_estado);
+                if (exists)
+                    return Json(new { success = false, message = "El estado ya existe en esta categoría." }, JsonRequestBehavior.AllowGet);
+
+                db.Entry(estado).State = EntityState.Modified;
+                db.SaveChanges();
+                return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult GetEstado(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var estado = db.Estados.Find(id);
+                if (estado != null)
+                {
+                    return Json(new 
+                    {
+                        estado.id_estado,
+                        estado.nombre_estado,
+                        estado.id_categoria_estado
+                    }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteEstado(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var estado = db.Estados.Find(id);
+                if (estado != null)
+                {
+                    db.Estados.Remove(estado);
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateCategoria(Categorías_Estados categoria)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingCategoria = db.Categorías_Estados.FirstOrDefault(c => c.nombre_categoria == categoria.nombre_categoria);
+                    if (existingCategoria != null)
+                        return Json(new { success = false, message = "La categoría ya existe." }, JsonRequestBehavior.AllowGet);
+
+                    db.Categorías_Estados.Add(categoria);
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateCategoria(Categorías_Estados categoria)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingCategoria = db.Categorías_Estados.Find(categoria.id_categoria_estado);
+                    if (existingCategoria != null && existingCategoria.nombre_categoria != categoria.nombre_categoria)
+                    {
+                        existingCategoria.nombre_categoria = categoria.nombre_categoria;
+                        db.SaveChanges();
+                        return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                    }
+                    else if (existingCategoria != null && existingCategoria.nombre_categoria == categoria.nombre_categoria)
+                    {
+                        return Json(new { success = false, message = "La categoría ya existe." }, JsonRequestBehavior.AllowGet);
+                    }
+                }
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult GetCategoria(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var categoria = db.Categorías_Estados.Find(id);
+                if (categoria != null)
+                {
+                    return Json(new
+                    {
+                        categoria.id_categoria_estado,
+                        categoria.nombre_categoria
+                    }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(null, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteCategoria(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var categoria = db.Categorías_Estados.Find(id);
+                if (categoria != null)
+                {
+                    db.Categorías_Estados.Remove(categoria);
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        public ActionResult Users()
+        {
+            using (var db = new TFCEntities())
+            {
+                var usuarios = db.Usuarios.Where(u => u.email != User.Identity.Name).ToList();
+                ViewBag.CurrentAction = "AdminUsers";
+                ViewBag.IsSuperAdmin = User.IsInRole("SuperAdmin");
+                return View(usuarios);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult GetUser(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                db.Configuration.LazyLoadingEnabled = false;
+                var usuario = db.Usuarios.Include(u => u.Pedidos)
+                             .Include(u => u.Direcciones)
+                             .Include(u => u.Wishlist)
+                             .Where(u => u.id_usuario == id)
+                             .Select(u => new
+                             {
+                                 u.id_usuario,
+                                 u.nombre,
+                                 u.apellidos,
+                                 u.email,
+                                 u.administrador,
+                                 pedidos = u.Pedidos.Select(p => new { p.id_pedido, cantidad_articulos = p.Detalles_Pedidos.Sum(dp => dp.cantidad), p.fecha_pedido, p.Estados.nombre_estado, p.total }),
+                                 direcciones = u.Direcciones.Select(d => new { d.nombre, d.direccion, d.direccion2, d.codigo_postal, d.ciudad, d.pais, d.telefono, predeterminada = d.predeterminada ? "Sí" : "No", tipo_direccion = d.tipo_direccion == 0 ? "Envío" : "Facturación" }),
+                                 wishlist = u.Wishlist.Select(w => new { w.Productos.imagen, w.Productos.nombre, w.id_producto })
+                             })
+                             .FirstOrDefault();
+
+                if (usuario != null)
+                    return Json(new { success = true, data = usuario });
+
+                return Json(new { success = false });
+            }
+        }
+
+        [HttpPost]
+        public JsonResult DeleteUser(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var usuario = db.Usuarios.Find(id);
+
+                if (usuario != null)
+                {
+                    usuario.verificado = false;
+                    usuario.baja = true;
+                    usuario.fecha_baja = DateTime.Now;
+                    db.Entry(usuario).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult EnableUser(int id)
+        {
+            using (var db = new TFCEntities())
+            {
+                var usuario = db.Usuarios.Find(id);
+
+                if (usuario != null)
+                {
+                    usuario.baja = false;
+                    usuario.fecha_baja = null;
+                    db.Entry(usuario).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+                }
+
+                return Json(new { success = false }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult CreateUser(Usuarios usuario)
+        {
+            using (var db = new TFCEntities())
+            {
+                db.Usuarios.Add(usuario);
+                db.SaveChanges();
+                return Json(new { success = true }, JsonRequestBehavior.AllowGet);
+            }
+        }
+
+        [HttpPost]
+        public JsonResult UpdateUser(Usuarios usuario)
+        {
+            using (var db = new TFCEntities())
+            {
+                if (ModelState.IsValid)
+                {
+                    var existingUser = db.Usuarios.Find(usuario.id_usuario);
+                    if (existingUser != null)
+                    {
+                        existingUser.nombre = usuario.nombre;
+                        existingUser.apellidos = usuario.apellidos;
+                        existingUser.administrador = usuario.administrador;
+
+                        db.Entry(existingUser).State = EntityState.Modified;
+                        db.SaveChanges();
+
+                        return Json(new { success = true });
+                    }
+                    else
+                    {
+                        return Json(new { success = false });
+                    }
+                }
+                return Json(new { success = false });
+            }
+        }
+
         private async Task<JObject> SearchProduct(string sku)
         {
             using (var client = new HttpClient())
             {
-                var apiUrl = $"https://stockx-api.p.rapidapi.com/search?query={sku}"; 
+                var apiUrl = $"https://stockx-api.p.rapidapi.com/search?query={sku}";
                 var searchRequest = new HttpRequestMessage
                 {
                     Method = HttpMethod.Get,

@@ -28,6 +28,8 @@
     <link href="~/Assets2/css/sb-admin-2.min.css" rel="stylesheet">
 
     <link href="~/Assets2/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+
+    @RenderSection("Styles", required: false)
 </head>
 
 <body id="page-top">
@@ -36,25 +38,28 @@
         <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
             <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="">
+            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Products")">
+                <div class="sidebar-brand-icon d-block d-md-none">
+                    <i class="fa fa-home" aria-hidden="true"></i>
+                </div>
                 <div class="sidebar-brand-text mx-3">PANEL DE ADMINISTRACIÓN</div>
             </a>
 
             <!-- Divider -->
-            <hr class="sidebar-divider">
+            @*<hr class="sidebar-divider">*@
 
             <!-- Heading -->
-            <div class="sidebar-heading">
+            @*<div class="sidebar-heading">
                 Resumen y estadísticas
-            </div>
+            </div>*@
 
             <!-- Nav Item - Dashboard -->
-            <li class="nav-item @(currentAction == "AdminIndex" ? "active" : "")">
+            @*<li class="nav-item @(currentAction == "AdminIndex" ? "active" : "")">
                 <a class="nav-link" href="@Url.Action("Index")">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
                 </a>
-            </li>
+            </li>*@
 
             <!-- Divider -->
             <hr class="sidebar-divider">
@@ -122,7 +127,7 @@
 
             <!-- Nav Item - Pedidos -->
             <li class="nav-item @(currentAction == "AdminOrders" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("Orders")">
                     <i class="fas fa-shipping-fast"></i>
                     <span>Pedidos</span>
                 </a>
@@ -130,7 +135,7 @@
 
             <!-- Nav Item - Estados -->
             <li class="nav-item @(currentAction == "AdminStatuses" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("States")">
                     <i class="fas fa-stream"></i>
                     <span>Estados</span>
                 </a>
@@ -146,7 +151,7 @@
 
             <!-- Nav Item - Usuarios -->
             <li class="nav-item @(currentAction == "AdminUsers" ? "active" : "")">
-                <a class="nav-link" href="tables.html">
+                <a class="nav-link" href="@Url.Action("Users")">
                     <i class="fas fa-user"></i>
                     <span>Usuarios</span>
                 </a>
@@ -167,13 +172,13 @@
                     <ul class="navbar-nav ml-auto">
 
                         <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-                        <li class="nav-item dropdown no-arrow d-sm-none">
+                        <!--<li class="nav-item dropdown no-arrow d-sm-none">
                             <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 <i class="fas fa-search fa-fw"></i>
-                            </a>
+                            </a>-->
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
+                            <!--<div class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
                                  aria-labelledby="searchDropdown">
                                 <form class="form-inline mr-auto w-100 navbar-search">
                                     <div class="input-group">
@@ -188,18 +193,18 @@
                                     </div>
                                 </form>
                             </div>
-                        </li>
+                        </li>-->
 
                         <!-- Nav Item - Alerts -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                        <!--<li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="alertsDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-bell fa-fw"></i>
+                                <i class="fas fa-bell fa-fw"></i>-->
                                 <!-- Counter - Alerts -->
-                                <span class="badge badge-danger badge-counter">3+</span>
-                            </a>
+                                <!--<span class="badge badge-danger badge-counter">3+</span>
+                            </a>-->
                             <!-- Dropdown - Alerts -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            <!--<div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                  aria-labelledby="alertsDropdown">
                                 <h6 class="dropdown-header">
                                     Alerts Center
@@ -239,26 +244,26 @@
                                 </a>
                                 <a class="dropdown-item text-center small text-gray-500" href="#">Show All Alerts</a>
                             </div>
-                        </li>
+                        </li>-->
 
                         <!-- Nav Item - Messages -->
-                        <li class="nav-item dropdown no-arrow mx-1">
+                        <!--<li class="nav-item dropdown no-arrow mx-1">
                             <a class="nav-link dropdown-toggle" href="#" id="messagesDropdown" role="button"
                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <i class="fas fa-envelope fa-fw"></i>
+                                <i class="fas fa-envelope fa-fw"></i>-->
                                 <!-- Counter - Messages -->
-                                <span class="badge badge-danger badge-counter">7</span>
-                            </a>
+                                <!--<span class="badge badge-danger badge-counter">7</span>
+                            </a>-->
                             <!-- Dropdown - Messages -->
-                            <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                            <!--<div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                                  aria-labelledby="messagesDropdown">
                                 <h6 class="dropdown-header">
                                     Message Center
                                 </h6>
                                 <a class="dropdown-item d-flex align-items-center" href="#">
                                     <div class="dropdown-list-image mr-3">
-                                        @*<img class="rounded-circle" src="img/undraw_profile_1.svg"
-                                        alt="...">*@
+                                        <img class="rounded-circle" src="img/undraw_profile_1.svg"
+                                        alt="...">
                                         <div class="status-indicator bg-success"></div>
                                     </div>
                                     <div class="font-weight-bold">
@@ -273,7 +278,7 @@
                             </div>
                         </li>
 
-                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <div class="topbar-divider d-none d-sm-block"></div>-->
 
                         <!-- Nav Item - User Information -->
                         <li class="nav-item dropdown no-arrow">

@@ -1,0 +1,12 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Acceso Denegado";
+}
+
+<div class="unauthorized-box-main">
+    <div class="container text-center">
+        <h1 class="display-4">Acceso Denegado</h1>
+        <p class="lead mb-3">No tienes acceso a este sitio.</p>
+        <a href="@Url.Action("Index", "Home")" class="btn hvr-hover" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">Volver al Inicio</a>
+    </div>
+</div>

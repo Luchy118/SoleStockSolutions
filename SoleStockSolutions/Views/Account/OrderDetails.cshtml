@@ -1,0 +1,129 @@
+﻿@model SoleStockSolutions.Models.OrderDetailsViewModel
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "Detalles del Pedido";
+}
+
+<div class="order-details-box-main">
+    <div class="container">
+        <div class="order-details">
+            <h1 class="text-center display-4">Detalles del Pedido</h1>
+            <p><strong>ID del pedido:</strong> @Model.OrderId</p>
+            <p><strong>Fecha del pedido:</strong> @Model.OrderDate.ToString("dd/MM/yyyy HH:mm")</p>
+            <p><strong>Total (Envío Incl.):</strong> @Model.Total.ToString("C", new System.Globalization.CultureInfo("es-ES"))</p>
+            <p><strong>Precio del envío:</strong> @Model.ShippingCost.ToString("C", new System.Globalization.CultureInfo("es-ES"))</p>
+
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <h3>Datos de contacto</h3>
+                    <p><strong>Enviar a:</strong> @Model.FirstName @Model.LastName</p>
+                    <p><strong>Correo electrónico:</strong> @Model.Email</p>
+                </div>
+                <div class="col-md-3">
+                    <h3>Datos de pago</h3>
+                    @if (Model.PaymentMethod == "Tarjeta")
+                    {
+                        <p><strong>Pagado con:</strong> @Model.PaymentMethod</p>
+                        <div style="display: flex; align-items: center">
+                            <p><strong>* * * @Model.Last4</strong></p>
+                            @if (Model.CardType == "mastercard" || Model.CardType == "visa" || Model.CardType == "discover")
+                            {
+                                <img src="~/Assets/images/@(Model.CardType).png" alt="@Model.CardType" style="height: 35px; margin-left: 5px" />
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <p><strong>Método de pago:</strong> @Model.PaymentMethod</p>
+                    }
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-3">
+                    <h3>Dirección de facturación</h3>
+                    @if (Model.BillingAddress != null)
+                    {
+                        <p>@Model.BillingAddress.AddressLine1</p>
+                        <p>@Model.BillingAddress.AddressLine2</p>
+                        <p>@Model.BillingAddress.City, @Model.BillingAddress.Province, @Model.BillingAddress.PostalCode</p>
+                        <p>@Model.BillingAddress.Country</p>
+                        <p>@Model.BillingAddress.PhoneNumber</p>
+                    }
+                </div>
+                <div class="col-md-3">
+                    <h3>Dirección de envío</h3>
+                    @if (Model.ShippingAddress != null)
+                    {
+                        <p>@Model.ShippingAddress.AddressLine1</p>
+                        <p>@Model.ShippingAddress.AddressLine2</p>
+                        <p>@Model.ShippingAddress.City, @Model.ShippingAddress.Province, @Model.ShippingAddress.PostalCode</p>
+                        <p>@Model.ShippingAddress.Country</p>
+                        <p>@Model.ShippingAddress.PhoneNumber</p>
+                    }
+                </div>
+            </div>
+
+            <h3 class="mt-4">Actualizaciones del pedido</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Estado</th>
+                            <th>Descripción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var update in Model.OrderUpdates)
+                        {
+                            <tr>
+                                <td>@(update.fecha?.ToString("dd/MM/yyyy HH:mm") ?? "Fecha no disponible")</td>
+                                <td>@update.Estados.nombre_estado</td>
+                                <td>@update.descripcion</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <h3 class="mt-4">Artículos del pedido</h3>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Imagen</th>
+                            <th>Producto</th>
+                            <th>Talla</th>
+                            <th>Cantidad</th>
+                            <th>Precio</th>
+                            <th>Subtotal</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    <a href="@item.ProductLink" target="_blank">
+                                        <img src="@item.ProductImageUrl" alt="@item.ProductName" class="img-fluid" style="max-width: 100px;" />
+                                    </a>
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td>@item.Size</td>
+                                <td>@item.Quantity</td>
+                                <td>@item.Price.ToString("C", new System.Globalization.CultureInfo("es-ES"))</td>
+                                <td>@item.Subtotal.ToString("C", new System.Globalization.CultureInfo("es-ES"))</td>
+                                <td>
+                                    <a href="@item.ProductLink" class="btn btn-sm hvr-hover" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">Volver a comprar</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            <a href="javascript:window.close();" class="btn hvr-hover mt-4" style="text-align: center; border: none; color: #ffffff; font-size: 18px; font-weight: 700;">CERRAR</a>
+        </div>
+    </div>
+</div>

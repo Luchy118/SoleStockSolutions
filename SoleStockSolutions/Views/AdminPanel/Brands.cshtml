@@ -188,7 +188,7 @@
                 success: function (data) {
                     enableUpdateForm();
                     $('#updateIdMarca').val(data.id_marca);
-                    $('#updateNombreMarca').val(data.nombre_marca).data('initialValue', data.nombre_marca.toLowerCase());
+                    $('#updateNombreMarca').val(data.nombre_marca).data('initialValue', data.nombre_marca.toLowerCase()).data('isUnique', true);
                     if (data.logo_marca)
                         $('#updateLogoPreview').attr('src', data.logo_marca).show();
                     else
@@ -240,6 +240,20 @@
             }
         }
 
+        function previewUpdateImage(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    $('#updateLogoPreview').attr('src', e.target.result).show();
+                    toggleUpdateFormButtons();
+                }
+                reader.readAsDataURL(input.files[0]);
+            } else {
+                $('#updateLogoPreview').attr('src', '').hide();
+                toggleUpdateFormButtons();
+            }
+        }
+
         function clearCreateForm() {
             $('#createBrandForm')[0].reset();
             $('#createLogoPreview').attr('src', '').hide();
@@ -259,6 +273,8 @@
         }
 
         function isBrandNameUnique(inputSelector) {
+            console.log($(inputSelector));
+            console.log($(inputSelector).data('isUnique'));
             return $(inputSelector).data('isUnique') === true;
         }
 

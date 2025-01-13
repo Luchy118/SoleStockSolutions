@@ -26,12 +26,10 @@ namespace SoleStockSolutions.Models
         }
     
         public virtual DbSet<Categorías_Estados> Categorías_Estados { get; set; }
-        public virtual DbSet<Detalles_Pedidos> Detalles_Pedidos { get; set; }
         public virtual DbSet<Estados> Estados { get; set; }
         public virtual DbSet<Inventario> Inventario { get; set; }
         public virtual DbSet<Marcas> Marcas { get; set; }
         public virtual DbSet<Modelos> Modelos { get; set; }
-        public virtual DbSet<Pedidos> Pedidos { get; set; }
         public virtual DbSet<Productos> Productos { get; set; }
         public virtual DbSet<Tallas_Marcas> Tallas_Marcas { get; set; }
         public virtual DbSet<Tallas_Universales> Tallas_Universales { get; set; }
@@ -40,5 +38,8 @@ namespace SoleStockSolutions.Models
         public virtual DbSet<Colores> Colores { get; set; }
         public virtual DbSet<Productos_Colores> Productos_Colores { get; set; }
         public virtual DbSet<Direcciones> Direcciones { get; set; }
+        public virtual DbSet<Detalles_Pedidos> Detalles_Pedidos { get; set; }
+        public virtual DbSet<Pedidos> Pedidos { get; set; }
+        public virtual DbSet<Actualizaciones_Pedidos> Actualizaciones_Pedidos { get; set; }
     }
 }

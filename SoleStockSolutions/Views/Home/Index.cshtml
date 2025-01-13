@@ -1,19 +1,20 @@
 ﻿@{
     ViewBag.Title = "Inicio";
     Layout = "~/Views/Shared/_Layout.cshtml";
+    var db = new SoleStockSolutions.Models.TFCEntities();
 }
 
 <!-- Start Slider -->
 <div id="slides-shop" class="cover-slides">
     <ul class="slides-container">
         <li class="text-left">
-            <img src="~/Assets/images/banner-01.jpg" alt="">
+            <img src="~/Assets/images/banner-01.jpg" alt="" style="width: 100%; height: auto; object-fit: contain;">
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1 class="m-b-20"><strong>Welcome To <br> Thewayshop</strong></h1>
-                        <p class="m-b-40">See how your users experience your website in realtime or view <br> trends to see any changes in performance over time.</p>
-                        <p><a class="btn hvr-hover" href="#">Shop New</a></p>
+                        <h1 class="m-b-20"><strong>Air Jordan 1 Low <br> Travis Scott Medium Olive</strong></h1>
+                        <p class="m-b-40">Uno de los lanzamientos más esperados de Travis Scott: la Jordan 1 Low Medium Olive combina estilo, <br />exclusividad y el icónico diseño que redefine las reglas del streetwear. ¡Hazla tuya ahora!</p>
+                        <p><a class="btn hvr-hover" href="@Url.Action("ProductDetails", "Products", new { productName = "Air Jordan 1 Retro Low OG SP Travis Scott Medium Olive".Replace(" ", "-").Replace("(", "").Replace(")", "") })">VER PRODUCTO</a></p>
                     </div>
                 </div>
             </div>
@@ -23,9 +24,9 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1 class="m-b-20"><strong>Welcome To <br> Thewayshop</strong></h1>
-                        <p class="m-b-40">See how your users experience your website in realtime or view <br> trends to see any changes in performance over time.</p>
-                        <p><a class="btn hvr-hover" href="#">Shop New</a></p>
+                        <h1 class="m-b-20"><strong>Air Jordan 4 <br> A Ma Maniere WYWS</strong></h1>
+                        <p class="m-b-40">La Air Jordan 4 A Ma Maniere While You Were Sleeping redefine el lujo en el mundo de los sneakerhead. Con detalles premium <br />y un diseño exclusivo, esta colaboración eleva el estilo urbano a otro nivel. ¡Consigue la tuya antes de que se agote!</p>
+                        <p><a class="btn hvr-hover" href="@Url.Action("ProductDetails", "Products", new { productName = "Air Jordan 4 Retro OG SP A Ma Maniére While You Were Sleeping (Women's)".Replace(" ", "-").Replace("(", "").Replace(")", "") })">VER PRODUCTO</a></p>
                     </div>
                 </div>
             </div>
@@ -35,9 +36,9 @@
             <div class="container">
                 <div class="row">
                     <div class="col-md-12">
-                        <h1 class="m-b-20"><strong>Welcome To <br> Thewayshop</strong></h1>
-                        <p class="m-b-40">See how your users experience your website in realtime or view <br> trends to see any changes in performance over time.</p>
-                        <p><a class="btn hvr-hover" href="#">Shop New</a></p>
+                        <h1 class="m-b-20"><strong>Air Jordan 1 Low <br> Trophy Room Away</strong></h1>
+                        <p class="m-b-40">La Air Jordan 1 Low Trophy Room Away rinde homenaje a la esencia del baloncesto clásico con un diseño <br />vibrante y detalles únicos. Una pieza exclusiva que celebra la historia y el estilo. ¡Sé parte de esta leyenda!</p>
+                        <p><a class="btn hvr-hover" href="@Url.Action("ProductDetails", "Products", new { productName = "Air Jordan 1 Retro Low OG Trophy Room Rookie Card Away".Replace(" ", "-").Replace("(", "").Replace(")", "") })">VER PRODUCTO</a></p>
                     </div>
                 </div>
             </div>
@@ -49,54 +50,41 @@
     </div>
 </div>
 <!-- End Slider -->
-
 <!-- Start Categories  -->
 <div class="categories-shop">
     <div class="container">
         <div class="row">
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/t-shirts-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">T-shirts</a>
-                </div>
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/shirt-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">Shirt</a>
+            <div class="col-lg-12">
+                <div class="title-all text-center">
+                    <h1>Marcas Populares</h1>
+                    <p>Descubre las marcas más icónicas y deseadas del mundo de los sneakers. Desde clásicos legendarios hasta las últimas colaboraciones exclusivas, tenemos todo lo que necesitas para destacar.</p>
                 </div>
             </div>
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/wallet-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">Wallet</a>
+        </div>
+        <div class="row">
+            @foreach (var brand in ViewBag.TopBrands as List<SoleStockSolutions.Models.Marcas>)
+            {
+                <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
+                    <div class="shop-cat-box fixed-size">
+                        <a href="javascript:void(0)" class="exclude" onclick="redirectToProducts2(@brand.id_marca)">
+                            <img class="img-fluid" src="@brand.logo_marca" alt="@brand.nombre_marca" style="object-fit: contain; padding: 45px;" />
+                        </a>
+                        <a class="btn hvr-hover" href="javascript:void(0);" onclick="redirectToProducts2(@brand.id_marca)" style="color: white;">@brand.nombre_marca</a>
+                    </div>
                 </div>
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/women-bag-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">Bags</a>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-4 col-sm-12 col-xs-12">
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/shoes-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">Shoes</a>
-                </div>
-                <div class="shop-cat-box">
-                    <img class="img-fluid" src="~/Assets/images/women-shoes-img.jpg" alt="" />
-                    <a class="btn hvr-hover" href="#">Women Shoes</a>
-                </div>
-            </div>
+            }
         </div>
     </div>
 </div>
 <!-- End Categories -->
-
 <!-- Start Products  -->
 <div class="products-box">
     <div class="container">
         <div class="row">
             <div class="col-lg-12">
                 <div class="title-all text-center">
-                    <h1>Featured Products</h1>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed sit amet lacus enim.</p>
+                    <h1>Productos destacados</h1>
+                    <p>Explora los productos más relevantes y más vendidos. Las piezas que marcan tendencia y destacan por su exclusividad, estilo y demanda. ¡No te los pierdas!</p>
                 </div>
             </div>
         </div>
@@ -104,107 +92,133 @@
             <div class="col-lg-12">
                 <div class="special-menu text-center">
                     <div class="button-group filter-button-group">
-                        <button class="active" data-filter="*">All</button>
-                        <button data-filter=".top-featured">Top featured</button>
-                        <button data-filter=".best-seller">Best seller</button>
+                        <button class="active" data-filter="*">Todos</button>
+                        <button data-filter=".top-featured">Más relevantes</button>
+                        <button data-filter=".best-seller">Más vendidos</button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div class="row special-list">
-            <div class="col-lg-3 col-md-6 special-grid best-seller">
-                <div class="products-single fix">
-                    <div class="box-img-hover">
-                        <div class="type-lb">
-                            <p class="sale">Sale</p>
+            @foreach (var product in ViewBag.BestSellingProducts as List<SoleStockSolutions.Models.Inventario>)
+            {
+                var regProducto = db.Productos.Where(x => x.id_producto == product.id_producto).FirstOrDefault();
+                <div class="col-lg-3 col-md-6 special-grid best-seller">
+                    <div class="products-single fix product-fixed-height">
+                        <div class="box-img-hover">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                var wishlistProductIds = ViewBag.WishlistProductsIds;
+                                if (wishlistProductIds.Contains(regProducto.id_producto))
+                                {
+                                    <i class="fas fa-heart heart-icon" style="color: red; padding: 10px 10px"></i>
+                                }
+                            }
+                            @if (regProducto.fecha_lanzamiento > DateTime.Now.AddDays(-14))
+                            {
+                                <div class="type-lb">
+                                    <p class="sale">Nuevo</p>
+                                </div>
+                            }
+                            <a href="@Url.Action("ProductDetails", "Products", new { productName = regProducto.nombre.Replace(" ", "-").Replace("(", "").Replace(")", "") })">
+                                <img src="@regProducto.imagen" style="height: 190px" class="img-fluid" alt="@regProducto.nombre">
+                            </a>
+                            <div class="mask-icon">
+                                <ul>
+                                    @{
+                                        if (User.Identity.IsAuthenticated)
+                                        {
+                                            var wishlistProductIds = ViewBag.WishlistProductsIds;
+                                            if (!wishlistProductIds.Contains(regProducto.id_producto))
+                                            {
+                                                <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
                         </div>
-                        <img src="~/Assets/images/img-pro-01.jpg" class="img-fluid" alt="Image">
-                        <div class="mask-icon">
-                            <ul>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Compare"><i class="fas fa-sync-alt"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                            </ul>
-                            <a class="cart" href="#">Add to Cart</a>
+                        <div class="why-text">
+                            <h4>@regProducto.nombre</h4>
+                            <h5>@product.precio€</h5>
                         </div>
-                    </div>
-                    <div class="why-text">
-                        <h4>Lorem ipsum dolor sit amet</h4>
-                        <h5> $7.79</h5>
                     </div>
                 </div>
-            </div>
+            }
 
-            <div class="col-lg-3 col-md-6 special-grid top-featured">
-                <div class="products-single fix">
-                    <div class="box-img-hover">
-                        <div class="type-lb">
-                            <p class="new">New</p>
+            @foreach (var product in ViewBag.TopViewedProducts as List<SoleStockSolutions.Models.Inventario>)
+            {
+                var regProducto = db.Productos.Where(x => x.id_producto == product.id_producto).FirstOrDefault();
+                <div class="col-lg-3 col-md-6 special-grid top-featured">
+                    <div class="products-single fix product-fixed-height">
+                        <div class="box-img-hover">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                var wishlistProductIds = ViewBag.WishlistProductsIds;
+                                if (wishlistProductIds.Contains(regProducto.id_producto))
+                                {
+                                    <i class="fas fa-heart heart-icon" style="color: red; padding: 10px 10px"></i>
+                                }
+                            }
+                            @if (regProducto.fecha_lanzamiento > DateTime.Now.AddDays(-14))
+                            {
+                                <div class="type-lb">
+                                    <p class="sale">Nuevo</p>
+                                </div>
+                            }
+                            <a href="@Url.Action("ProductDetails", "Products", new { productName = regProducto.nombre.Replace(" ", "-").Replace("(", "").Replace(")", "") })">
+                                <img src="@regProducto.imagen" style="height: 190px" class="img-fluid" alt="@regProducto.nombre">
+                            </a>
+                            <div class="mask-icon">
+                                <ul>
+                                    @{
+                                        if (User.Identity.IsAuthenticated)
+                                        {
+                                            var wishlistProductIds = ViewBag.WishlistProductsIds;
+                                            if (!wishlistProductIds.Contains(regProducto.id_producto))
+                                            {
+                                                <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                            }
+                                        }
+                                        else
+                                        {
+                                            <li><a href="javascript:void(0)" onclick="addToWishlist('@regProducto.id_producto', this)" title="Añadir a la lista de deseos"><i class="far fa-heart"></i></a></li>
+                                        }
+                                    }
+                                </ul>
+                            </div>
                         </div>
-                        <img src="~/Assets/images/img-pro-02.jpg" class="img-fluid" alt="Image">
-                        <div class="mask-icon">
-                            <ul>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Compare"><i class="fas fa-sync-alt"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                            </ul>
-                            <a class="cart" href="#">Add to Cart</a>
+                        <div class="why-text">
+                            <h4>@regProducto.nombre</h4>
+                            <h5>@product.precio€</h5>
                         </div>
-                    </div>
-                    <div class="why-text">
-                        <h4>Lorem ipsum dolor sit amet</h4>
-                        <h5> $9.79</h5>
                     </div>
                 </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 special-grid top-featured">
-                <div class="products-single fix">
-                    <div class="box-img-hover">
-                        <div class="type-lb">
-                            <p class="sale">Sale</p>
-                        </div>
-                        <img src="~/Assets/images/img-pro-03.jpg" class="img-fluid" alt="Image">
-                        <div class="mask-icon">
-                            <ul>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Compare"><i class="fas fa-sync-alt"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                            </ul>
-                            <a class="cart" href="#">Add to Cart</a>
-                        </div>
-                    </div>
-                    <div class="why-text">
-                        <h4>Lorem ipsum dolor sit amet</h4>
-                        <h5> $10.79</h5>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-3 col-md-6 special-grid best-seller">
-                <div class="products-single fix">
-                    <div class="box-img-hover">
-                        <div class="type-lb">
-                            <p class="sale">Sale</p>
-                        </div>
-                        <img src="~/Assets/images/img-pro-04.jpg" class="img-fluid" alt="Image">
-                        <div class="mask-icon">
-                            <ul>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="View"><i class="fas fa-eye"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Compare"><i class="fas fa-sync-alt"></i></a></li>
-                                <li><a href="#" data-toggle="tooltip" data-placement="right" title="Add to Wishlist"><i class="far fa-heart"></i></a></li>
-                            </ul>
-                            <a class="cart" href="#">Add to Cart</a>
-                        </div>
-                    </div>
-                    <div class="why-text">
-                        <h4>Lorem ipsum dolor sit amet</h4>
-                        <h5> $15.79</h5>
-                    </div>
-                </div>
-            </div>
+            }
+            @{
+                db.Dispose();
+            }
         </div>
     </div>
 </div>
 <!-- End Products  -->
+
+@section scripts{
+    <script>
+        function redirectToProducts2(marcaId) {
+            $.ajax({
+                type: "GET",
+                url: '@Url.Action("Index", "Products").ToLower()',
+                data: { marcaId: marcaId },
+                success: function (response) {
+                    window.location.href = "/products/index";
+                }
+            });
+        }
+    </script>
+}
